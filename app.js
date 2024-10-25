@@ -34,8 +34,10 @@ const notificationsRoutes = require("./routes/notificationRoutes.js")
 const messageRoutes = require("./routes/messageRoutes.js")
 const patientRoutes = require('./routes/patientRoutes');
 const taskRoutes = require('./routes/taskRoutes');
-
-
+const oasisAssessment = require('./routes/oasisRoutes')
+const nurseshiftRoutes = require('./routes/nurseshiftRoutes.js')
+const therapistsRoutes = require('./routes/therapyVisitRoutes.js')
+const mswRoutes = require('./routes/mswVisitRoutes.js')
 // Middleware
 const notFoundMiddleware = require("./middelware/not-found.js");
 const errorHandlerMiddleware = require("./middelware/error-handler.js");
@@ -71,6 +73,10 @@ app.use("/api/v1/notifications", notificationsRoutes);
 app.use("/api/v1/messages", messageRoutes);
 app.use('/api/v1/patients', patientRoutes);
 app.use('/api/v1/tasks', taskRoutes);
+app.use('/api/v1/oasis', oasisAssessment);
+app.use('/api/v1/nurseshift', nurseshiftRoutes)
+app.use('/api/v1/therapy',therapistsRoutes)
+app.use('/api/v1/msw', mswRoutes)
 
 
 

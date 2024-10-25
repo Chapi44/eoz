@@ -6,7 +6,7 @@ const nodemailer = require('nodemailer');
 
 const register = async (req, res) => {
   try {
-    let { name, email, password, username, bio, pictures, profession, phoneNumber,role, type, organazationnumber } = req.body;
+    let { name, email, password, username, bio, pictures, profession, phoneNumber,role, type, organazationnumber,employeetype } = req.body;
 
     const emailAlreadyExists = await User.findOne({ email });
     if (emailAlreadyExists) {
@@ -38,7 +38,7 @@ const register = async (req, res) => {
       profession, // Include profession field
       phoneNumber,
       organazationnumber,
-      type
+      type,employeetype
     });
 
     const secretKey = process.env.JWT_SECRET;
@@ -118,7 +118,8 @@ const signin = async (req, res) => {
       username: user.username,
       bio: user.bio,
       pictures: user.pictures,
-      profession: user.profession // Include profession field in the token payload
+      profession: user.profession, // Include profession field
+      type: user.type // Include the type field in the token
     },
     secretKey,
     { expiresIn: tokenExpiration }

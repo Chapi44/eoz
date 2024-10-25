@@ -13,7 +13,7 @@ const patientSchema = mongoose.Schema(
     emailAddress: { type: String },
     pictures: {
       type: [String],
-      // default: "https://gratify.letsgotnt.com/uploads/profile/pictures-1713961058221.png",
+      default: "https://gratify.letsgotnt.com/uploads/profile/pictures-1713961058221.png",
     },
     clinicalManager: { type: String },  
     caseManager: { type: String },     

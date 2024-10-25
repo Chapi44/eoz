@@ -69,11 +69,17 @@ const registerPatient = async (req, res) => {
 
 
 
+
 // Get all patients
 const getAllPatients = async (req, res) => {
   try {
     const patients = await Patient.find();
-    res.status(200).json(patients);
+    const totalPatients = await Patient.countDocuments(); // Get the total count of patients
+
+    res.status(200).json({
+      totalPatients, // Add total count of patients to the response
+      patients // The list of patients
+    });
   } catch (error) {
     res.status(500).json({
       message: "An error occurred while retrieving patients",
@@ -81,6 +87,7 @@ const getAllPatients = async (req, res) => {
     });
   }
 };
+
 
 // Get a patient by ID
 const getPatientById = async (req, res) => {

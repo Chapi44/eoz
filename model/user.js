@@ -1,28 +1,26 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-const { Schema } = mongoose; // Import Schema from mongoose
+const { Schema } = mongoose;
 
 const UserSchema = new Schema({
   name: {
     type: String,
     // required: true,
   },
-  username:{
+  username: {
     type: String,
     // unique: true,
   },
-  bio:{
-    type: String
+  bio: {
+    type: String,
   },
-  
-  profession: { // Adding the profession field
-    type: String
+  profession: {
+    type: String,
   },
   pictures: {
     type: String,
     // default: "https://sarada.letsgotnt.com/uploads/profile/pictures-1713961058221.png",
-  
   },
   email: {
     type: String,
@@ -32,25 +30,28 @@ const UserSchema = new Schema({
     type: String,
     // required: true,
   },
-  
-  organazationnumber:{
-    type:Number,
+  organazationnumber: {
+    type: Number,
     unique: true,
   },
-  phoneNumber:{
-    type:String
+  phoneNumber: {
+    type: String,
   },
-  type:{
-type: String,
-enum:["HomeCare", "HomeHealth", "Hospice", "Palliative"]
+  type: {
+    type: String,
+    enum: ["HomeCare", "HomeHealth", "Hospice", "Palliative"],
   },
   role: {
     type: String,
-    // enum: ["nurses", "admin"],
     default: "user",
+    enum:["superadmin", "admin", "nurses","HR","Therapy", "socialworker"],
     required: true,
   },
-});
+  employeetype: {
+    type: Boolean,
+    default: false, // Default value if not specified
+  },
+}, { timestamps: true });  // Add timestamps option here
 
 UserSchema.pre("save", async function () {
   if (!this.isModified("password")) return;

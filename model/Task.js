@@ -40,6 +40,10 @@ const taskSchema = mongoose.Schema(
     location: {
       type: [String], // Location as an array of strings, e.g., ["latitude", "longitude"]
       default: []
+    },
+    price: {
+      type: Number,  // Added price field
+      default: 0     // Default value for the price
     }
   },
   {

@@ -1,14 +1,15 @@
 const Task = require("../model/Task");
 const { StatusCodes } = require("http-status-codes");
 const Patient = require("../model/patients"); 
+
 // Create a new task
 exports.createTask = async (req, res) => {
   try {
-    const { patientId, nurseId, description, appointmentDate } = req.body;
+    const { patientId, nurseId, description, appointmentDate, shift, shiftDays, price } = req.body;
 
     // Fetch the patient's location using patientId
     const patient = await Patient.findById(patientId);
-    
+
     if (!patient) {
       return res.status(StatusCodes.NOT_FOUND).json({
         message: "Patient not found",
@@ -17,27 +18,57 @@ exports.createTask = async (req, res) => {
 
     const location = patient.location || []; // Retrieve the location from the patient's data
 
-    const newTask = new Task({
-      patientId,
-      nurseId,
-      description,
-      appointmentDate,
-      location // Save the patient's location in the task
-    });
+    // Validate shiftDays if shift is true
+    let days = shift ? parseInt(shiftDays, 10) || 7 : 1; // Default to 7 days if shiftDays is not provided
 
-    const savedTask = await newTask.save();
+    let tasks = [];
+
+    if (shift) {
+      // Create tasks for each day in the shift plan (based on shiftDays)
+      for (let i = 0; i < days; i++) {
+        const taskDate = new Date(appointmentDate);
+        taskDate.setDate(taskDate.getDate() + i); // Increment the date by i days
+
+        const newTask = new Task({
+          patientId,
+          nurseId,
+          description,
+          appointmentDate: taskDate, // Set appointment date for each day
+          location,
+          shift,
+          price  // Set the price for each task
+        });
+        tasks.push(newTask);
+      }
+    } else {
+      // Single task when shift is not true
+      const newTask = new Task({
+        patientId,
+        nurseId,
+        description,
+        appointmentDate,
+        location,
+        shift,
+        price  // Set the price for a single task
+      });
+      tasks.push(newTask);
+    }
+
+    // Save all tasks to the database
+    const savedTasks = await Task.insertMany(tasks);
 
     res.status(StatusCodes.CREATED).json({
-      message: "Task created successfully",
-      data: savedTask
+      message: "Task(s) created successfully",
+      data: savedTasks
     });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "An error occurred while creating the task",
+      message: "An error occurred while creating the task(s)",
       error: error.message
     });
   }
 };
+
 
 
 exports.getTaskById = async (req, res) => {

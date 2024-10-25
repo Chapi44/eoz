@@ -7,23 +7,38 @@ const { io, getRecipientSocketId } = require("../socket/socket");
 
 require("dotenv").config();
 
-
 const getAllUsers = async (req, res) => {
   try {
-    const { role } = req.query;
+    const { role, type, employeetype } = req.query; // Destructure employeetype from query parameters
 
     let query = {};
+    
     if (role) {
       query.role = role;
     }
+    if (type) {
+      query.type = type;
+    }
+    if (employeetype !== undefined) {  // Check for employeetype filter
+      query.employeetype = employeetype === 'true';  // Convert string to boolean
+    }
 
-    const users = await User.find(query, { password: 0 });
+    // Find users based on the query, excluding the password field
+    const users = await User.find(query, { password: 0 }).sort({ createdAt: -1 });
 
-    res.status(200).json(users);
+    // Count total number of nurses
+    const totalNurses = await User.countDocuments({ role: "nurse" });
+
+    res.status(200).json({
+      users,
+      totalNurses, // Include the total number of nurses in the response
+    });
   } catch (error) {
     res.status(500).json({ error: "Something went wrong" });
   }
 };
+
+
 
 const getUserById = async (req, res) => {
   try {
