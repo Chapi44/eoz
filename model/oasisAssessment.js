@@ -15,7 +15,14 @@ const oasisAssessmentSchema = mongoose.Schema({
     type: Date,
     required: true,
   },
-  
+  nursesigniturepictures:{
+    type: [String],
+    default: [],
+  },
+  patientsigniturepictures:{
+    type:[String],
+     default:[]
+    },
   // Start of Care or Resumption of Care data
   startOfCare: {
     type: Boolean,

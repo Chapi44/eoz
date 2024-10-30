@@ -1,12 +1,12 @@
 const Task = require("../model/Task");
 const { StatusCodes } = require("http-status-codes");
 const Patient = require("../model/patients"); 
-
+const Notification = require("../model/notification");
 // Create a new task
 exports.createTask = async (req, res) => {
   try {
-    const { patientId, nurseId, description, appointmentDate, shift, shiftDays, price } = req.body;
-
+    const { patientId, nurseId, description, appointmentDate, shift, shiftDays, price ,patientsigniturepictures, nursesigniturepictures} = req.body;
+    const userId = req.userId
     // Fetch the patient's location using patientId
     const patient = await Patient.findById(patientId);
 
@@ -36,7 +36,10 @@ exports.createTask = async (req, res) => {
           appointmentDate: taskDate, // Set appointment date for each day
           location,
           shift,
-          price  // Set the price for each task
+          price, // Set the price for each task
+          patientsigniturepictures, 
+          nursesigniturepictures,
+          userId
         });
         tasks.push(newTask);
       }
@@ -228,11 +231,11 @@ exports.getTasksByNurseId = async (req, res) => {
 exports.updateTask = async (req, res) => {
   try {
     const taskId = req.params.id;
-    const { status, comment, personalNote } = req.body;
+    const { status, comment, personalNote,appointmentDate,description } = req.body;
 
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
-      { status, comment, personalNote },
+      { status, comment, personalNote,appointmentDate,description },
       { new: true }
     );
 
@@ -325,6 +328,57 @@ exports.getTasksstatusByNurseId = async (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: "An error occurred while fetching tasks by nurse ID",
       error: error.message
+    });
+  }
+};
+
+
+
+
+// Update only the appointmentDate of a task
+exports.updateAppointmentDate = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { appointmentDate } = req.body;
+    const nurseId = req.userId; // Assuming req.userId is the nurse's ID
+
+    // Find the task by ID and populate the userId field
+    const task = await Task.findById(id).populate("userId");
+
+    if (!task) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: "Task not found",
+      });
+    }
+
+    // Update the appointment date
+    task.appointmentDate = appointmentDate;
+    await task.save();
+
+    // Ensure task.userId exists before creating the notification
+    if (task.userId && task.userId._id) {
+      const notification = new Notification({
+        sender: nurseId,
+        receiver: task.userId._id, // Use task.userId._id for the receiver
+        type: "appointmentDate",
+        message: `The appointment date for task ${task._id} has been updated to ${appointmentDate}`,
+        taskId: task._id,
+      });
+
+      // Save the notification
+      await notification.save();
+    } else {
+      console.warn("No userId found for task, notification will not be sent.");
+    }
+
+    res.status(StatusCodes.OK).json({
+      message: "Appointment date updated and notification sent successfully",
+      data: task,
+    });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "An error occurred while updating the appointment date",
+      error: error.message,
     });
   }
 };

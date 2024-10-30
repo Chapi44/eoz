@@ -9,10 +9,16 @@ const getNotifications = async (req, res) => {
         const notifications = await Notification.find({ receiver: userId })
             .populate({
                 path: 'sender',
-                select: 'username pictures', // Include username and pictures fields
+                select: 'name username pictures email', // Include sender details
             })
-            .populate('postId', 'name') // Assuming postId is for Product
-            .populate('storyId', 'title') // Assuming storyId is for Story
+            .populate({
+                path: 'taskId', // Populate the task details
+                select: 'patientId nurseId description appointmentDate shift shiftDays price patientsigniturepictures nursesigniturepictures', // Select all necessary fields from Task
+                populate: [
+                    { path: 'patientId', select: 'name age gender' }, // Example of populating related patient info
+                    { path: 'nurseId', select: 'name shift' },        // Example of populating related nurse info
+                ],
+            })
             .sort({ createdAt: -1 });
 
         res.status(StatusCodes.OK).json({ notifications });
@@ -20,7 +26,6 @@ const getNotifications = async (req, res) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
     }
 };
-
 
 
 const markAsRead = async (req, res) => {

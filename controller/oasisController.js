@@ -3,19 +3,36 @@ const OASISAssessment = require("../model/oasisAssessment"); // Import the model
 // Create a new OASIS Assessment
 const createOASISAssessment = async (req, res) => {
   try {
-    const { patientId, nurseId, assessmentDate, ...otherFields } = req.body;
+    const { 
+      patientId, 
+      nurseId, 
+      assessmentDate, 
+      nursesigniturepictures = [], 
+      patientsigniturepictures = [], 
+      ...otherFields 
+    } = req.body;
 
+    // Create a new OASIS Assessment object with provided data
     const newAssessment = new OASISAssessment({
       patientId,
       nurseId,
       assessmentDate,
-      ...otherFields, // Spread the other OASIS fields (e.g., clinicalRecord, functionalStatus)
+      nursesigniturepictures,  // Expecting array of signature URLs as JSON input
+      patientsigniturepictures, // Expecting array of signature URLs as JSON input
+      ...otherFields, // Spread additional OASIS fields
     });
 
     const savedAssessment = await newAssessment.save();
-    res.status(201).json({ message: "OASIS Assessment created successfully", data: savedAssessment });
+    res.status(201).json({
+      message: "OASIS Assessment created successfully",
+      data: savedAssessment,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to create OASIS Assessment", error: error.message });
+    console.error("Error creating OASIS Assessment:", error);
+    res.status(500).json({
+      message: "Failed to create OASIS Assessment",
+      error: error.message,
+    });
   }
 };
 
@@ -69,25 +86,56 @@ const getOASISAssessmentsByNurse = async (req, res) => {
 };
 
 // Update an OASIS Assessment
+
 const updateOASISAssessment = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedData = req.body;
+    const { id } = req.params; // Get the assessment ID from the route parameters
+    const updatedData = req.body; // Extract the updated data from the request body
 
-    const updatedAssessment = await OASISAssessment.findByIdAndUpdate(id, updatedData, {
-      new: true, // Return the updated document
-      runValidators: true, // Ensure the updates comply with schema
-    });
+    // Ensure nurse and patient signature pictures are handled as JSON arrays
+    if (updatedData.nursesigniturepictures) {
+      updatedData.nursesigniturepictures = Array.isArray(updatedData.nursesigniturepictures)
+        ? updatedData.nursesigniturepictures
+        : [updatedData.nursesigniturepictures];
+    }
 
+    if (updatedData.patientsigniturepictures) {
+      updatedData.patientsigniturepictures = Array.isArray(updatedData.patientsigniturepictures)
+        ? updatedData.patientsigniturepictures
+        : [updatedData.patientsigniturepictures];
+    }
+
+    // Perform the database update operation
+    const updatedAssessment = await OASISAssessment.findByIdAndUpdate(
+      id,
+      updatedData,
+      {
+        new: true, // Return the updated document
+        runValidators: true, // Ensure updates comply with schema validation
+      }
+    );
+
+    // Check if the assessment exists
     if (!updatedAssessment) {
       return res.status(404).json({ message: "OASIS Assessment not found" });
     }
 
-    res.status(200).json({ message: "OASIS Assessment updated successfully", data: updatedAssessment });
+    // Send success response
+    res.status(200).json({
+      message: "OASIS Assessment updated successfully",
+      data: updatedAssessment,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update OASIS Assessment", error: error.message });
+    console.error("Error updating OASIS Assessment:", error);
+    // Handle errors
+    res.status(500).json({
+      message: "Failed to update OASIS Assessment",
+      error: error.message,
+    });
   }
 };
+
+
 
 // Delete an OASIS Assessment
 const deleteOASISAssessment = async (req, res) => {

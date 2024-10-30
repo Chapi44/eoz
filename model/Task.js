@@ -5,12 +5,17 @@ const taskSchema = mongoose.Schema(
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Patients",
-      required: true
+
     },
     nurseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true
+
+    },
+    userId:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+
     },
     description: {
       type: String,
@@ -37,6 +42,14 @@ const taskSchema = mongoose.Schema(
       type: Date,
       required: true
     },
+    nursesigniturepictures:{
+      type: [String],
+      default: [],
+    },
+    patientsigniturepictures:{
+      type:[String],
+       default:[]
+      },
     location: {
       type: [String], // Location as an array of strings, e.g., ["latitude", "longitude"]
       default: []

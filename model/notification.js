@@ -13,20 +13,16 @@ const NotificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["follow", "unfollow", "likePost", "replyToPost", "replyToReply", "likeOrUnlikeReply", "likeStory", "replyToStory", "unlikePost"],
+    enum: ["appointmentDate"],
     required: true,
   },
   message: { // New field for custom message
     type: String,
     required: true,
   },
-  postId: {
+  taskId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-  },
-  storyId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Story",
+    ref: "Task",
   },
   seen: {
     type: Boolean,
