@@ -6,9 +6,18 @@ const createOASISAssessment = async (req, res) => {
     const { 
       patientId, 
       nurseId, 
-      assessmentDate, 
+      assessmentDate,
       nursesigniturepictures = [], 
-      patientsigniturepictures = [], 
+      patientsigniturepictures = [],
+      painLevel, 
+      bloodSugar, 
+      bloodPressure = {}, 
+      heartRate, 
+      respiratoryRate, 
+      oxygenSaturation, 
+      temperature, 
+      weight, 
+      functionalMobilityScore,
       ...otherFields 
     } = req.body;
 
@@ -17,8 +26,17 @@ const createOASISAssessment = async (req, res) => {
       patientId,
       nurseId,
       assessmentDate,
-      nursesigniturepictures,  // Expecting array of signature URLs as JSON input
-      patientsigniturepictures, // Expecting array of signature URLs as JSON input
+      nursesigniturepictures,
+      patientsigniturepictures,
+      painLevel,
+      bloodSugar,
+      bloodPressure,
+      heartRate,
+      respiratoryRate,
+      oxygenSaturation,
+      temperature,
+      weight,
+      functionalMobilityScore,
       ...otherFields, // Spread additional OASIS fields
     });
 

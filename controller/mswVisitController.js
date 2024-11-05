@@ -25,7 +25,7 @@ const getMSWVisitById = async (req, res) => {
     try {
       const { id } = req.params;
       const visit = await MSWVisit.findById(id)
-        .populate("patientId mswId", "firstName lastName email profession ,name") // Populate patient and MSW details
+        .populate("patientId mswId", "firstName lastName email profession name") // Populate patient and MSW details
         .exec();
   
       if (!visit) {
@@ -51,7 +51,7 @@ const getAllMSWVisits = async (req, res) => {
     try {
       const visits = await MSWVisit.find()
         .sort({ createdAt: -1 }) // Sort by the latest visits first
-        .populate("patientId mswId", "firstName lastName email profession ,name") // Populate patient and MSW details
+        .populate("patientId mswId", "firstName lastName email profession name") // Populate patient and MSW details
         .exec();
   
       // Map through visits to add duration to each
@@ -79,7 +79,7 @@ const getMSWVisitsByPatientId = async (req, res) => {
       const { patientId } = req.params;
       const visits = await MSWVisit.find({ patientId })
         .sort({ createdAt: -1 }) // Sort by latest visits first
-        .populate("patientId mswId", "firstName lastName email profession ,name") // Populate MSW details
+        .populate("patientId mswId", "firstName lastName email profession name") // Populate MSW details
         .exec();
   
       const visitsWithDuration = visits.map((visit) => {

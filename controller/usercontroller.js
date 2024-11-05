@@ -63,18 +63,18 @@ const getUserById = async (req, res) => {
 };
 
 
-// const deleteuser = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const finduser = await User.findByIdAndDelete({ _id: id });
-//     if (!finduser) {
-//       return res.status(400).json({ error: "no such user found" });
-//     }
-//     return res.status(200).json({ message: "deleted sucessfully" });
-//   } catch (error) {
-//     res.status(500).json({ error: "something went wrong" });
-//   }
-// };
+const deleteuser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const finduser = await User.findByIdAndDelete({ _id: id });
+    if (!finduser) {
+      return res.status(400).json({ error: "no such user found" });
+    }
+    return res.status(200).json({ message: "deleted sucessfully" });
+  } catch (error) {
+    res.status(500).json({ error: "something went wrong" });
+  }
+};
 
 
 const updateUser = async (req, res) => {
@@ -86,33 +86,39 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Update name, bio, and username if available
+    // Update fields if provided in request body
     if (req.body.name) updatedUser.name = req.body.name;  
     if (req.body.bio) updatedUser.bio = req.body.bio;
     if (req.body.username) updatedUser.username = req.body.username;
-    if(req.body.profession) updatedUser.profession = req.body.profession;
+    if (req.body.profession) updatedUser.profession = req.body.profession;
+    if (req.body.role) updatedUser.role = req.body.role;
+    if (req.body.type) updatedUser.type = req.body.type;
+    if (req.body.phoneNumber) updatedUser.phoneNumber = req.body.phoneNumber;
+    if (req.body.employeetype) updatedUser.employeetype = req.body.employeetype;
+    if (req.body.pictures) updatedUser.pictures = req.body.pictures; // Update pictures if provided
 
-    // Update email if available and validate format
+    // Update email if provided and validate uniqueness
     if (req.body.email) {
       const emailAlreadyExists = await User.findOne({ email: req.body.email });
-      if (emailAlreadyExists) {
+      if (emailAlreadyExists && emailAlreadyExists._id.toString() !== userId) {
         return res.status(400).json({ error: "Email already exists" });
       }
       updatedUser.email = req.body.email;
     }
 
-    // Update password if available
+    // Update organization number if provided and validate uniqueness
+    if (req.body.organazationnumber) {
+      const organizationNumberExists = await User.findOne({ organazationnumber: req.body.organazationnumber });
+      if (organizationNumberExists && organizationNumberExists._id.toString() !== userId) {
+        return res.status(400).json({ error: "Organization number already exists" });
+      }
+      updatedUser.organazationnumber = req.body.organazationnumber;
+    }
+
+    // Update password if provided
     if (req.body.password) {
       const salt = await bcrypt.genSalt(10);
       updatedUser.password = await bcrypt.hash(req.body.password, salt);
-    }
-
-    // Handle pictures update if available
-    if (req.files && req.files.length > 0) {
-      const newPictures = req.files.map(
-        (file) => `${process.env.BASE_URL}/uploads/profile/${file.filename}`
-      );
-      updatedUser.pictures = newPictures;
     }
 
     await updatedUser.save();
@@ -127,7 +133,12 @@ const updateUser = async (req, res) => {
         username: updatedUser.username,
         bio: updatedUser.bio,
         pictures: updatedUser.pictures,
-        profession:updatedUser.profession
+        profession: updatedUser.profession,
+        role: updatedUser.role,
+        type: updatedUser.type,
+        phoneNumber: updatedUser.phoneNumber,
+        organazationnumber: updatedUser.organazationnumber,
+        employeetype: updatedUser.employeetype
       },
     });
   } catch (error) {
@@ -138,7 +149,7 @@ const updateUser = async (req, res) => {
 
 
 const updateUserPassword = async (req, res) => {
-  const userId = req.params.id;
+  const userId = req.userId;
   const { oldPassword, newPassword } = req.body;
   if (!oldPassword || !newPassword) {
     throw new CustomError.BadRequestError("Please provide both values");
@@ -345,7 +356,7 @@ const getProfileByToken = async (req, res) => {
 module.exports = {
   getAllUsers,
   getUserById,
-  // deleteuser,
+  deleteuser,
   updateUser,
   getFollowers,
   searchUserByUsername,

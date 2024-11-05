@@ -2,7 +2,7 @@ const express = require("express");
 const {
   getAllUsers,
   getUserById,
-  // deleteuser,
+  deleteuser,
   updateUser,
   followUnFollowUser,
   updateUserPassword,
@@ -29,10 +29,10 @@ router.get(
   "/getuserById/:id",
   getUserById
 );
-// router.post(
-//   "/delete/:id",
-//   deleteuser
-// );
+router.post(
+  "/delete/:id",
+  deleteuser
+);
 router.patch(
   "/update",
   authMiddleware,
@@ -42,7 +42,8 @@ router.patch(
 router.post("/follow/:id", authMiddleware, followUnFollowUser);
 
 router.patch(
-  "/updateUserPassword/:id",
+  "/updateUserPassword",
+  authMiddleware,
   updateUserPassword
 );
 

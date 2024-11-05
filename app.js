@@ -38,6 +38,8 @@ const oasisAssessment = require('./routes/oasisRoutes')
 const nurseshiftRoutes = require('./routes/nurseshiftRoutes.js')
 const therapistsRoutes = require('./routes/therapyVisitRoutes.js')
 const mswRoutes = require('./routes/mswVisitRoutes.js')
+const healthMetricRoutes = require('./routes/healthMetricsRoutes.js')
+const pocRoutes = require('./routes/planOfCareRoutes.js')
 // Middleware
 const notFoundMiddleware = require("./middelware/not-found.js");
 const errorHandlerMiddleware = require("./middelware/error-handler.js");
@@ -77,6 +79,8 @@ app.use('/api/v1/oasis', oasisAssessment);
 app.use('/api/v1/nurseshift', nurseshiftRoutes)
 app.use('/api/v1/therapy',therapistsRoutes)
 app.use('/api/v1/msw', mswRoutes)
+app.use('/api/v1/health', healthMetricRoutes)
+app.use('/api/v1/poc', pocRoutes)
 
 
 

@@ -75,6 +75,21 @@ const oasisAssessmentSchema = mongoose.Schema({
     cognitiveFunctioning: { type: String, enum: ["Alert", "Confused", "Comatose"] },
     decisionMaking: { type: String, enum: ["Independent", "Needs Assistance", "Unable"] },
   },
+ // Health Metrics
+ painLevel: { type: Number, min: 0, max: 10 },
+ bloodSugar: { type: Number },
+ bloodPressure: {
+   systolic: { type: Number },
+   diastolic: { type: Number },
+ },
+ heartRate: { type: Number },  // in BPM
+ respiratoryRate: { type: Number },  // breaths per minute
+ oxygenSaturation: { type: Number },  // SpO2 in percentage
+ temperature: { type: Number },  // Body temperature
+ weight: { type: Number },  // Patient weight
+ functionalMobilityScore: { type: String },  // Mobility assessment
+
+
 
   // Pain Assessment
   painStatus: {
