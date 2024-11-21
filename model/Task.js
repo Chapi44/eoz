@@ -34,6 +34,11 @@ const taskSchema = mongoose.Schema(
       type: Boolean,
       default: false
     },
+    nurseStatus: {
+      type: String,
+      enum: ["available", "full"],
+      default: "available",
+    },
     personalNote: {
       type: String,
       default: ""

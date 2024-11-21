@@ -1,47 +1,62 @@
 const mongoose = require("mongoose");
 
-const billingSchema = new mongoose.Schema({
-  patientId: {
+const humanResourcesSchema = new mongoose.Schema({
+  employeeId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Patients",
+    ref: "User",  // Link to the employee in the User collection
     required: true,
   },
-  serviceId: {
+  hrId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Service", // Reference to the service provided (e.g., nurse visit, therapy session)
+    ref: "User",  // Link to the employee in the User collection
     required: true,
   },
-  serviceDescription: {
-    type: String, // Short description of the service
+  jobTitle: {
+    type: String,
+    required: true,
   },
-  totalAmount: {
+  department: {
+    type: String,
+    enum: ["Nursing", "Therapy", "Admin", "Finance", "HR", "IT"],
+    required: true,
+  },
+  employmentStatus: {
+    type: String,
+    enum: ["Active", "On Leave", "Terminated"],
+    default: "Active",
+  },
+  dateOfHire: {
+    type: Date,
+    required: true,
+  },
+  salary: {
     type: Number,
     required: true,
   },
-  insuranceDetails: {
-    insuranceProvider: { type: String }, // Name of the insurance provider
-    policyNumber: { type: String }, // Patient's insurance policy number
-    coverageAmount: { type: Number }, // How much the insurance covers
-    coPayAmount: { type: Number }, // Co-pay amount paid by the patient
-  },
-  paymentStatus: {
-    type: String,
-    enum: ["Pending", "Paid", "Denied", "Partially Paid"],
-    default: "Pending",
-  },
-  paymentDate: {
-    type: Date,
-  },
-  paymentMethod: {
-    type: String,
-    enum: ["Credit Card", "Cash", "Check", "Insurance"],
-  },
-  generatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+  performanceEvaluations: [{
+    date: { type: Date },
+    rating: { type: Number, min: 1, max: 5 },  // 1-5 scale rating for performance
+    feedback: { type: String },
+  }],
+  leaveRecords: [{
+    leaveType: {
+      type: String,
+      enum: ["Sick", "Vacation", "Personal", "Maternity", "Other"],
+    },
+    startDate: { type: Date },
+    endDate: { type: Date },
+  }],
+  payrollDetails: {
+    bankAccount: { type: String },  // Bank account for direct deposit
+    salaryFrequency: { type: String, enum: ["Monthly", "Bi-Weekly", "Weekly"] },
+    deductions: [{
+      description: { type: String },  // Tax, benefits, etc.
+      amount: { type: Number },
+    }],
+    netSalary: { type: Number },  // Final salary after deductions
+  }
 }, { timestamps: true });
 
-const Billing = mongoose.model("Billing", billingSchema);
+const HumanResources = mongoose.model("HumanResources", humanResourcesSchema);
 
-module.exports = Billing;
+module.exports = HumanResources;

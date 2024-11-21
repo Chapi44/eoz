@@ -1,139 +1,249 @@
 const mongoose = require("mongoose");
 
-const oasisAssessmentSchema = mongoose.Schema({
-  patientId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Patients",
-    required: true,
-  },
-  nurseId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  assessmentDate: {
-    type: Date,
-    required: true,
-  },
-  nursesigniturepictures:{
-    type: [String],
-    default: [],
-  },
-  patientsigniturepictures:{
-    type:[String],
-     default:[]
+const oasisAssessmentSchema = mongoose.Schema(
+  {
+    patientId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Patients",
+      required: true,
     },
-  // Start of Care or Resumption of Care data
-  startOfCare: {
-    type: Boolean,
-    default: false,
-  },
-  resumptionOfCare: {
-    type: Boolean,
-    default: false,
-  },
-  discharge: {
-    type: Boolean,
-    default: false,  // Indicates if the patient has been discharged
-  },
-
-  // Patient demographics
-  patientDemographics: {
-    ethnicity: { type: String },
-    race: { type: String },
-    language: { type: String },
-    livingSituation: { type: String },  // e.g., Alone, With Family, etc.
-  },
-
-  // Clinical Record Items
-  clinicalRecord: {
-    primaryDiagnosis: { type: String },  // ICD-10 code
-    otherDiagnoses: [{ type: String }],  // List of additional ICD-10 codes
-    medications: [{ name: { type: String }, dosage: { type: String }, frequency: { type: String } }],
-    allergies: [{ type: String }],
-  },
-
-  // Functional Status
-  functionalStatus: {
-    mobility: { type: String, enum: ["Independent", "With Assistance", "Bedridden"], required: true },
-    bathing: { type: String, enum: ["Independent", "With Assistance", "Unable"], required: true },
-    dressing: { type: String, enum: ["Independent", "With Assistance", "Unable"], required: true },
-    toileting: { type: String, enum: ["Independent", "With Assistance", "Unable"], required: true },
-    eating: { type: String, enum: ["Independent", "With Assistance", "Unable"], required: true },
-    ambulation: { type: String, enum: ["Independent", "With Assistance", "Unable"], required: true },
-  },
-
-  // Sensory Status
-  sensoryStatus: {
-    vision: { type: String, enum: ["Normal", "Impaired", "Blind"] },
-    hearing: { type: String, enum: ["Normal", "Impaired", "Deaf"] },
-    speech: { type: String, enum: ["Normal", "Impaired", "Non-verbal"] },
-  },
-
-  // Cognitive Status
-  cognitiveStatus: {
-    cognitiveFunctioning: { type: String, enum: ["Alert", "Confused", "Comatose"] },
-    decisionMaking: { type: String, enum: ["Independent", "Needs Assistance", "Unable"] },
-  },
- // Health Metrics
- painLevel: { type: Number, min: 0, max: 10 },
- bloodSugar: { type: Number },
- bloodPressure: {
-   systolic: { type: Number },
-   diastolic: { type: Number },
- },
- heartRate: { type: Number },  // in BPM
- respiratoryRate: { type: Number },  // breaths per minute
- oxygenSaturation: { type: Number },  // SpO2 in percentage
- temperature: { type: Number },  // Body temperature
- weight: { type: Number },  // Patient weight
- functionalMobilityScore: { type: String },  // Mobility assessment
-
-
-
-  // Pain Assessment
-  painStatus: {
-    painPresence: { type: Boolean, default: false },
-    painFrequency: { type: String, enum: ["None", "Occasional", "Constant"] },
-    painIntensity: { type: String, enum: ["Mild", "Moderate", "Severe"] },
-    painManagement: { type: String },  // Describe any pain control methods
-  },
-
-  // Medication Management
-  medicationManagement: {
-    ableToManageMedications: { type: Boolean, default: false },
-    medicationHelpRequired: { type: String, enum: ["None", "Some", "Full Assistance"] },
-  },
-
-  // Skin and Wound Status
-  skinStatus: {
-    woundsPresent: { type: Boolean, default: false },
-    pressureUlcers: { 
-      stage1: { type: Number, default: 0 },
-      stage2: { type: Number, default: 0 },
-      stage3: { type: Number, default: 0 },
-      stage4: { type: Number, default: 0 },
+    nurseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    woundCarePlan: { type: String },
-  },
+    assessmentDate: {
+      type: Date,
+      required: true,
+    },
+    // Demographics Section
+    demographics: {
+      firstName: { type: String },
+      lastName: { type: String },
+      birthDate: { type: Date },
+      gender: { type: String },
+      maritalStatus: { type: String },
+      phone: { type: String },
+      address: {
+        line1: { type: String },
+        line2: { type: String },
+        city: { type: String },
+        state: { type: String },
+        zip: { type: String },
+        country: { type: String },
+      },
+      ethnicity: { type: [String] },
+      race: { type: [String] },
+      language: { type: String },
+      interpreterRequired: { type: Boolean },
+      paymentSource: { type: String },
+    },
+    // Respiratory Status Section
+    respiratoryStatus: {
+      respiratoryAssessment: {
+        noProblemsIdentified: { type: Boolean },
+        accessoryMuscleUse: { type: Boolean },
+        cpapBipap: { type: Boolean },
+        orthopnea: { type: Boolean },
+        abnormalBreathSounds: { type: Boolean },
+        dyspnea: { type: Boolean },
+        coughNonproductive: { type: Boolean },
+        coughProductive: { type: Boolean },
+        nebulizer: { type: Boolean },
+        oxygenUseIntermittent: { type: Boolean },
+        paroxysmalNocturnalDyspnea: { type: Boolean },
+        tachypnea: { type: Boolean },
+        tracheostomy: { type: Boolean },
+        oxygenUseContinuous: { type: Boolean },
+        comments: { type: String },
+      },
+      shortnessOfBreath: {
+        level: {
+          type: String, // Example values: "0", "1", "2", "3", "4"
+          description: {
+            type: String, // Example values: "Patient is not short of breath", "When walking more than 20 feet", etc.
+          },
+        },
+      },
+    },
+    // Clinical Record Section
+    clinicalRecord: {
+      primaryDiagnosis: { type: String },
+      otherDiagnoses: [{ diagnosis: { type: String }, icdCode: { type: String } }],
+      allergies: [{ type: String }],
+      medications: [
+        {
+          name: { type: String },
+          dosage: { type: String },
+          frequency: { type: String },
+        },
+      ],
+      comorbidities: [{ type: String }],
+    },
+    // Vital Signs
+    vitalSigns: {
+      temperature: { type: Number },
+      pulseRate: { type: Number },
+      respiratoryRate: { type: Number },
+      oxygenSaturation: { type: Number },
+      bloodPressure: {
+        lying: { systolic: { type: Number }, diastolic: { type: Number } },
+        sitting: { systolic: { type: Number }, diastolic: { type: Number } },
+        standing: { systolic: { type: Number }, diastolic: { type: Number } },
+      },
+      heightInches: { type: Number },
+      weightPounds: { type: Number },
+      bmi: { type: Number },
+    },
+    // Risk Assessment Section
+    riskAssessment: {
+      shinglesVaccination: {
+        received: { type: Boolean },
+      },
+      immunizationLog: {
+        activeImmunizations: [{ type: String }],
+        declinedImmunizations: [{ type: String }],
+      },
+      potentialRiskForInfection: {
+        performed: { type: Boolean },
+        predictors: {
+          diarrhea: { type: Boolean },
+          immunocompromised: { type: Boolean },
+          indwellingCatheter: { type: Boolean },
+          ivVenousAccessDevice: { type: Boolean },
+          postOpAbdominalSurgery: { type: Boolean },
+          postOpThoracicSurgery: { type: Boolean },
+          postOpOtherSurgery: { type: Boolean },
+          respiratoryIssues: { type: Boolean },
+          wounds: { type: Boolean },
+          instrumentation: { type: Boolean },
+          other: { type: String },
+        },
+        confoundingFactors: {
+          absenceOfCaregiver: { type: Boolean },
+          decreasedAlertness: { type: Boolean },
+          decreasedCognition: { type: Boolean },
+          inadequateCleaning: { type: Boolean },
+          poorHandHygiene: { type: Boolean },
+          poorHydration: { type: Boolean },
+          medications: { type: Boolean },
+          poorMobility: { type: Boolean },
+          poorNutrition: { type: Boolean },
+          underlyingDisease: { type: Boolean },
+          other: { type: String },
+        },
+        infectionRisk: { type: String },
+      },
+      infectiousDiseaseProfile: {
+        hasInfectiousDisease: { type: Boolean },
+        details: { type: String },
+      },
+      hospitalizationRiskAssessment: {
+        toolUsed: { type: String },
+        emergencyPreparedness: { type: String },
+      },
+      riskForHospitalization: {
+        historyOfFalls: { type: Boolean },
+        weightLoss: { type: Boolean },
+        multipleHospitalizations: { type: Boolean },
+        emergencyVisits: { type: Boolean },
+        declineInMentalOrBehavioralStatus: { type: Boolean },
+        difficultyComplyingWithMedicalInstructions: { type: Boolean },
+        takingFiveOrMoreMedications: { type: Boolean },
+        currentlyRequiresSupervision: { type: Boolean },
+        otherRisks: { type: String },
+      },
+    },
+    // Prognosis Section
+    prognosis: {
+      response: { type: String },
+      comments: {
+        templates: { type: String },
+        additionalComments: { type: String },
+      },
+    },
 
-  // Respiratory Status
-  respiratoryStatus: {
-    shortnessOfBreath: { type: String, enum: ["None", "Mild", "Moderate", "Severe"] },
-    oxygenUse: { type: Boolean, default: false },
+      // Cardiac Status Section
+      cardiacStatus: {
+        cardiacAssessment: {
+          noProblemsIdentified: { type: Boolean },
+          activityIntolerance: { type: Boolean },
+          abnormalPulses: { type: Boolean },
+          aicd: { type: Boolean }, // Automated implantable cardioverter-defibrillator
+          distendedNeckVeins: { type: Boolean },
+          abnormalHeartRhythm: { type: Boolean },
+          abnormalLowerExtremitySensation: { type: Boolean },
+          capillaryRefillGreaterThan3Sec: { type: Boolean },
+          fatigueWeakness: { type: Boolean },
+          orthopnea: { type: Boolean },
+          dizzinessLightheadedness: { type: Boolean },
+          paroxysmalNocturnalDyspnea: { type: Boolean },
+          orthostaticHypotension: { type: Boolean },
+          palpitations: { type: Boolean },
+          pacemaker: { type: Boolean },
+          edemaPitting: { type: Boolean },
+          edemaNonPitting: { type: Boolean },
+          chestPain: { type: Boolean },
+          abnormalHeartSounds: { type: Boolean },
+          abnormalLowerExtremityAppearance: { type: Boolean },
+          exhibitingSignsOfHeartFailure: { type: Boolean },
+          comments: { type: String },
+        },
+        ordersForDisciplineAndTreatment: {
+          alterationInCardiacStatus: { type: Boolean }, // Problem statement
+        },
+      },
+       // Elimination Status Section
+    eliminationStatus: {
+      urinaryAssessment: {
+        hasUTITreatmentInPast14Days: { type: String }, // No, Yes, N/A, Unknown
+        incontinenceOrCatheterPresence: { type: String }, // 0, 1, 2 (No incontinence, Patient is incontinent, Requires catheter)
+      },
+      bowelIncontinenceFrequency: {
+        frequency: { type: String }, // 0 to 5 or "N/A", "Unknown"
+      },
+      ostomyForBowelElimination: {
+        present: { type: String }, // 0, 1, 2
+      },
+      genitourinaryAssessment: {
+        noProblemsIdentified: { type: Boolean },
+        nocturia: { type: Boolean },
+        abnormalUrineAppearance: { type: Boolean },
+        dialysis: { type: Boolean },
+        indwellingFoleyCatheter: { type: Boolean },
+        intermittentCatheterization: { type: Boolean },
+        suprapubicCatheter: { type: Boolean },
+        utiSignsOrSymptoms: { type: Boolean },
+        discharge: { type: Boolean },
+        comments: { type: String },
+      },
+      gastrointestinalAssessment: {
+        lastBM: { type: Date },
+        noProblemsIdentified: { type: Boolean },
+        ascites: { type: Boolean },
+        hemorrhoids: { type: Boolean },
+        nausea: { type: Boolean },
+        tenderness: { type: Boolean },
+        abnormalBowelSounds: { type: Boolean },
+        bowelIncontinence: { type: Boolean },
+        distended: { type: Boolean },
+        hard: { type: Boolean },
+        laxativeEnemaUse: { type: Boolean },
+        pain: { type: Boolean },
+        vomiting: { type: Boolean },
+        abnormalStool: { type: Boolean },
+        comments: { type: String },
+      },
+      ordersForDisciplineAndTreatment: {
+        alterationInGenitourinaryStatus: { type: Boolean },
+        alterationInGastrointestinalStatus: { type: Boolean },
+      },
+    },
+    // Additional Notes
+    additionalNotes: { type: String },
   },
-
-  // Discharge Plan
-  dischargePlan: {
-    dischargeTo: { type: String, enum: ["Home", "Assisted Living", "Hospital", "Other"] },
-    followUpCare: { type: String },  // Describe follow-up care recommendations
-  },
-
-  // Additional Notes
-  additionalNotes: {
-    type: String,
-  },
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 const OASISAssessment = mongoose.model("OASISAssessment", oasisAssessmentSchema);
 

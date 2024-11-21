@@ -8,7 +8,8 @@ const {
 logout,
 forgotPassword,
 ResetPassword,
-signinWithEmail
+signinWithEmail,
+registercompanyowner
 } = require("../controller/authController");
 
 const storage = multer.diskStorage({
@@ -28,6 +29,7 @@ router.post("/register", register);
 
 router.post("/login", signin);
 router.post("/signin", signinWithEmail);
+router.post("/registerasacompanyowner", registercompanyowner);
 
 
 router.get("/logout", logout);

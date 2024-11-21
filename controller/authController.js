@@ -3,7 +3,19 @@ const User = require("../model/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
+const baseURL = process.env.BASE_URL;
+const emailUser = process.env.EMAIL_USER;
+const emailPassword = process.env.EMAIL_PASSWORD;
+const baseURL1 = process.env.BASE_URL1;
 
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: emailUser,
+    pass: emailPassword,
+  },
+});
 const register = async (req, res) => {
   try {
     let { name, email, password, username, bio, pictures, profession, phoneNumber,role, type, organazationnumber,employeetype } = req.body;
@@ -331,75 +343,78 @@ const ResetPassword = async (req, res) => {
 };
 
 
-// const generateOTP = () => {
-//   return Math.floor(100000 + Math.random() * 900000).toString();
-// };
+const registercompanyowner = async (req, res) => {
+  try {
+    let { name, email, password } = req.body;
+    const role = "admin";
+    const emailAlreadyExists = await User.findOne({ email });
+    
+    if (emailAlreadyExists) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: "Email already exists" });
+    }
 
-// const forgotPassword = async (req, res) => {
-//   try {
-//     const { email } = req.body;
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(404).json({ error: "User not found" });
-//     }
+    // Create the user in the database
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      
+    });
 
-//     const otp = Math.floor(100000 + Math.random() * 900000); // Generate a random 6-digit OTP
+    // Generate JWT token for the user
+    const secretKey = process.env.JWT_SECRET;
+    const tokenExpiration = process.env.JWT_LIFETIME;
 
-//     const transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       auth: {
-//         user: "enterct35i@gmail.com",
-//         pass: "eivj sueg qdqg zmsl",
-//       },
-//     });
+    if (!secretKey || !tokenExpiration) {
+      throw new Error("JWT secret key or token expiration is not configured.");
+    }
 
-//     const mailOptions = {
-//       from: "socialmedia@gmail.com",
-//       to: email,
-//       subject: "Reset Password OTP",
-//       text: `Your OTP to reset password is: ${otp}`,
-//     };
+    const token = jwt.sign(
+      { 
+        // userId: user._id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+      },
+      secretKey,
+      { expiresIn: tokenExpiration }
+    );
 
-//     transporter.sendMail(mailOptions, function (error, info) {
-//       if (error) {
-//         console.log(error);
-//         return res.status(500).json({ error: "Failed to send OTP" });
-//       } else {
-//         console.log("OTP sent successfully");
-//         return res.status(200).json({ message: "OTP sent successfully", otp });
-//       }
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
+    // Send email to the company owner with login credentials
+    const mailOptions = {
+      from: emailUser,
+      to: email,
+      subject: 'Registration Successful - Login Credentials',
+      html: `<p>Hello ${name},</p>
+             <p>Your registration as a company admin is successful.</p>
+             <p>Please use the following credentials to log in:</p>
+             <p>Email: ${email}</p>
+             <p>Password: ${password}</p>
+             <p>Thank you!</p>
+             <p>Click <a href="https://eaz.letsgotnt.com">here</a> to login.</p>`
+    };
 
-// const ResetPassword = async (req, res) => {
-//   try {
-//     const { newPassword, email } = req.body;
-//     const encreptedPassword = await bcrypt.hash(newPassword, 10);
-//     const existingUser = await User.findOne({ email });
-//     if (!existingUser) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-//     // Use the updateOne method with async/await
-//     const result = await User.updateOne(
-//       { email: email },
-//       { $set: { password: encreptedPassword } }
-//     );
+    transporter.sendMail(mailOptions, function(error, info) {
+      if (error) {
+        console.error("Error sending email:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    });
 
-//     // Check the result and handle it accordingly
-//     if (result.modifiedCount === 1) {
-//       return res.status(200).json({ message: "Password reset successful" });
-//     } else {
-//       return res.status(404).json({ message: "User not found or password not modified" });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ message: "Internal Server Error" });
-//   }
-// };
+    // Return success response with token and user details
+    return res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: "Successfully registered",
+      token,
+      user
+    });
+  } catch (error) {
+    console.error("Registration error:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+  }
+};
 
 
 module.exports = {
@@ -408,5 +423,6 @@ module.exports = {
   logout,
   forgotPassword,
   ResetPassword,
-  signinWithEmail
+  signinWithEmail,
+  registercompanyowner
 };

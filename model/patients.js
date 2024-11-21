@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 
 const patientSchema = mongoose.Schema(
   {
-    firstName: { type: String },
-    lastName: { type: String },
-    gender: { type: String },
-    dob: { type: Date },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    gender: { type: String, enum: ["Male", "Female", "Other"] },
+    dob: { type: Date, required: true },
     socialSecurityNumber: { type: String },
-    maritalStatus: { type: String },
+    maritalStatus: { type: String, enum: ["Single", "Married", "Widowed", "Divorced"] },
     alternatePhone: { type: String },
     mobilePhone: { type: String },
     emailAddress: { type: String },
@@ -15,22 +15,18 @@ const patientSchema = mongoose.Schema(
       type: [String],
       default: "https://gratify.letsgotnt.com/uploads/profile/pictures-1713961058221.png",
     },
-    clinicalManager: { type: String },  
-    caseManager: { type: String },     
     primaryAddress: {
-      addressLine1: { type: String },
+      addressLine1: { type: String, required: true },
       addressLine2: { type: String },
-      zipCode: { type: String },
-      state: { type: String },
-      country: { type: String },
+      zipCode: { type: String, required: true },
+      state: { type: String, required: true },
+      country: { type: String, required: true },
     },
-    mailingAddress: {
-      addressLine1: { type: String },
-      addressLine2: { type: String },
-      zipCode: { type: String },
-      state: { type: String },
-      country: { type: String },
-    },
+    ethnicity: { type: [String] }, // Allows multiple selections like "Hispanic, Non-Hispanic"
+    race: { type: [String] }, // Allows multiple selections like "White, Asian"
+    preferredLanguage: { type: String },
+    interpreterRequired: { type: Boolean },
+    livingSituation: { type: String }, // E.g., Alone, With Family
     payers: {
       mbiNumber: { type: String },
       healthInsuranceClaimNumber: { type: String },
@@ -38,23 +34,13 @@ const patientSchema = mongoose.Schema(
       alternateMedicaidNumber: { type: String },
       verifyMedicaidEligibility: { type: Boolean },
     },
-    appointment: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    }],
-    appointmentTimes: [{
-      doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      startTime: { type: String },
-      endTime: { type: String },
-    }],
-    location: {
-      type: [String],
-      // e.g., ["latitude", "longitude", "address"] if needed
+    clinicalRecords: {
+      physicianName: { type: String },
+      physicianNPI: { type: String },
+      referralDate: { type: Date },
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Patient = mongoose.model("Patients", patientSchema);

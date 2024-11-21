@@ -40,6 +40,10 @@ const therapistsRoutes = require('./routes/therapyVisitRoutes.js')
 const mswRoutes = require('./routes/mswVisitRoutes.js')
 const healthMetricRoutes = require('./routes/healthMetricsRoutes.js')
 const pocRoutes = require('./routes/planOfCareRoutes.js')
+const hrRoutes = require('./routes/hrRoutes.js')
+const contactUs = require("./routes/contactusRoutes.js")
+const cronJob = require("./config/cron.js");
+
 // Middleware
 const notFoundMiddleware = require("./middelware/not-found.js");
 const errorHandlerMiddleware = require("./middelware/error-handler.js");
@@ -68,6 +72,9 @@ app.use(express.json());
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(cookieParser(process.env.JWT_SECRET));
+
+cronJob();
+
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/chat", chatRoutes);
@@ -81,6 +88,9 @@ app.use('/api/v1/therapy',therapistsRoutes)
 app.use('/api/v1/msw', mswRoutes)
 app.use('/api/v1/health', healthMetricRoutes)
 app.use('/api/v1/poc', pocRoutes)
+app.use('/api/v1/humanresource', hrRoutes)
+app.use('/api/v1/contact',contactUs);
+
 
 
 

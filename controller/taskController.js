@@ -2,72 +2,120 @@ const Task = require("../model/Task");
 const { StatusCodes } = require("http-status-codes");
 const Patient = require("../model/patients"); 
 const Notification = require("../model/notification");
+const User = require("../model/user"); 
 // Create a new task
 exports.createTask = async (req, res) => {
   try {
-    const { patientId, nurseId, description, appointmentDate, shift, shiftDays, price ,patientsigniturepictures, nursesigniturepictures} = req.body;
-    const userId = req.userId
+    const {
+      patientId,
+      nurseId,
+      description,
+      appointmentDate,
+      shift,
+      shiftDays,
+      price,
+      patientsigniturepictures,
+      nursesigniturepictures,
+    } = req.body;
+
+    const userId = req.userId;
+
     // Fetch the patient's location using patientId
     const patient = await Patient.findById(patientId);
-
     if (!patient) {
       return res.status(StatusCodes.NOT_FOUND).json({
         message: "Patient not found",
       });
     }
-
-    const location = patient.location || []; // Retrieve the location from the patient's data
+    const location = patient.location || [];
 
     // Validate shiftDays if shift is true
     let days = shift ? parseInt(shiftDays, 10) || 7 : 1; // Default to 7 days if shiftDays is not provided
 
+    // Calculate start and end dates for the shift
+    let startDate = new Date(appointmentDate);
+    let endDate = new Date(appointmentDate);
+    endDate.setDate(endDate.getDate() + days - 1);
+
+    // Find if there are any overlapping tasks that make the nurse "full"
+    const overlappingTasks = await Task.find({
+      nurseId,
+      appointmentDate: { $gte: startDate, $lte: endDate },
+    });
+
+    if (overlappingTasks.length >= 1 * days) {
+      // Update nurse's availability status to "full" if overlapping tasks are found
+      await User.findOneAndUpdate(
+        { _id: nurseId },
+        { avaiableStatus: "full", fullStatusRevertDate: endDate } // Add `fullStatusRevertDate`
+      );
+
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: `Task assignment failed. The nurse has reached the maximum limit for consecutive tasks during the specified period (${startDate.toDateString()} to ${endDate.toDateString()}).`,
+      });
+    }
+
     let tasks = [];
 
-    if (shift) {
-      // Create tasks for each day in the shift plan (based on shiftDays)
-      for (let i = 0; i < days; i++) {
-        const taskDate = new Date(appointmentDate);
-        taskDate.setDate(taskDate.getDate() + i); // Increment the date by i days
+    for (let i = 0; i < days; i++) {
+      const taskDate = new Date(appointmentDate);
+      taskDate.setDate(taskDate.getDate() + i); // Increment the date by i days for each task
 
-        const newTask = new Task({
-          patientId,
-          nurseId,
-          description,
-          appointmentDate: taskDate, // Set appointment date for each day
-          location,
-          shift,
-          price, // Set the price for each task
-          patientsigniturepictures, 
-          nursesigniturepictures,
-          userId
+      // Count existing tasks for the nurse on the given date
+      const existingTasks = await Task.countDocuments({
+        nurseId,
+        appointmentDate: taskDate,
+      });
+
+      if (existingTasks >= 5) {
+        // Update nurse's availability status to "full"
+        await User.findOneAndUpdate(
+          { _id: nurseId },
+          { avaiableStatus: "full", fullStatusRevertDate: endDate } // Add `fullStatusRevertDate`
+        );
+
+        // Continue checking for other days in the shift
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: `Task assignment failed. The nurse has reached the maximum limit of 5 tasks for ${taskDate.toDateString()}. Please consider assigning tasks after this date: ${new Date(
+            taskDate.setDate(taskDate.getDate() + 1)
+          ).toISOString()}`,
         });
-        tasks.push(newTask);
       }
-    } else {
-      // Single task when shift is not true
+
+      // Create a new task
       const newTask = new Task({
         patientId,
         nurseId,
         description,
-        appointmentDate,
+        appointmentDate: taskDate, // Set appointment date for each task
         location,
         shift,
-        price  // Set the price for a single task
+        price,
+        patientsigniturepictures,
+        nursesigniturepictures,
+        userId,
       });
+
       tasks.push(newTask);
     }
 
     // Save all tasks to the database
     const savedTasks = await Task.insertMany(tasks);
 
+    // Update nurse's availability status to "full" with a revert date
+    await User.findOneAndUpdate(
+      { _id: nurseId },
+      { avaiableStatus: "full", fullStatusRevertDate: endDate }
+    );
+
     res.status(StatusCodes.CREATED).json({
       message: "Task(s) created successfully",
-      data: savedTasks
+      data: savedTasks,
     });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: "An error occurred while creating the task(s)",
-      error: error.message
+      error: error.message,
     });
   }
 };
