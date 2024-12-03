@@ -928,6 +928,135 @@ const oasisAssessmentSchema = mongoose.Schema(
         ST: { type: Boolean, default: false }, // Speech-Language Therapy need
       },
     },
+    aideCarePlan: {
+      ordersForDisciplineAndTreatment: {
+        hhaNeedForHomeHealthAide: { type: Boolean, default: false }, // Checkbox for "HHA - Need for Home Health Aide"
+        needForOtherAideServicesMedicaid: { type: Boolean, default: false }, // Checkbox for "Need for Other Aide Services (Medicaid)"
+      },
+      trainingAndEducationResources: {
+        physicalAssessment: { type: Boolean, default: false }, // Training option for Physical Assessment
+        fifteenMinuteWalk: { type: Boolean, default: false }, // Training option for 15-minute walk
+        woundManager: { type: Boolean, default: false }, // Training option for Wound Manager
+      },
+      comments: {
+        type: String, // Additional comments
+        maxlength: 5000,
+      },
+    },
+
+    summaryOfCare: {
+      patientGoal: {
+        personalHealthcareGoals: { type: String }, // Patient's personal healthcare goals
+      },
+      careCoordination: {
+        coordinatedCareWith: { type: String }, // Name/Title
+        regarding: { type: String }, // Reason or purpose
+      },
+      planOfCareReview: {
+        planOfCare: { type: Boolean, default: false },
+        patientResponse: { type: Boolean, default: false },
+        legalRepresentativeResponse: { type: Boolean, default: false },
+        legalRepresentativeInvolvement: { type: Boolean, default: false },
+        noLegalRepresentativeInvolved: { type: Boolean, default: false },
+        identifyAssistivePeople: { type: Boolean, default: false },
+        other: { type: String }, // Additional information
+      },
+      patientStrengths: {
+        noIssuesIdentified: { type: Boolean, default: false },
+        motivatedLearner: { type: Boolean, default: false },
+        strongSupportSystem: { type: Boolean, default: false },
+        absenceOfMultipleComorbidities: { type: Boolean, default: false },
+        enhancedSocioeconomicStatus: { type: Boolean, default: false },
+        collegeGraduate: { type: Boolean, default: false },
+        highSchoolGraduate: { type: Boolean, default: false },
+        otherStrengths: { type: String
+        },
+      },
+      visitInterventions: {
+        reviewedAndInstructedOn: {
+          legal: { type: Boolean, default: false },
+          medicationReview: { type: Boolean, default: false },
+          diseaseProcess: { type: Boolean, default: false },
+          safety: { type: Boolean, default: false },
+          disciplinesScheduling: { type: Boolean, default: false },
+          physicianContact: { type: Boolean, default: false },
+          na: { type: Boolean, default: false },
+        },
+        interventions: {
+          template: { type: String }, // Selected template for interventions
+          details: { type: String, maxlength: 5000 }, // Intervention details
+        },
+        responseToTeaching: { type: String, maxlength: 5000 }, // Response to procedure/teaching
+      },
+      admissionSummaryF2FAddendum: {
+        template: { type: String }, // Selected template
+        visitNarrative: { type: String, maxlength: 5000 }, // Narrative details
+      },
+      planOfCareDisciplineOrdersAndTreatment: {
+        skilledNurseEvaluationPerformed: { type: Boolean, default: false },
+        therapyOnlyCase: { type: Boolean, default: false },
+        nonSkilledPlanOfCareManagement: { type: Boolean, default: false },
+        noFurtherVisitsRequired: { type: Boolean, default: false },
+        additionalPhysicianInvolvement: { type: Boolean, default: false },
+        patientRightsExplanation: { type: Boolean, default: false },
+      },
+      rehabilitationPotentialAndDischargePlans: {
+        rehabilitationPotential: { type: String }, // E.g., "Good", "Poor", etc.
+        dischargePlans: {
+          providerAfterDischarge: { type: String }, // Care provider
+          dischargePatientWhen: {
+            selfManageDiseaseProcess: { type: Boolean, default: false },
+            caregiverAidInManagement: { type: Boolean, default: false },
+            returnToStableStatus: { type: Boolean, default: false },
+            selfManagePain: { type: Boolean, default: false },
+            performProcedureWithoutPrompt: { type: Boolean, default: false },
+            caregiverPerformProcedureWithoutPrompt: { type: Boolean, default: false },
+            woundsHealed: { type: Boolean, default: false },
+            caregiverManageWounds: { type: Boolean, default: false },
+            caregiverDemonstrateInstruction: { type: Boolean, default: false },
+            other: { type: String },
+          },
+        },
+      },
+      disciplineFrequencyAndDuration: {
+        snFrequency: {
+          frequency: { type: String },
+          description: { type: String },
+          effectiveDate: { type: Date },
+        },
+        ptFrequency: {
+          frequency: { type: String },
+          description: { type: String },
+          effectiveDate: { type: Date },
+        },
+        otFrequency: {
+          frequency: { type: String },
+          description: { type: String },
+          effectiveDate: { type: Date },
+        },
+        stFrequency: {
+          frequency: { type: String },
+          description: { type: String },
+          effectiveDate: { type: Date },
+        },
+        mswFrequency: {
+          frequency: { type: String },
+          description: { type: String },
+          effectiveDate: { type: Date },
+        },
+        hhaFrequency: {
+          frequency: { type: String },
+          description: { type: String },
+          effectiveDate: { type: Date },
+        },
+      },
+      trainingAndEducationResources: {
+        physicalAssessment: { type: Boolean, default: false },
+        oasis15MinuteWalk: { type: Boolean, default: false },
+        woundManager: { type: Boolean, default: false },
+      },
+    },
+        
     additionalNotes: { type: String },
   },
   { timestamps: true }
