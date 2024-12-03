@@ -1,11 +1,16 @@
 const mongoose = require("mongoose");
 
 const functionalAbilitiesGoalsSchema = new mongoose.Schema({
+  oasisAssessmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "OASISAssessment",
+    required: true, // Ensure every FunctionalAbilitiesGoals entry is linked to an OASIS Assessment
+  },
   priorFunctioningEverydayActivities: {
-    selfCare: { type: String }, // Independent, Needed Some Help, Dependent, etc.
-    indoorMobility: { type: String }, // Independent, Needed Some Help, Dependent, etc.
-    stairs: { type: String }, // Independent, Needed Some Help, Dependent, etc.
-    functionalCognition: { type: String }, // Independent, Needed Some Help, Dependent, etc.
+    selfCare: { type: String },
+    indoorMobility: { type: String },
+    stairs: { type: String },
+    functionalCognition: { type: String },
   },
   priorDeviceUse: {
     manualWheelchair: { type: Boolean },
@@ -40,10 +45,10 @@ const functionalAbilitiesGoalsSchema = new mongoose.Schema({
       socRocPerformance: { type: String },
       dischargeGoal: { type: String },
     },
-    Puttingontakingofffootwear:{
-        socRocPerformance: { type: String },
-        dischargeGoal: { type: String },
-    }
+    Puttingontakingofffootwear: {
+      socRocPerformance: { type: String },
+      dischargeGoal: { type: String },
+    },
   },
   mobilityPerformance: {
     rollLeftAndRight: {
@@ -111,6 +116,9 @@ const functionalAbilitiesGoalsSchema = new mongoose.Schema({
   comments: { type: String },
 }, { timestamps: true });
 
-const FunctionalAbilitiesGoals = mongoose.model("FunctionalAbilitiesGoals", functionalAbilitiesGoalsSchema);
+const FunctionalAbilitiesGoals = mongoose.model(
+  "FunctionalAbilitiesGoals",
+  functionalAbilitiesGoalsSchema
+);
 
 module.exports = FunctionalAbilitiesGoals;

@@ -43,7 +43,9 @@ const pocRoutes = require('./routes/planOfCareRoutes.js')
 const hrRoutes = require('./routes/hrRoutes.js')
 const contactUs = require("./routes/contactusRoutes.js")
 const cronJob = require("./config/cron.js");
-
+const caremanagementRoutes = require('./routes/caremanagementRoutes.js')
+const endocrineRoutes = require("./routes/endocrineRoutes.js")
+const functionalAbilitiesGoalsRoutes = require('./routes/functionalAbilitiesGoalsRoutes.js')  
 // Middleware
 const notFoundMiddleware = require("./middelware/not-found.js");
 const errorHandlerMiddleware = require("./middelware/error-handler.js");
@@ -90,6 +92,9 @@ app.use('/api/v1/health', healthMetricRoutes)
 app.use('/api/v1/poc', pocRoutes)
 app.use('/api/v1/humanresource', hrRoutes)
 app.use('/api/v1/contact',contactUs);
+app.use('/api/v1/care', caremanagementRoutes )
+app.use('/api/v1/endo', endocrineRoutes)
+app.use('/api/v1/funability', functionalAbilitiesGoalsRoutes)
 
 
 

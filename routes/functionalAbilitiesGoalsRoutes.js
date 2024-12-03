@@ -1,22 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const {
-  createFunctionalAbilitiesGoals,
-  updateFunctionalAbilitiesGoals,
-  getAllFunctionalAbilitiesGoals,
-  getFunctionalAbilitiesGoalsById,
-} = require("../controllers/functionalAbilitiesGoalsController");
+const functionalAbilitiesGoalsController = require("../controller/functionalAbilitiesGoalsController");
 
-// Create a new FunctionalAbilitiesGoals entry
-router.post("/", createFunctionalAbilitiesGoals);
+router.post(
+  "/functional-abilities-goals",
+  functionalAbilitiesGoalsController.createFunctionalAbilitiesGoals
+);
 
-// Update an existing FunctionalAbilitiesGoals entry by ID
-router.put("/:id", updateFunctionalAbilitiesGoals);
+router.get(
+  "/functional-abilities-goals/oasis/:oasisAssessmentId",
+  functionalAbilitiesGoalsController.getFunctionalAbilitiesGoalsByOasisId
+);
 
-// Get all FunctionalAbilitiesGoals entries
-router.get("/", getAllFunctionalAbilitiesGoals);
+router.put(
+  "/functional-abilities-goals/:functionalId/:oasisAssessmentId",
+  functionalAbilitiesGoalsController.updateFunctionalAbilitiesGoals
+);
 
-// Get a specific FunctionalAbilitiesGoals entry by ID
-router.get("/:id", getFunctionalAbilitiesGoalsById);
+
+
 
 module.exports = router;

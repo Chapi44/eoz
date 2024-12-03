@@ -1,222 +1,235 @@
-const OASISAssessment = require("../model/oasisAssessment"); // Import the model
+const OASISAssessment = require("../model/oasisAssessment");
 
-// Create a new OASIS Assessment
-const createOASISAssessment = async (req, res) => {
+// Create a new OASISAssessment
+exports.createOASISAssessment = async (req, res) => {
   try {
-    const { 
-      patientId, 
-      nurseId, 
-      assessmentDate,
-      nursesigniturepictures = [], 
-      patientsigniturepictures = [],
-      painLevel, 
-      bloodSugar, 
-      bloodPressure = {}, 
-      heartRate, 
-      respiratoryRate, 
-      oxygenSaturation, 
-      temperature, 
-      weight, 
-      functionalMobilityScore,
-      ...otherFields 
-    } = req.body;
+    const data = req.body;
 
-    // Create a new OASIS Assessment object with provided data
-    const newAssessment = new OASISAssessment({
-      patientId,
-      nurseId,
-      assessmentDate,
-      nursesigniturepictures,
-      patientsigniturepictures,
-      painLevel,
-      bloodSugar,
-      bloodPressure,
-      heartRate,
-      respiratoryRate,
-      oxygenSaturation,
-      temperature,
-      weight,
-      functionalMobilityScore,
-      ...otherFields, // Spread additional OASIS fields
-    });
+    const newOASISAssessment = new OASISAssessment(data);
+    await newOASISAssessment.save();
 
-    const savedAssessment = await newAssessment.save();
     res.status(201).json({
+      success: true,
       message: "OASIS Assessment created successfully",
-      data: savedAssessment,
+      data: newOASISAssessment,
     });
   } catch (error) {
     console.error("Error creating OASIS Assessment:", error);
     res.status(500).json({
+      success: false,
       message: "Failed to create OASIS Assessment",
       error: error.message,
     });
   }
 };
 
-// Get a specific OASIS Assessment by ID
-const getOASISAssessmentById = async (req, res) => {
+// Get all OASISAssessments
+// Get all OASIS Assessments (sorted by createdAt and updatedAt descending)
+exports.getAllOASISAssessments = async (req, res) => {
+  try {
+    const oasisAssessments = await OASISAssessment.find()
+      .populate("nurseId")
+      .sort({ createdAt: -1, updatedAt: -1 }); // Sorting by createdAt and updatedAt in descending order
+
+    res.status(200).json({
+      success: true,
+      message: "OASIS Assessments retrieved successfully",
+      data: oasisAssessments,
+    });
+  } catch (error) {
+    console.error("Error retrieving OASIS Assessments:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve OASIS Assessments",
+      error: error.message,
+    });
+  }
+};
+
+// Get a single OASISAssessment by ID
+exports.getOASISAssessmentById = async (req, res) => {
   try {
     const { id } = req.params;
-    const assessment = await OASISAssessment.findById(id)
-    .populate("patientId nurseId", "firstName lastName email name pictures") 
-      .exec();
-      
-    if (!assessment) {
-      return res.status(404).json({ message: "OASIS Assessment not found" });
+
+    const oasisAssessment = await OASISAssessment.findById(id).populate("nurseId");
+
+    if (!oasisAssessment) {
+      return res.status(404).json({
+        success: false,
+        message: "OASIS Assessment not found",
+      });
     }
 
-    res.status(200).json(assessment);
+    res.status(200).json({
+      success: true,
+      message: "OASIS Assessment retrieved successfully",
+      data: oasisAssessment,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch OASIS Assessment", error: error.message });
+    console.error("Error retrieving OASIS Assessment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve OASIS Assessment",
+      error: error.message,
+    });
   }
 };
 
-// Get all OASIS Assessments for a patient
-const getOASISAssessmentsByPatient = async (req, res) => {
+// Get OASIS Assessment by nurseId and patientId
+exports.getOASISAssessmentByNurseAndPatient = async (req, res) => {
   try {
-    const { patientId } = req.params;
-    const assessments = await OASISAssessment.find({ patientId })
-      .populate("nurseId", "name email pictures")
-      .exec();
+    const { nurseId, patientId } = req.params;
 
-    res.status(200).json(assessments);
+    const oasisAssessment = await OASISAssessment.findOne({
+      nurseId,
+      patientId,
+    })
+      .populate("nurseId")
+      .sort({ createdAt: -1, updatedAt: -1 }); // Sorting by createdAt and updatedAt
+
+    if (!oasisAssessment) {
+      return res.status(404).json({
+        success: false,
+        message: "OASIS Assessment not found for the given nurseId and patientId",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: oasisAssessment,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch OASIS Assessments", error: error.message });
+    console.error("Error fetching OASIS Assessment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch OASIS Assessment",
+      error: error.message,
+    });
   }
 };
-// Get all OASIS Assessments by Nurse ID
-const getOASISAssessmentsByNurse = async (req, res) => {
+
+// Get OASIS Assessments by nurseId (sorted by createdAt and updatedAt descending)
+exports.getOASISAssessmentsByNurseId = async (req, res) => {
   try {
     const { nurseId } = req.params;
+
     const assessments = await OASISAssessment.find({ nurseId })
-      .populate("patientId", "firstName lastName email")
-      .exec();
+      .populate("nurseId")
+      .sort({ createdAt: -1, updatedAt: -1 }); // Sorting by createdAt and updatedAt in descending order
 
     if (!assessments || assessments.length === 0) {
-      return res.status(404).json({ message: "No OASIS Assessments found for this nurse" });
+      return res.status(404).json({
+        success: false,
+        message: "No OASIS Assessments found for the given nurseId",
+      });
     }
 
-    res.status(200).json(assessments);
+    res.status(200).json({
+      success: true,
+      data: assessments,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch OASIS Assessments by nurse", error: error.message });
+    console.error("Error fetching OASIS Assessments by nurseId:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch OASIS Assessments",
+      error: error.message,
+    });
   }
 };
 
-// Update an OASIS Assessment
-
-const updateOASISAssessment = async (req, res) => {
+// Get OASIS Assessments by patientId (sorted by createdAt and updatedAt descending)
+exports.getOASISAssessmentsByPatientId = async (req, res) => {
   try {
-    const { id } = req.params; // Get the assessment ID from the route parameters
-    const updatedData = req.body; // Extract the updated data from the request body
+    const { patientId } = req.params;
 
-    // Ensure nurse and patient signature pictures are handled as JSON arrays
-    if (updatedData.nursesigniturepictures) {
-      updatedData.nursesigniturepictures = Array.isArray(updatedData.nursesigniturepictures)
-        ? updatedData.nursesigniturepictures
-        : [updatedData.nursesigniturepictures];
+    const assessments = await OASISAssessment.find({ patientId })
+      .populate("nurseId")
+      .sort({ createdAt: -1, updatedAt: -1 }); // Sorting by createdAt and updatedAt in descending order
+
+    if (!assessments || assessments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No OASIS Assessments found for the given patientId",
+      });
     }
 
-    if (updatedData.patientsigniturepictures) {
-      updatedData.patientsigniturepictures = Array.isArray(updatedData.patientsigniturepictures)
-        ? updatedData.patientsigniturepictures
-        : [updatedData.patientsigniturepictures];
-    }
+    res.status(200).json({
+      success: true,
+      data: assessments,
+    });
+  } catch (error) {
+    console.error("Error fetching OASIS Assessments by patientId:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch OASIS Assessments",
+      error: error.message,
+    });
+  }
+};
 
-    // Perform the database update operation
-    const updatedAssessment = await OASISAssessment.findByIdAndUpdate(
+// Update a OASISAssessment by ID
+exports.updateOASISAssessmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+
+    const updatedOASISAssessment = await OASISAssessment.findByIdAndUpdate(
       id,
-      updatedData,
-      {
-        new: true, // Return the updated document
-        runValidators: true, // Ensure updates comply with schema validation
-      }
+      data,
+      { new: true }
     );
 
-    // Check if the assessment exists
-    if (!updatedAssessment) {
-      return res.status(404).json({ message: "OASIS Assessment not found" });
+    if (!updatedOASISAssessment) {
+      return res.status(404).json({
+        success: false,
+        message: "OASIS Assessment not found",
+      });
     }
 
-    // Send success response
     res.status(200).json({
+      success: true,
       message: "OASIS Assessment updated successfully",
-      data: updatedAssessment,
+      data: updatedOASISAssessment,
     });
   } catch (error) {
     console.error("Error updating OASIS Assessment:", error);
-    // Handle errors
     res.status(500).json({
+      success: false,
       message: "Failed to update OASIS Assessment",
       error: error.message,
     });
   }
 };
 
-
-
-// Delete an OASIS Assessment
-const deleteOASISAssessment = async (req, res) => {
+// Delete a OASISAssessment by ID
+exports.deleteOASISAssessmentById = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedAssessment = await OASISAssessment.findByIdAndDelete(id);
 
-    if (!deletedAssessment) {
-      return res.status(404).json({ message: "OASIS Assessment not found" });
-    }
+    const deletedOASISAssessment = await OASISAssessment.findByIdAndDelete(id);
 
-    res.status(200).json({ message: "OASIS Assessment deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to delete OASIS Assessment", error: error.message });
-  }
-};
-
-const getAllOASISAssessments = async (req, res) => {
-  try {
-    const assessments = await OASISAssessment.find({})
-      .sort({ createdAt: -1 }) // Sort by 'createdAt' in descending order (-1)
-      .populate("patientId nurseId", "firstName lastName email name pictures") // Populate patient and nurse details
-      .exec();
-
-    res.status(200).json(assessments);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch OASIS Assessments", error: error.message });
-  }
-};
-
-const updateDischargeStatus = async (req, res) => {
-  try {
-    const { id } = req.params; // OASIS Assessment ID from the URL params
-
-    // Find the assessment by ID and update the discharge field to true
-    const updatedAssessment = await OASISAssessment.findByIdAndUpdate(
-      id,
-      { discharge: true },
-      { new: true, runValidators: true } // Return updated document & run validators
-    );
-
-    if (!updatedAssessment) {
-      return res.status(404).json({ message: "OASIS Assessment not found" });
+    if (!deletedOASISAssessment) {
+      return res.status(404).json({
+        success: false,
+        message: "OASIS Assessment not found",
+      });
     }
 
     res.status(200).json({
-      message: "Discharge status updated successfully",
-      data: updatedAssessment,
+      success: true,
+      message: "OASIS Assessment deleted successfully",
+      data: deletedOASISAssessment,
     });
   } catch (error) {
+    console.error("Error deleting OASIS Assessment:", error);
     res.status(500).json({
-      message: "Failed to update discharge status",
+      success: false,
+      message: "Failed to delete OASIS Assessment",
       error: error.message,
     });
   }
 };
-module.exports = {
-  createOASISAssessment,
-  getOASISAssessmentById,
-  getOASISAssessmentsByPatient,
-  updateOASISAssessment,
-  deleteOASISAssessment,
-  getAllOASISAssessments,
-  getOASISAssessmentsByNurse,
-  updateDischargeStatus
-};
+
+
+

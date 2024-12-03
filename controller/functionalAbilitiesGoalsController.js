@@ -1,110 +1,118 @@
-const FunctionalAbilitiesGoals = require("../model/functionalAbilitiesGoals");
+const FunctionalAbilitiesGoals = require('../model/functionalAbilitiesGoals')
 
-// Create a new FunctionalAbilitiesGoals entry
+
 exports.createFunctionalAbilitiesGoals = async (req, res) => {
   try {
-    const data = req.body;
+    const { oasisAssessmentId, ...data } = req.body;
 
-    // Create and save the new functional abilities and goals document
-    const newFunctionalAbilitiesGoals = new FunctionalAbilitiesGoals(data);
-    await newFunctionalAbilitiesGoals.save();
+    if (!oasisAssessmentId) {
+      return res.status(400).json({
+        success: false,
+        message: "OASIS Assessment ID is required",
+      });
+    }
+
+    const newEntry = new FunctionalAbilitiesGoals({
+      oasisAssessmentId,
+      ...data,
+    });
+
+    await newEntry.save();
 
     res.status(201).json({
       success: true,
-      message: "Functional Abilities and Goals created successfully",
-      data: newFunctionalAbilitiesGoals,
+      message: "Functional Abilities Goals entry created successfully",
+      data: newEntry,
     });
   } catch (error) {
-    console.error("Error creating Functional Abilities and Goals:", error);
+    console.error("Error creating Functional Abilities Goals:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to create Functional Abilities and Goals",
+      message: "Failed to create Functional Abilities Goals entry",
       error: error.message,
     });
   }
 };
 
-// Update an existing FunctionalAbilitiesGoals entry by ID
+// Get FunctionalAbilitiesGoals by OASIS ID
+exports.getFunctionalAbilitiesGoalsByOasisId = async (req, res) => {
+  try {
+    const { oasisAssessmentId } = req.params;
+
+    const entry = await FunctionalAbilitiesGoals.findOne({
+      oasisAssessmentId,
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        success: false,
+        message: "Functional Abilities Goals entry not found for the given OASIS Assessment ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Functional Abilities Goals entry retrieved successfully",
+      data: entry,
+    });
+  } catch (error) {
+    console.error("Error retrieving Functional Abilities Goals entry:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Functional Abilities Goals entry",
+      error: error.message,
+    });
+  }
+};
+
+// Update FunctionalAbilitiesGoals by ID
+// Update FunctionalAbilitiesGoals by functionalId and oasisAssessmentId
 exports.updateFunctionalAbilitiesGoals = async (req, res) => {
   try {
-    const { id } = req.params; // Get ID from route parameters
-    const updates = req.body; // Get update data from request body
+    const { functionalId, oasisAssessmentId } = req.params; // IDs from the request parameters
+    const data = req.body; // Updated data from the request body
 
-    // Find the document by ID and update it
-    const updatedFunctionalAbilitiesGoals = await FunctionalAbilitiesGoals.findByIdAndUpdate(
-      id,
-      { $set: updates },
-      { new: true, runValidators: true }
+    // Ensure both IDs are provided
+    if (!functionalId || !oasisAssessmentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Both functionalId and OASIS Assessment ID are required",
+      });
+    }
+
+    // Check if the entry exists and belongs to the provided oasisAssessmentId
+    const entry = await FunctionalAbilitiesGoals.findOne({
+      _id: functionalId,
+      oasisAssessmentId,
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Functional Abilities Goals entry not found for the provided functionalId and OASIS Assessment ID",
+      });
+    }
+
+    // Update the entry
+    const updatedEntry = await FunctionalAbilitiesGoals.findByIdAndUpdate(
+      functionalId,
+      data,
+      { new: true }
     );
 
-    if (!updatedFunctionalAbilitiesGoals) {
-      return res.status(404).json({
-        success: false,
-        message: "Functional Abilities and Goals not found",
-      });
-    }
-
     res.status(200).json({
       success: true,
-      message: "Functional Abilities and Goals updated successfully",
-      data: updatedFunctionalAbilitiesGoals,
+      message: "Functional Abilities Goals entry updated successfully",
+      data: updatedEntry,
     });
   } catch (error) {
-    console.error("Error updating Functional Abilities and Goals:", error);
+    console.error("Error updating Functional Abilities Goals entry:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to update Functional Abilities and Goals",
+      message: "Failed to update Functional Abilities Goals entry",
       error: error.message,
     });
   }
 };
 
-// Get all FunctionalAbilitiesGoals entries
-exports.getAllFunctionalAbilitiesGoals = async (req, res) => {
-  try {
-    const functionalAbilitiesGoals = await FunctionalAbilitiesGoals.find();
-
-    res.status(200).json({
-      success: true,
-      message: "All Functional Abilities and Goals retrieved successfully",
-      data: functionalAbilitiesGoals,
-    });
-  } catch (error) {
-    console.error("Error fetching Functional Abilities and Goals:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Functional Abilities and Goals",
-      error: error.message,
-    });
-  }
-};
-
-// Get a specific FunctionalAbilitiesGoals entry by ID
-exports.getFunctionalAbilitiesGoalsById = async (req, res) => {
-  try {
-    const { id } = req.params; // Get ID from route parameters
-
-    // Find the document by ID
-    const functionalAbilitiesGoals = await FunctionalAbilitiesGoals.findById(id);
-
-    if (!functionalAbilitiesGoals) {
-      return res.status(404).json({
-        success: false,
-        message: "Functional Abilities and Goals not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Functional Abilities and Goals retrieved successfully",
-      data: functionalAbilitiesGoals,
-    });
-  } catch (error) {
-    console.error("Error fetching Functional Abilities and Goals by ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Functional Abilities and Goals",
-      error: error.message,
-    });
-  }
-};
