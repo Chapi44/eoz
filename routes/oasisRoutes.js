@@ -1,6 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const oasisAssessmentController = require("../controller/oasisController");
+const multer = require("multer");
+
+const upload = multer({ dest: "uploads/" }); // File upload middleware
+
+// POST route to send email
+router.post("/send-email", upload.single("file"), oasisAssessmentController.sendEmail);
 
 // Route to create a new OASIS Assessment
 router.post("/createoasis", oasisAssessmentController.createOASISAssessment);
@@ -19,6 +25,7 @@ router.delete("/:id", oasisAssessmentController.deleteOASISAssessmentById);
 
 router.get("/oasis-assessments/nurse/:nurseId/patient/:patientId", oasisAssessmentController.getOASISAssessmentByNurseAndPatient);
 
+router.get("/planOfCare/:oasisId", oasisAssessmentController.fetchPlanOfCare);
 
 // Route to get OASIS assessments by nurseId
 router.get("/oasis-assessments/nurse/:nurseId", oasisAssessmentController.getOASISAssessmentsByNurseId);
