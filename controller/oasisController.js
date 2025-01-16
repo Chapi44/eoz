@@ -1,10 +1,29 @@
 const OASISAssessment = require("../model/oasisAssessment");
 
-// Create a new OASISAssessment
+const HomeHealthAgency = require("../model/address"); // Adjust the path to your model
+
 exports.createOASISAssessment = async (req, res) => {
   try {
     const data = req.body;
 
+    // Check if homeHealthAgency ID is provided
+    if (!data.homeHealthAgency) {
+      return res.status(400).json({
+        success: false,
+        message: "Home Health Agency ID is required",
+      });
+    }
+
+    // Validate if the provided Home Health Agency exists
+    const homeHealthAgencyExists = await HomeHealthAgency.findById(data.homeHealthAgency);
+    if (!homeHealthAgencyExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Invalid Home Health Agency ID. Agency not found.",
+      });
+    }
+
+    // Create the OASIS Assessment
     const newOASISAssessment = new OASISAssessment(data);
     await newOASISAssessment.save();
 
@@ -29,6 +48,7 @@ exports.getAllOASISAssessments = async (req, res) => {
   try {
     const oasisAssessments = await OASISAssessment.find()
       .populate("nurseId")
+      .populate("homeHealthAgency")
       .sort({ createdAt: -1, updatedAt: -1 }); // Sorting by createdAt and updatedAt in descending order
 
     res.status(200).json({
@@ -51,7 +71,7 @@ exports.getOASISAssessmentById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const oasisAssessment = await OASISAssessment.findById(id).populate("nurseId");
+    const oasisAssessment = await OASISAssessment.findById(id).populate("nurseId").populate("homeHealthAgency");
 
     if (!oasisAssessment) {
       return res.status(404).json({
@@ -86,45 +106,51 @@ exports.fetchPlanOfCare = async (req, res) => {
       patientId: 1,
       nurseId: 1,
       assessmentDate: 1,
-      "demographics.firstName": 1,
-      "demographics.lastName": 1,
-      "demographics.gender": 1,
-      "demographics.birthDate": 1,
-      "planOfCare.safetyMeasures": 1,
+      "demographics": 1,
+      // "demographics.lastName": 1,
+      // "demographics.gender": 1,
+      // "demographics.birthDate": 1,
       "assessmentDate": 1,
-      "planOfCare.functionalLimitations": 1,
-      "planOfCare.activitiesPermittedRestricted": 1,
-      "ordersForDisciplineAndTreatment": 1,
-      "trainingAndEducationResources": 1,
-      "planOfCareDisciplineOrdersAndTreatment": 1,
+      "patientHistoryAndDiagnoses.allergies": 1,
+      "patientHistoryAndDiagnoses.allergies": 1,
+      "patientHistoryAndDiagnoses.diagnosesSymptomControl": 1,
       "prognosis": 1,
-      "patientHistoryAndDiagnoses": 1,
-      "summaryOfCare.patientGoal": 1,
-      "summaryOfCare.planOfCareReview": 1,
-      "summaryOfCare.planOfCareDisciplineOrdersAndTreatment": 1,
-      "summaryOfCare.rehabilitationPotentialAndDischargePlans": 1,
-      "disciplineFrequencyAndDuration": 1,
-      "medications.medicationAdministration": 1,
+      "supplyManagerDME.durableMedicalEquipment": 1,
+      "supportiveAssistance.psychosocialAssessment": 1,
+      "supportiveAssistance.planOfCare": 1,
+      "riskAssessment.hospitalizationRiskAssessment.emergencyPreparedness": 1,
       "functionalAbilitiesGoals.selfCarePerformance": 1,
       "functionalAbilitiesGoals.mobilityPerformance": 1,
       "functionalAbilitiesGoals.comments": 1,
-      "functionalStatus.fallRiskAssessment": 1,
-      "functionalStatus.ambulationLocomotion": 1,
-      "nutritionAssessment.nutritionAssessment": 1,
+      "functionalStatus.planOfCare": 1,
       "nutritionAssessment.planOfCareNutritionalRequirements": 1,
-      "therapyNeed": 1,
-      "aideCarePlan.ordersForDisciplineAndTreatment": 1,
+      "aideCarePlan": 1,
       "sensoryStatus.sensoryAssessment": 1,
       "painStatus.painAssessment": 1,
+      "therapyNeed": 1,
+      // "aideCarePlan.ordersForDisciplineAndTreatment": 1,
+      "neuroEmotionalBehavioralStatus.planOfCare": 1,
+      "summaryOfCare": 1,
+      "medicalNecessity": 1,
+      "admissionNarrative": 1,
+      "nurseTherapistSignatureDate": 1,
+      "dateHHAReceivedCopy": 1,
+      "dateHHAReceivedSignedCopy": 1,
+      "certifyingPhysician": 1,
+      "physicianSignatureDate": 1,
+      "physicianOrPractitionerStatement": 1,
+
+
+
       createdAt: 1,
       updatedAt: 1,
     };
 
     // Fetch the Plan of Care by OASIS ID and populate nurse and patient data
-    const planOfCareData = await OASISAssessment.findById(oasisId, fieldsToSelect)
+    const planOfCareData = await OASISAssessment.findById(oasisId, fieldsToSelect).populate("homeHealthAgency")
       .populate({
         path: "patientId",
-        select: "firstName lastName gender birthDate phone address",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
       })
       .populate({
         path: "nurseId",
@@ -153,6 +179,7 @@ exports.fetchPlanOfCare = async (req, res) => {
     });
   }
 };
+
 
 
 // Get OASIS Assessment by nurseId and patientId

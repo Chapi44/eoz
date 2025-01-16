@@ -39,6 +39,7 @@ const patientSchema = mongoose.Schema(
       physicianNPI: { type: String },
       referralDate: { type: Date },
     },
+    mrn: { type: String, required: true }, 
   },
   { timestamps: true }
 );

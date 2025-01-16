@@ -16,6 +16,7 @@ exports.createTask = async (req, res) => {
       price,
       patientsigniturepictures,
       nursesigniturepictures,
+      taskType, // Added taskType
     } = req.body;
 
     const userId = req.userId;
@@ -28,6 +29,66 @@ exports.createTask = async (req, res) => {
       });
     }
     const location = patient.location || [];
+
+    // Validate taskType
+    const validTaskTypes = [
+      "Aide Visit",
+      "AideSupervisory",
+      "CommunicationNote",
+      "CoordinationOfCare",
+      "Doctor Order",
+      "FaceToFace",
+      "FoleyCathChange",
+      "HHA Plan of Care",
+      "Incident Report",
+      "Infection Report",
+      "INFUSION THERAPY",
+      "LPN Supervisory",
+      "LPN SupervisoryVisit",
+      "LVNHourly",
+      "LVNVisit",
+      "Midday Insulin Administration",
+      "OASIS E1 DISCHARGE",
+      "OASIS TRANSFER",
+      "OT Telehealth",
+      "OTReEval",
+      "OTVisit",
+      "PRN Nursing Visit",
+      "Psych Nurse Assessment",
+      "PT Visit",
+      "PTEval",
+      "PTReassessment",
+      "PTWithINR",
+      "Recertification E-1",
+      "Resumption Of Care",
+      "RNVisit",
+      "SkilledNurseVisit",
+      "SN BMP",
+      "SN CBC",
+      "SN Diabetic Daily",
+      "SN IV Insertion",
+      "SN_Psychiatric_Nurse_Visit",
+      "SNB12INJECTION",
+      "SNHaldolInj",
+      "SNInsulinAM",
+      "SNInsulinHS",
+      "SNInsulinPM",
+      "SNLabs",
+      "SNPediatric Hourly",
+      "SNPediatricVisit",
+      "SNWoundCare Visit",
+      "Speech Therapy Visit",
+      "ST ReEval",
+      "ST TelehealthVisit",
+      "Telehealth Notes",
+      "Telehealth PT"
+    ];
+
+    if (!validTaskTypes.includes(taskType)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: `Invalid task type. Valid types are: ${validTaskTypes.join(", ")}`,
+      });
+    }
 
     // Validate shiftDays if shift is true
     let days = shift ? parseInt(shiftDays, 10) || 7 : 1; // Default to 7 days if shiftDays is not provided
@@ -47,7 +108,7 @@ exports.createTask = async (req, res) => {
       // Update nurse's availability status to "full" if overlapping tasks are found
       await User.findOneAndUpdate(
         { _id: nurseId },
-        { avaiableStatus: "full", fullStatusRevertDate: endDate } // Add `fullStatusRevertDate`
+        { avaiableStatus: "full", fullStatusRevertDate: endDate }
       );
 
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -71,14 +132,11 @@ exports.createTask = async (req, res) => {
         // Update nurse's availability status to "full"
         await User.findOneAndUpdate(
           { _id: nurseId },
-          { avaiableStatus: "full", fullStatusRevertDate: endDate } // Add `fullStatusRevertDate`
+          { avaiableStatus: "full", fullStatusRevertDate: endDate }
         );
 
-        // Continue checking for other days in the shift
         return res.status(StatusCodes.BAD_REQUEST).json({
-          message: `Task assignment failed. The nurse has reached the maximum limit of 5 tasks for ${taskDate.toDateString()}. Please consider assigning tasks after this date: ${new Date(
-            taskDate.setDate(taskDate.getDate() + 1)
-          ).toISOString()}`,
+          message: `Task assignment failed. The nurse has reached the maximum limit of 5 tasks for ${taskDate.toDateString()}.`,
         });
       }
 
@@ -91,6 +149,7 @@ exports.createTask = async (req, res) => {
         location,
         shift,
         price,
+        taskType, // Add taskType
         patientsigniturepictures,
         nursesigniturepictures,
         userId,
@@ -276,34 +335,34 @@ exports.getTasksByNurseId = async (req, res) => {
 
 
 // Update task status
-exports.updateTask = async (req, res) => {
-  try {
-    const taskId = req.params.id;
-    const { status, comment, personalNote,appointmentDate,description } = req.body;
+// exports.updateTask = async (req, res) => {
+//   try {
+//     const taskId = req.params.id;
+//     const { status, comment, personalNote,appointmentDate,description } = req.body;
 
-    const updatedTask = await Task.findByIdAndUpdate(
-      taskId,
-      { status, comment, personalNote,appointmentDate,description },
-      { new: true }
-    );
+//     const updatedTask = await Task.findByIdAndUpdate(
+//       taskId,
+//       { status, comment, personalNote,appointmentDate,description },
+//       { new: true }
+//     );
 
-    if (!updatedTask) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        message: "Task not found"
-      });
-    }
+//     if (!updatedTask) {
+//       return res.status(StatusCodes.NOT_FOUND).json({
+//         message: "Task not found"
+//       });
+//     }
 
-    res.status(StatusCodes.OK).json({
-      message: "Task updated successfully",
-      data: updatedTask
-    });
-  } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "An error occurred while updating the task",
-      error: error.message
-    });
-  }
-};
+//     res.status(StatusCodes.OK).json({
+//       message: "Task updated successfully",
+//       data: updatedTask
+//     });
+//   } catch (error) {
+//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+//       message: "An error occurred while updating the task",
+//       error: error.message
+//     });
+//   }
+// };
 
 
 // Delete task by ID
@@ -384,13 +443,155 @@ exports.getTasksstatusByNurseId = async (req, res) => {
 
 
 // Update only the appointmentDate of a task
+// exports.updateAppointmentDate = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { appointmentDate } = req.body;
+//     const nurseId = req.userId; // Assuming req.userId is the nurse's ID
+
+//     // Find the task by ID and populate the userId field
+//     const task = await Task.findById(id).populate("userId");
+
+//     if (!task) {
+//       return res.status(StatusCodes.NOT_FOUND).json({
+//         message: "Task not found",
+//       });
+//     }
+
+//     // Update the appointment date
+//     task.appointmentDate = appointmentDate;
+//     await task.save();
+
+//     // Ensure task.userId exists before creating the notification
+//     if (task.userId && task.userId._id) {
+//       const notification = new Notification({
+//         sender: nurseId,
+//         receiver: task.userId._id, // Use task.userId._id for the receiver
+//         type: "appointmentDate",
+//         message: `The appointment date for task ${task._id} has been updated to ${appointmentDate}`,
+//         taskId: task._id,
+//       });
+
+//       // Save the notification
+//       await notification.save();
+//     } else {
+//       console.warn("No userId found for task, notification will not be sent.");
+//     }
+
+//     res.status(StatusCodes.OK).json({
+//       message: "Appointment date updated and notification sent successfully",
+//       data: task,
+//     });
+//   } catch (error) {
+//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+//       message: "An error occurred while updating the appointment date",
+//       error: error.message,
+//     });
+//   }
+// };
+
+
+// Update task
+exports.updateTask = async (req, res) => {
+  try {
+    const taskId = req.params.id;
+    const { status, comment, personalNote, appointmentDate, description, taskType } = req.body;
+
+    // Validate taskType if provided
+    if (taskType) {
+      const validTaskTypes =[
+        "Aide Visit",
+        "AideSupervisory",
+        "CommunicationNote",
+        "CoordinationOfCare",
+        "Doctor Order",
+        "FaceToFace",
+        "FoleyCathChange",
+        "HHA Plan of Care",
+        "Incident Report",
+        "Infection Report",
+        "INFUSION THERAPY",
+        "LPN Supervisory",
+        "LPN SupervisoryVisit",
+        "LVNHourly",
+        "LVNVisit",
+        "Midday Insulin Administration",
+        "OASIS E1 DISCHARGE",
+        "OASIS TRANSFER",
+        "OT Telehealth",
+        "OTReEval",
+        "OTVisit",
+        "PRN Nursing Visit",
+        "Psych Nurse Assessment",
+        "PT Visit",
+        "PTEval",
+        "PTReassessment",
+        "PTWithINR",
+        "Recertification E-1",
+        "Resumption Of Care",
+        "RNVisit",
+        "SkilledNurseVisit",
+        "SN BMP",
+        "SN CBC",
+        "SN Diabetic Daily",
+        "SN IV Insertion",
+        "SN_Psychiatric_Nurse_Visit",
+        "SNB12INJECTION",
+        "SNHaldolInj",
+        "SNInsulinAM",
+        "SNInsulinHS",
+        "SNInsulinPM",
+        "SNLabs",
+        "SNPediatric Hourly",
+        "SNPediatricVisit",
+        "SNWoundCare Visit",
+        "Speech Therapy Visit",
+        "ST ReEval",
+        "ST TelehealthVisit",
+        "Telehealth Notes",
+        "Telehealth PT"
+      ];
+
+      if (!validTaskTypes.includes(taskType)) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: `Invalid task type. Valid types are: ${validTaskTypes.join(", ")}`,
+        });
+      }
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      { status, comment, personalNote, appointmentDate, description, taskType },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: "Task not found",
+      });
+    }
+
+    res.status(StatusCodes.OK).json({
+      message: "Task updated successfully",
+      data: updatedTask,
+    });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "An error occurred while updating the task",
+      error: error.message,
+    });
+  }
+};
+
+// Update appointment date
 exports.updateAppointmentDate = async (req, res) => {
   try {
     const { id } = req.params;
-    const { appointmentDate } = req.body;
-    const nurseId = req.userId; // Assuming req.userId is the nurse's ID
+    const { appointmentDate, taskType } = req.body;
 
-    // Find the task by ID and populate the userId field
+    const nurseId = req.userId;
+
+    // Find the task by ID and validate its existence
     const task = await Task.findById(id).populate("userId");
 
     if (!task) {
@@ -399,28 +600,29 @@ exports.updateAppointmentDate = async (req, res) => {
       });
     }
 
-    // Update the appointment date
+    if (taskType && task.taskType !== taskType) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "Task type mismatch.",
+      });
+    }
+
     task.appointmentDate = appointmentDate;
     await task.save();
 
-    // Ensure task.userId exists before creating the notification
-    if (task.userId && task.userId._id) {
+    if (task.userId) {
       const notification = new Notification({
         sender: nurseId,
-        receiver: task.userId._id, // Use task.userId._id for the receiver
+        receiver: task.userId._id,
         type: "appointmentDate",
         message: `The appointment date for task ${task._id} has been updated to ${appointmentDate}`,
         taskId: task._id,
       });
 
-      // Save the notification
       await notification.save();
-    } else {
-      console.warn("No userId found for task, notification will not be sent.");
     }
 
     res.status(StatusCodes.OK).json({
-      message: "Appointment date updated and notification sent successfully",
+      message: "Appointment date updated successfully",
       data: task,
     });
   } catch (error) {

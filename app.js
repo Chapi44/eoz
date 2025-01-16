@@ -46,6 +46,11 @@ const cronJob = require("./config/cron.js");
 const caremanagementRoutes = require('./routes/caremanagementRoutes.js')
 const endocrineRoutes = require("./routes/endocrineRoutes.js")
 const functionalAbilitiesGoalsRoutes = require('./routes/functionalAbilitiesGoalsRoutes.js')  
+const aidRoutes = require("./routes/aidecareRoutes.js")
+const communicationNoteRoutes = require("./routes/commRoutes.js") 
+const doctororderRoutes = require("./routes/doctorRoutes")
+const infectionreportRoutes = require("./routes/infectionRoutes.js")
+const LPNSupervisoryRoutes = require("./routes/lpnsupervisorsRoutes.js")
 // Middleware
 const notFoundMiddleware = require("./middelware/not-found.js");
 const errorHandlerMiddleware = require("./middelware/error-handler.js");
@@ -95,6 +100,11 @@ app.use('/api/v1/contact',contactUs);
 app.use('/api/v1/care', caremanagementRoutes )
 app.use('/api/v1/endo', endocrineRoutes)
 app.use('/api/v1/funability', functionalAbilitiesGoalsRoutes)
+app.use('/api/v1/aide', aidRoutes)
+app.use('/api/v1/comm', communicationNoteRoutes)
+app.use('/api/v1/doctor', doctororderRoutes)
+app.use('/api/v1/infection', infectionreportRoutes)
+app.use('/api/v1/lpn', LPNSupervisoryRoutes)
 
 
 

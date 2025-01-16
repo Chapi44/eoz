@@ -40,4 +40,16 @@ router.get("/hr/employees", getAllEmployees);
 // Get an employee by ID
 router.get("/hr/employees/:id", getEmployeeById);
 
+
+
+const agencyController = require('../controller/homeHealthAgencyController');
+
+// CRUD Routes
+router.post('/agencies', agencyController.createAgency);
+router.get('/agencies', agencyController.getAllAgencies);
+router.get('/agencies/:id', agencyController.getAgencyById);
+router.put('/agencies/:id', agencyController.updateAgency);
+router.delete('/agencies/:id', agencyController.deleteAgency);
+
+
 module.exports = router;

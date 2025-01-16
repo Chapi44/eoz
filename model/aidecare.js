@@ -1,19 +1,69 @@
 const mongoose = require("mongoose");
 
-const aideCarePlanSchema = new mongoose.Schema({
-  aideTaskAssignment: {
-    type: String, // This will store any special instructions or tasks assigned
-    maxlength: 5000, // Assuming it matches the comment field limits
+const aideVisitSchema = mongoose.Schema(
+  {
+    patientId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Patients",
+      required: true,
+    },
+    nurseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    visitDate: { type: Date, required: true },
+    tasks: {
+      personalCare: {
+        bedBath: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        assistWithChairBath: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        tubBath: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        shower: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        showerWithChair: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        shampooHair: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        hairCareCombHair: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        oralCare: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        skinCare: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        pericare: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        nailCare: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        shave: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        assistWithDressing: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        medicationReminder: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+      },
+      householdTasks: {
+        makeBed: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        changeLinen: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        lightHousekeeping: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        otherDescribe: { type: String },
+      },
+      elimination: {
+        assistWithBedPan: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        assistWithBSC: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        incontinenceCare: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        emptyDrainageBag: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        recordBowelMovement: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        catheterCare: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+      },
+      activity: {
+        dangleOnSideOfBed: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        turnAndPosition: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        assistWithTransfer: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        assistWithAmbulation: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        rangeOfMotion: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        equipmentCare: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+      },
+      nutrition: {
+        mealSetup: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+        assistWithFeeding: { type: String, enum: ["Completed", "Refused", "N/A"], default: "N/A" },
+      },
+    },
+    comments: { type: String },
+    signature: { type: String },
+    signatureDate: { type: Date },
   },
-  problemStatements: {
-    hhaNeedForHomeHealthAide: { type: Boolean, default: false }, // Checkbox for HHA need
-    needForOtherAideServices: { type: Boolean, default: false }, // Checkbox for Medicaid-related need
-  },
-  trainingAndEducationResources: {
-    physicalAssessment: { type: Boolean, default: false }, // Whether this resource is used
-    fifteenMinuteWalk: { type: Boolean, default: false }, // OASIS 15-minute Walk
-    woundManager: { type: Boolean, default: false }, // How to Use the Wound Manager
-  },
-});
+  { timestamps: true }
+);
 
-module.exports = mongoose.model("AideCarePlan", aideCarePlanSchema);
+const AideVisit = mongoose.model("AideVisit", aideVisitSchema);
+
+module.exports = AideVisit;

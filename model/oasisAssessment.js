@@ -12,10 +12,16 @@ const oasisAssessmentSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    homeHealthAgency: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "HomeHealthAgency", // Reference to the HomeHealthAgency model
+      required: true,
+    },
     assessmentDate: {
       type: Date,
     },
     // Demographics Section
+    
     demographics: {
       firstName: { type: String },
       lastName: { type: String },
@@ -1058,9 +1064,33 @@ const oasisAssessmentSchema = mongoose.Schema(
     },
         
     additionalNotes: { type: String },
+     // New Fields
+  medicalNecessity: { type: String }, // Field #27
+  admissionNarrative: { type: String }, // Field #28
+  nurseTherapistSignatureDate: { type: Date }, // Field #28B
+  dateHHAReceivedCopy: { type: Date }, // Field #29
+  dateHHAReceivedSigned: { type: Date }, // Field #29
+  certifyingPhysician: {
+    name: { type: String },
+    address: { type: String },
+  }, // Field #30
+  physicianSignatureDate: { type: Date }, // Field #32
   },
-  { timestamps: true }
+  {
+    timestamps: true, // Adds createdAt and updatedAt
+    toJSON: { virtuals: true }, // Ensure virtual fields are included in JSON responses
+    toObject: { virtuals: true }, // Ensure virtual fields are included in objects
+  }
 );
+
+
+// Virtual field for Physician or Practitioner Statement
+oasisAssessmentSchema.virtual("physicianOrPractitionerStatement").get(function () {
+  const formattedDate = this.updatedAt
+    ? this.updatedAt.toISOString().slice(0, 10) // Formats date as YYYY-MM-DD
+    : "N/A";
+  return `I certify/recertify that this patient is confined to his/her home (as outlined in section 30.1.1 in Chapter 7 of the Medicare Benefit Policy Manual) and needs intermittent skilled nursing care, physical therapy and/or speech therapy or continues to need occupational therapy. The patient is under my care, and I have authorized services on this plan of care and will periodically review the plan. The patient had a face-to-face encounter with an allowed provider type on ${formattedDate} and the encounter was related to the primary reason for home health care.`;
+});
 
 const OASISAssessment = mongoose.model("OASISAssessment", oasisAssessmentSchema);
 

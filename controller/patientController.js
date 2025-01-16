@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require('uuid'); // Import UUID library
 const Patient = require('../model/patients');
 
 // Register a new patient
@@ -29,6 +30,8 @@ const registerPatient = async (req, res) => {
       (file) => baseURL + "/uploads/profilepic/" + file.filename
     );
 
+    // Generate a unique MRN using UUID
+    const mrn = uuidv4();
 
     // Create a new patient
     const newPatient = new Patient({
@@ -49,12 +52,13 @@ const registerPatient = async (req, res) => {
       payers,
       appointment,
       appointmentTimes,
-      location
+      location,
+      mrn // Assign the generated MRN
     });
-    
+
     // Save the patient to the database
     const savedPatient = await newPatient.save();
-    
+
     res.status(201).json({
       message: "Patient registered successfully",
       data: savedPatient
@@ -66,8 +70,6 @@ const registerPatient = async (req, res) => {
     });
   }
 };
-
-
 
 
 // Get all patients
