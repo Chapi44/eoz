@@ -51,6 +51,10 @@ const communicationNoteRoutes = require("./routes/commRoutes.js")
 const doctororderRoutes = require("./routes/doctorRoutes")
 const infectionreportRoutes = require("./routes/infectionRoutes.js")
 const LPNSupervisoryRoutes = require("./routes/lpnsupervisorsRoutes.js")
+const ottelehealthAssessmentRoutes = require("./routes/ottelehealthRoutes.js")
+const prnnursingRoutes = require("./routes/prnnursingRoutes.js")
+const speechtherapyvisitorRoutes = require("./routes/speechtherapyRoutes.js")
+const nursepschatristRoutes = require("./routes/nursepsychatristRoutes.js")
 // Middleware
 const notFoundMiddleware = require("./middelware/not-found.js");
 const errorHandlerMiddleware = require("./middelware/error-handler.js");
@@ -105,7 +109,10 @@ app.use('/api/v1/comm', communicationNoteRoutes)
 app.use('/api/v1/doctor', doctororderRoutes)
 app.use('/api/v1/infection', infectionreportRoutes)
 app.use('/api/v1/lpn', LPNSupervisoryRoutes)
-
+app.use('/api/v1/ottele', ottelehealthAssessmentRoutes)
+app.use('/api/v1/prn', prnnursingRoutes)
+app.use('/api/v1/speech', speechtherapyvisitorRoutes)
+app.use('/api/v1/nursepsy', nursepschatristRoutes)
 
 
 

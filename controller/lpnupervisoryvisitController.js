@@ -199,3 +199,207 @@ exports.deleteLPNSupervisoryVisit = async (req, res) => {
     });
   }
 };
+
+
+
+const LVNHourlyVisit = require("../model/lvnHourlyVisit");
+
+// Create a new LVN Hourly Visit
+exports.createLVNHourlyVisit = async (req, res) => {
+  try {
+    const data = req.body;
+
+    // Validate required fields
+    if (!data.patientId || !data.nurseId || !data.visitDate || !data.primaryDiagnosis) {
+      return res.status(400).json({
+        success: false,
+        message: "Patient ID, Nurse ID, Visit Date, and Primary Diagnosis are required",
+      });
+    }
+
+    // Create and save the new LVN Hourly Visit document
+    const newVisit = new LVNHourlyVisit(data);
+    await newVisit.save();
+
+    res.status(201).json({
+      success: true,
+      message: "LVN Hourly Visit created successfully",
+      data: newVisit,
+    });
+  } catch (error) {
+    console.error("Error creating LVN Hourly Visit:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to create LVN Hourly Visit",
+      error: error.message,
+    });
+  }
+};
+
+// Update an existing LVN Hourly Visit by ID
+exports.updateLVNHourlyVisit = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    // Find and update the LVN Hourly Visit document
+    const updatedVisit = await LVNHourlyVisit.findByIdAndUpdate(
+      id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedVisit) {
+      return res.status(404).json({
+        success: false,
+        message: "LVN Hourly Visit not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "LVN Hourly Visit updated successfully",
+      data: updatedVisit,
+    });
+  } catch (error) {
+    console.error("Error updating LVN Hourly Visit:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update LVN Hourly Visit",
+      error: error.message,
+    });
+  }
+};
+
+// Get all LVN Hourly Visits
+exports.getAllLVNHourlyVisits = async (req, res) => {
+  try {
+    const visits = await LVNHourlyVisit.find()
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      });
+
+    res.status(200).json({
+      success: true,
+      message: "All LVN Hourly Visits retrieved successfully",
+      data: visits,
+    });
+  } catch (error) {
+    console.error("Error fetching LVN Hourly Visits:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve LVN Hourly Visits",
+      error: error.message,
+    });
+  }
+};
+
+// Get a specific LVN Hourly Visit by ID
+exports.getLVNHourlyVisitById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the LVN Hourly Visit document by ID
+    const visit = await LVNHourlyVisit.findById(id)
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      });
+
+    if (!visit) {
+      return res.status(404).json({
+        success: false,
+        message: "LVN Hourly Visit not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "LVN Hourly Visit retrieved successfully",
+      data: visit,
+    });
+  } catch (error) {
+    console.error("Error fetching LVN Hourly Visit by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve LVN Hourly Visit",
+      error: error.message,
+    });
+  }
+};
+
+// Get LVN Hourly Visits by Nurse ID
+exports.getLVNHourlyVisitsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+
+    // Find LVN Hourly Visits by Nurse ID
+    const visits = await LVNHourlyVisit.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      });
+
+    if (!visits || visits.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No LVN Hourly Visits found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "LVN Hourly Visits retrieved successfully",
+      data: visits,
+    });
+  } catch (error) {
+    console.error("Error fetching LVN Hourly Visits by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve LVN Hourly Visits by Nurse ID",
+      error: error.message,
+    });
+  }
+};
+
+// Delete an LVN Hourly Visit by ID
+exports.deleteLVNHourlyVisit = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find and delete the LVN Hourly Visit by ID
+    const deletedVisit = await LVNHourlyVisit.findByIdAndDelete(id);
+
+    if (!deletedVisit) {
+      return res.status(404).json({
+        success: false,
+        message: "LVN Hourly Visit not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "LVN Hourly Visit deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting LVN Hourly Visit:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete LVN Hourly Visit",
+      error: error.message,
+    });
+  }
+};

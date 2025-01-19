@@ -7,6 +7,12 @@ const {
   getLPNSupervisoryVisitById,
   getLPNSupervisoryVisitsByLPNId,
   deleteLPNSupervisoryVisit,
+  createLVNHourlyVisit,
+  updateLVNHourlyVisit,
+  getAllLVNHourlyVisits,
+  getLVNHourlyVisitById,
+  getLVNHourlyVisitsByNurseId,
+  deleteLVNHourlyVisit
 } = require("../controller/lpnupervisoryvisitController");
 
 // Create a new LPN Supervisory Visit
@@ -26,5 +32,52 @@ router.get("/lpnsupervisory/lpn/:lpnId", getLPNSupervisoryVisitsByLPNId);
 
 // Delete an LPN Supervisory Visit by ID
 router.delete("/lpnsupervisory/:id", deleteLPNSupervisoryVisit);
+
+router.post("/lvnhourly", createLVNHourlyVisit);
+
+// Update an existing LVN Hourly Visit by ID
+router.put("/lvnhourly/:id", updateLVNHourlyVisit);
+
+// Get all LVN Hourly Visits
+router.get("/lvnhourly", getAllLVNHourlyVisits);
+
+// Get a specific LVN Hourly Visit by ID
+router.get("/lvnhourly/:id", getLVNHourlyVisitById);
+
+// Get LVN Hourly Visits by Nurse ID
+router.get("/lvnhourly/nurse/:nurseId", getLVNHourlyVisitsByNurseId);
+
+// Delete an LVN Hourly Visit by ID
+router.delete("/lvnhourly/:id", deleteLVNHourlyVisit);
+
+
+
+const {
+  createMiddayInsulinAdministration,
+  updateMiddayInsulinAdministration,
+  getAllMiddayInsulinAdministrations,
+  getMiddayInsulinAdministrationById, 
+  getMiddayInsulinAdministrationsByNurseId,
+  deleteMiddayInsulinAdministration,
+} = require("../controller/middayinsulinController");
+
+// Create a new Midday Insulin Administration record
+router.post("/middayinsulin", createMiddayInsulinAdministration);
+
+// Update an existing Midday Insulin Administration record by ID
+router.put("/middayinsulin/:id", updateMiddayInsulinAdministration);
+
+// Get all Midday Insulin Administration records
+router.get("/middayinsulin", getAllMiddayInsulinAdministrations);
+
+// Get a specific Midday Insulin Administration record by ID
+router.get("/middayinsulin/:id", getMiddayInsulinAdministrationById);
+
+// Get Midday Insulin Administration records by Nurse ID
+router.get("/middayinsulin/nurse/:nurseId", getMiddayInsulinAdministrationsByNurseId);
+
+// Delete a Midday Insulin Administration record by ID
+router.delete("/middayinsulin/:id", deleteMiddayInsulinAdministration);
+
 
 module.exports = router;
