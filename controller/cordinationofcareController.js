@@ -95,6 +95,43 @@ exports.getAllCoordinationOfCare = async (req, res) => {
   }
 };
 
+exports.getAllCoordinationOfCareByPhysicianId = async (req, res) => {
+  try {
+    const { physicianId } = req.params;
+
+    // Find CoordinationOfCare documents by Physician ID
+    const coordinations = await CoordinationOfCare.find({ physicianId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "physicianId",
+        select: "name email phone role",
+      });
+
+    if (!coordinations || coordinations.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Coordination of Care documents found for the specified Physician ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Coordination of Care documents retrieved successfully",
+      data: coordinations,
+    });
+  } catch (error) {
+    console.error("Error fetching Coordination of Care documents by Physician ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Coordination of Care documents by Physician ID",
+      error: error.message,
+    });
+  }
+};
+
 // Get a specific CoordinationOfCare by ID
 exports.getCoordinationOfCareById = async (req, res) => {
   try {
@@ -163,41 +200,6 @@ exports.deleteCoordinationOfCare = async (req, res) => {
 };
 
 
-exports.getAllCoordinationOfCareByPhysicianId = async (req, res) => {
-    try {
-      const { physicianId } = req.params;
-  
-      // Find CoordinationOfCare documents by Physician ID
-      const coordinations = await CoordinationOfCare.find({ physicianId })
-        .populate({
-          path: "patientId",
-          select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-        })
-        .populate({
-          path: "physicianId",
-          select: "name email phone role",
-        });
-  
-      if (!coordinations || coordinations.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "No Coordination of Care documents found for the specified Physician ID",
-        });
-      }
-  
-      res.status(200).json({
-        success: true,
-        message: "Coordination of Care documents retrieved successfully",
-        data: coordinations,
-      });
-    } catch (error) {
-      console.error("Error fetching Coordination of Care documents by Physician ID:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to retrieve Coordination of Care documents by Physician ID",
-        error: error.message,
-      });
-    }
-  };
+
 
 

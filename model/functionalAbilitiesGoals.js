@@ -13,12 +13,12 @@ const functionalAbilitiesGoalsSchema = new mongoose.Schema({
     functionalCognition: { type: String },
   },
   priorDeviceUse: {
-    manualWheelchair: { type: Boolean },
-    motorizedWheelchairOrScooter: { type: Boolean },
-    mechanicalLift: { type: Boolean },
-    walker: { type: Boolean },
-    orthoticsProsthetics: { type: Boolean },
-    noneOfTheAbove: { type: Boolean },
+    manualWheelchair: { type: Boolean, default: false },
+    motorizedWheelchairOrScooter: { type: Boolean, default: false },
+    mechanicalLift: { type: Boolean, default: false },
+    walker: { type: Boolean, default: false },
+    orthoticsProsthetics: { type: Boolean, default: false },
+    noneOfTheAbove: { type: Boolean, default: false },
   },
   selfCarePerformance: {
     eating: {
@@ -111,7 +111,7 @@ const functionalAbilitiesGoalsSchema = new mongoose.Schema({
       socRocPerformance: { type: String },
       dischargeGoal: { type: String },
     },
-    usesWheelchairScooter: { type: Boolean },
+    usesWheelchairScooter: { type: Boolean, default: false },
   },
   comments: { type: String },
 }, { timestamps: true });

@@ -7,7 +7,7 @@ const conversationSchema = new mongoose.Schema(
 			text: String,
 			sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 			seen: {
-				type: Boolean,
+				type: Boolean, default: false,
 				default: false,
 			},
 		},

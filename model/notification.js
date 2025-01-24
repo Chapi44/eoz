@@ -25,7 +25,7 @@ const NotificationSchema = new mongoose.Schema({
     ref: "Task",
   },
   seen: {
-    type: Boolean,
+    type: Boolean, default: false,
     default: false,
   },
   createdAt: {

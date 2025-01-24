@@ -70,25 +70,91 @@ exports.updateAideSupervisoryVisit = async (req, res) => {
 // Get all AideSupervisoryVisits
 exports.getAllAideSupervisoryVisits = async (req, res) => {
   try {
-    const visits = await AideSupervisoryVisit.find()      .populate({
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch AideSupervisoryVisits with pagination
+    const visits = await AideSupervisoryVisit.find()
+      .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
       })
       .populate({
         path: "nurseId",
         select: "name email phone role",
-      });;
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of AideSupervisoryVisits
+    const totalVisits = await AideSupervisoryVisit.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All Aide Supervisory Visits retrieved successfully",
       data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
     });
   } catch (error) {
     console.error("Error fetching Aide Supervisory Visits:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve Aide Supervisory Visits",
+      error: error.message,
+    });
+  }
+};
+
+exports.getAideSupervisoryVisitsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params; // Get Nurse ID from route parameters
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch AideSupervisoryVisits for the specified Nurse ID with pagination
+    const supervisoryVisits = await AideSupervisoryVisit.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of AideSupervisoryVisits for the specified Nurse ID
+    const totalVisits = await AideSupervisoryVisit.countDocuments({ nurseId });
+
+    if (!supervisoryVisits || supervisoryVisits.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Aide Supervisory Visits found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Aide Supervisory Visits retrieved successfully",
+      data: supervisoryVisits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Aide Supervisory Visits by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Aide Supervisory Visits by Nurse ID",
       error: error.message,
     });
   }
@@ -162,31 +228,3 @@ exports.deleteAideSupervisoryVisit = async (req, res) => {
 
 
 
-exports.getAideSupervisoryVisitsByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params; // Get Nurse ID from route parameters
- console.log(nurseId)
-    // Find all AideSupervisoryVisits for the specified Nurse ID
-    const supervisoryVisits = await AideSupervisoryVisit.find({ nurseId });
-
-    if (!supervisoryVisits || supervisoryVisits.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No Aide Supervisory Visits found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Aide Supervisory Visits retrieved successfully",
-      data: supervisoryVisits,
-    });
-  } catch (error) {
-    console.error("Error fetching Aide Supervisory Visits by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Aide Supervisory Visits by Nurse ID",
-      error: error.message,
-    });
-  }
-};

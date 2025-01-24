@@ -42,8 +42,8 @@ const otVisitSchema = mongoose.Schema(
       relievedBy: { type: String },
     },
     teaching: {
-      patientFamily: { type: Boolean, default: false },
-      caregiver: { type: Boolean, default: false },
+      patientFamily: { type: Boolean, default: false, default: false },
+      caregiver: { type: Boolean, default: false, default: false },
       topicsCovered: { type: [String] }, // E.g., ADLs, safety techniques, etc.
     },
     adlTraining: {

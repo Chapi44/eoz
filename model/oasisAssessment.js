@@ -40,7 +40,7 @@ const oasisAssessmentSchema = mongoose.Schema(
       ethnicity: { type: [String] },
       race: { type: [String] },
       language: { type: String },
-      interpreterRequired: { type: Boolean },
+      interpreterRequired: { type: Boolean, default: false },
       paymentSource: { type: String },
     },
     patientHistoryAndDiagnoses: {
@@ -62,7 +62,7 @@ const oasisAssessmentSchema = mongoose.Schema(
           height: { type: Number }, // Height in inches
           bmi: { type: Number }, // Calculated BMI
         },
-        additionalMeasurementsUnavailable: { type: Boolean },
+        additionalMeasurementsUnavailable: { type: Boolean, default: false },
       },
       inpatientDischarges: {
         type: String, // Example: "N/A - Patient was not discharged from an inpatient facility"
@@ -85,29 +85,29 @@ const oasisAssessmentSchema = mongoose.Schema(
         conditions: [
           { type: String }, // Example: "Peripheral Vascular Disease", "Diabetes Mellitus"
         ],
-        noneOfTheAbove: { type: Boolean },
-        noInformationAvailable: { type: Boolean },
+        noneOfTheAbove: { type: Boolean, default: false },
+        noInformationAvailable: { type: Boolean, default: false },
       },
       specialTreatments: {
         cancerTreatments: {
-          chemotherapy: { type: Boolean },
-          radiation: { type: Boolean },
+          chemotherapy: { type: Boolean, default: false },
+          radiation: { type: Boolean, default: false },
         },
         respiratoryTherapies: {
-          oxygenTherapy: { type: Boolean },
-          suctioning: { type: Boolean },
-          tracheostomyCare: { type: Boolean },
-          invasiveVentilator: { type: Boolean },
-          nonInvasiveVentilator: { type: Boolean },
+          oxygenTherapy: { type: Boolean, default: false },
+          suctioning: { type: Boolean, default: false },
+          tracheostomyCare: { type: Boolean, default: false },
+          invasiveVentilator: { type: Boolean, default: false },
+          nonInvasiveVentilator: { type: Boolean, default: false },
         },
         otherTreatments: {
-          ivMedications: { type: Boolean },
-          transfusions: { type: Boolean },
-          dialysis: { type: Boolean },
-          ivAccess: { type: Boolean },
+          ivMedications: { type: Boolean, default: false },
+          transfusions: { type: Boolean, default: false },
+          dialysis: { type: Boolean, default: false },
+          ivAccess: { type: Boolean, default: false },
         },
-        noneOfTheAbove: { type: Boolean },
-        noInformationAvailable: { type: Boolean },
+        noneOfTheAbove: { type: Boolean, default: false },
+        noInformationAvailable: { type: Boolean, default: false },
       },
       allergies: {
         activeAllergies: [{ type: String }], // List of active allergies
@@ -121,44 +121,44 @@ const oasisAssessmentSchema = mongoose.Schema(
      // Risk Assessment Section
      riskAssessment: {
       shinglesVaccination: {
-        received: { type: Boolean },
+        received: { type: Boolean, default: false },
       },
       immunizationLog: {
         activeImmunizations: [{ type: String }],
         declinedImmunizations: [{ type: String }],
       },
       potentialRiskForInfection: {
-        performed: { type: Boolean },
+        performed: { type: Boolean, default: false },
         predictors: {
-          diarrhea: { type: Boolean },
-          immunocompromised: { type: Boolean },
-          indwellingCatheter: { type: Boolean },
-          ivVenousAccessDevice: { type: Boolean },
-          postOpAbdominalSurgery: { type: Boolean },
-          postOpThoracicSurgery: { type: Boolean },
-          postOpOtherSurgery: { type: Boolean },
-          respiratoryIssues: { type: Boolean },
-          wounds: { type: Boolean },
-          instrumentation: { type: Boolean },
+          diarrhea: { type: Boolean, default: false },
+          immunocompromised: { type: Boolean, default: false },
+          indwellingCatheter: { type: Boolean, default: false },
+          ivVenousAccessDevice: { type: Boolean, default: false },
+          postOpAbdominalSurgery: { type: Boolean, default: false },
+          postOpThoracicSurgery: { type: Boolean, default: false },
+          postOpOtherSurgery: { type: Boolean, default: false },
+          respiratoryIssues: { type: Boolean, default: false },
+          wounds: { type: Boolean, default: false },
+          instrumentation: { type: Boolean, default: false },
           other: { type: String },
         },
         confoundingFactors: {
-          absenceOfCaregiver: { type: Boolean },
-          decreasedAlertness: { type: Boolean },
-          decreasedCognition: { type: Boolean },
-          inadequateCleaning: { type: Boolean },
-          poorHandHygiene: { type: Boolean },
-          poorHydration: { type: Boolean },
-          medications: { type: Boolean },
-          poorMobility: { type: Boolean },
-          poorNutrition: { type: Boolean },
-          underlyingDisease: { type: Boolean },
+          absenceOfCaregiver: { type: Boolean, default: false },
+          decreasedAlertness: { type: Boolean, default: false },
+          decreasedCognition: { type: Boolean, default: false },
+          inadequateCleaning: { type: Boolean, default: false },
+          poorHandHygiene: { type: Boolean, default: false },
+          poorHydration: { type: Boolean, default: false },
+          medications: { type: Boolean, default: false },
+          poorMobility: { type: Boolean, default: false },
+          poorNutrition: { type: Boolean, default: false },
+          underlyingDisease: { type: Boolean, default: false },
           other: { type: String },
         },
         infectionRisk: { type: String },
       },
       infectiousDiseaseProfile: {
-        hasInfectiousDisease: { type: Boolean },
+        hasInfectiousDisease: { type: Boolean, default: false },
         details: { type: String },
       },
       hospitalizationRiskAssessment: {
@@ -166,14 +166,14 @@ const oasisAssessmentSchema = mongoose.Schema(
         emergencyPreparedness: { type: String },
       },
       riskForHospitalization: {
-        historyOfFalls: { type: Boolean },
-        weightLoss: { type: Boolean },
-        multipleHospitalizations: { type: Boolean },
-        emergencyVisits: { type: Boolean },
-        declineInMentalOrBehavioralStatus: { type: Boolean },
-        difficultyComplyingWithMedicalInstructions: { type: Boolean },
-        takingFiveOrMoreMedications: { type: Boolean },
-        currentlyRequiresSupervision: { type: Boolean },
+        historyOfFalls: { type: Boolean, default: false },
+        weightLoss: { type: Boolean, default: false },
+        multipleHospitalizations: { type: Boolean, default: false },
+        emergencyVisits: { type: Boolean, default: false },
+        declineInMentalOrBehavioralStatus: { type: Boolean, default: false },
+        difficultyComplyingWithMedicalInstructions: { type: Boolean, default: false },
+        takingFiveOrMoreMedications: { type: Boolean, default: false },
+        currentlyRequiresSupervision: { type: Boolean, default: false },
         otherRisks: { type: String },
       },
       // New Section: Height and Weight
@@ -181,19 +181,19 @@ const oasisAssessmentSchema = mongoose.Schema(
         heightInInches: { type: Number }, // Height in inches
         weightInPounds: { type: Number }, // Weight in pounds
         comments: { type: String }, // Additional comments
-        informationNotAvailable: { type: Boolean }, // If information is not available
+        informationNotAvailable: { type: Boolean, default: false }, // If information is not available
       },
       // New Section: Orders for Discipline and Treatment
       ordersForDisciplineAndTreatment: {
-        highRiskPotentialForHospitalization: { type: Boolean },
-        needForImmunization: { type: Boolean },
-        highRiskPotentialForInfection: { type: Boolean },
-        needForInfectiousDiseaseManagement: { type: Boolean },
+        highRiskPotentialForHospitalization: { type: Boolean, default: false },
+        needForImmunization: { type: Boolean, default: false },
+        highRiskPotentialForInfection: { type: Boolean, default: false },
+        needForInfectiousDiseaseManagement: { type: Boolean, default: false },
       },
     },
         // Prognosis Section
         prognosis: {
-          advanceCarePlan: { type: Boolean }, // Whether Advance Care Plan is checked
+          advanceCarePlan: { type: Boolean, default: false }, // Whether Advance Care Plan is checked
           planOfCarePrognosis: {
             response: {
               type: String, // Example: "Guarded", "Poor", "Fair", "Good", "Excellent"
@@ -204,19 +204,19 @@ const oasisAssessmentSchema = mongoose.Schema(
             additionalComments: { type: String }, // Free-text additional comments
           },
           ordersForDisciplineAndTreatment: {
-            needForAdvanceCarePlanning: { type: Boolean }, // Checkbox for "Need for Advance Care Planning"
+            needForAdvanceCarePlanning: { type: Boolean, default: false }, // Checkbox for "Need for Advance Care Planning"
           },
           trainingAndEducationResources: {
-            physicalAssessment: { type: Boolean }, // Training option 1
-            fifteenMinuteWalk: { type: Boolean }, // Training option 2
-            woundManager: { type: Boolean }, // Training option 3
+            physicalAssessment: { type: Boolean, default: false }, // Training option 1
+            fifteenMinuteWalk: { type: Boolean, default: false }, // Training option 2
+            woundManager: { type: Boolean, default: false }, // Training option 3
           },
         },
         
         
         supportiveAssistance: {
           culturalPreferences: {
-            spiritualOrCulturalPractice: { type: Boolean },
+            spiritualOrCulturalPractice: { type: Boolean, default: false },
           },
           transportation: {
             lackOfTransportation: [{ type: String }], // Example: "Yes, It Has Kept Me From Medical Appointments"
@@ -225,69 +225,69 @@ const oasisAssessmentSchema = mongoose.Schema(
             response: { type: String }, // Example: "Never", "Rarely", "Sometimes", etc.
           },
           psychosocialAssessment: {
-            noProblemsIdentified: { type: Boolean },
-            homeEnvironmentAltered: { type: Boolean },
-            suspectedAbuseNeglect: { type: Boolean },
-            barriersToHealthStatus: { type: Boolean },
-            communityResourcesNeeded: { type: Boolean },
-            communityResourcesProvidingAssistance: { type: Boolean },
+            noProblemsIdentified: { type: Boolean, default: false },
+            homeEnvironmentAltered: { type: Boolean, default: false },
+            suspectedAbuseNeglect: { type: Boolean, default: false },
+            barriersToHealthStatus: { type: Boolean, default: false },
+            communityResourcesNeeded: { type: Boolean, default: false },
+            communityResourcesProvidingAssistance: { type: Boolean, default: false },
           },
           patientLivingSituation: {
             livingArrangement: {
               type: String, // Example: "Patient lives alone", "Patient lives with others"
             },
             availabilityOfAssistance: {
-              aroundTheClock: { type: Boolean },
-              regularDaytime: { type: Boolean },
-              regularNighttime: { type: Boolean },
-              occasionalOrShortTerm: { type: Boolean },
-              noAssistanceAvailable: { type: Boolean },
+              aroundTheClock: { type: Boolean, default: false },
+              regularDaytime: { type: Boolean, default: false },
+              regularNighttime: { type: Boolean, default: false },
+              occasionalOrShortTerm: { type: Boolean, default: false },
+              noAssistanceAvailable: { type: Boolean, default: false },
             },
           },
           planOfCare: {
             safetyMeasures: {
-              twentyFourHourSupervision: { type: Boolean },
-              diabeticNoCutNails: { type: Boolean },
-              emergencyDisasterPlan: { type: Boolean },
-              neutropenicPrecautions: { type: Boolean },
-              proneToSkinBreakdown: { type: Boolean },
-              properBiohazardWasteHandling: { type: Boolean },
-              sharpsSafety: { type: Boolean },
-              infectionControl: { type: Boolean },
-              aspirationPrecautions: { type: Boolean },
-              dmeAndElectricalSafety: { type: Boolean },
-              bleedingPrecautions: { type: Boolean },
-              elevateHeadOfBed: { type: Boolean },
-              fallPrecautions: { type: Boolean },
-              o2Precautions: { type: Boolean },
-              proneToFracturesPrecaution: { type: Boolean },
-              properPositioningDuringMeals: { type: Boolean },
-              seizurePrecautions: { type: Boolean },
-              safetyInADLs: { type: Boolean },
-              sideRailsUp: { type: Boolean },
-              slowPositionChanges: { type: Boolean },
-              supportDuringTransferAndAmbulation: { type: Boolean },
-              useOfAssistiveDevices: { type: Boolean },
-              keepPathwaysClear: { type: Boolean },
-              presenceOfAnimals: { type: Boolean },
+              twentyFourHourSupervision: { type: Boolean, default: false },
+              diabeticNoCutNails: { type: Boolean, default: false },
+              emergencyDisasterPlan: { type: Boolean, default: false },
+              neutropenicPrecautions: { type: Boolean, default: false },
+              proneToSkinBreakdown: { type: Boolean, default: false },
+              properBiohazardWasteHandling: { type: Boolean, default: false },
+              sharpsSafety: { type: Boolean, default: false },
+              infectionControl: { type: Boolean, default: false },
+              aspirationPrecautions: { type: Boolean, default: false },
+              dmeAndElectricalSafety: { type: Boolean, default: false },
+              bleedingPrecautions: { type: Boolean, default: false },
+              elevateHeadOfBed: { type: Boolean, default: false },
+              fallPrecautions: { type: Boolean, default: false },
+              o2Precautions: { type: Boolean, default: false },
+              proneToFracturesPrecaution: { type: Boolean, default: false },
+              properPositioningDuringMeals: { type: Boolean, default: false },
+              seizurePrecautions: { type: Boolean, default: false },
+              safetyInADLs: { type: Boolean, default: false },
+              sideRailsUp: { type: Boolean, default: false },
+              slowPositionChanges: { type: Boolean, default: false },
+              supportDuringTransferAndAmbulation: { type: Boolean, default: false },
+              useOfAssistiveDevices: { type: Boolean, default: false },
+              keepPathwaysClear: { type: Boolean, default: false },
+              presenceOfAnimals: { type: Boolean, default: false },
               other: { type: String }, // Free-text for additional safety measures
             },
           },
           ordersForDisciplineAndTreatment: {
-            alterationInHomeEnvironment: { type: Boolean },
+            alterationInHomeEnvironment: { type: Boolean, default: false },
           },
         },
 
     sensoryStatus: {
       sensoryAssessment: {
-        noProblemsIdentified: { type: Boolean },
-        ringingInEars: { type: Boolean },
-        hearingImpaired: { type: Boolean },
-        earDrainage: { type: Boolean },
-        slurredSpeech: { type: Boolean },
-        aphasia: { type: Boolean },
-        painInEars: { type: Boolean },
-        abnormalPupilsOrVision: { type: Boolean },
+        noProblemsIdentified: { type: Boolean, default: false },
+        ringingInEars: { type: Boolean, default: false },
+        hearingImpaired: { type: Boolean, default: false },
+        earDrainage: { type: Boolean, default: false },
+        slurredSpeech: { type: Boolean, default: false },
+        aphasia: { type: Boolean, default: false },
+        painInEars: { type: Boolean, default: false },
+        abnormalPupilsOrVision: { type: Boolean, default: false },
         comments: { type: String },
       },
       hearing: {
@@ -310,26 +310,26 @@ const oasisAssessmentSchema = mongoose.Schema(
         type: String, // Example: "Does not apply", "Rarely or not at all", "Occasionally", "Frequently", "Almost constantly", "Unable to answer"
       },
       ordersForDisciplineAndTreatment: {
-        alterationInComfortPain: { type: Boolean }, // Example: true if there's an alteration in comfort due to pain
+        alterationInComfortPain: { type: Boolean, default: false }, // Example: true if there's an alteration in comfort due to pain
       },
     },
     integumentaryStatus: {
       integumentaryAssessment: {
-        noProblemsIdentified: { type: Boolean },
-        bruising: { type: Boolean },
-        cool: { type: Boolean },
-        clammy: { type: Boolean },
-        dry: { type: Boolean },
-        flushed: { type: Boolean },
-        cyanotic: { type: Boolean },
-        jaundice: { type: Boolean },
-        pallor: { type: Boolean },
-        rash: { type: Boolean },
-        wounds: { type: Boolean },
-        poorTurgor: { type: Boolean },
-        pruritus: { type: Boolean },
-        incision: { type: Boolean },
-        skinLesionRequiringIntervention: { type: Boolean },
+        noProblemsIdentified: { type: Boolean, default: false },
+        bruising: { type: Boolean, default: false },
+        cool: { type: Boolean, default: false },
+        clammy: { type: Boolean, default: false },
+        dry: { type: Boolean, default: false },
+        flushed: { type: Boolean, default: false },
+        cyanotic: { type: Boolean, default: false },
+        jaundice: { type: Boolean, default: false },
+        pallor: { type: Boolean, default: false },
+        rash: { type: Boolean, default: false },
+        wounds: { type: Boolean, default: false },
+        poorTurgor: { type: Boolean, default: false },
+        pruritus: { type: Boolean, default: false },
+        incision: { type: Boolean, default: false },
+        skinLesionRequiringIntervention: { type: Boolean, default: false },
         comments: { type: String },
       },
       nortonPressureSoreRiskAssessment: {
@@ -341,52 +341,52 @@ const oasisAssessmentSchema = mongoose.Schema(
         totalscore: { type: String }, 
       },
       pressureUlcer: {
-        hasUnhealedPressureUlcer: { type: Boolean }, // Yes or No
+        hasUnhealedPressureUlcer: { type: Boolean, default: false }, // Yes or No
         ulcerCount: { type: Number, default: 0 }, // Example: 0, 1, 2, etc.
         ulcerStages: {
-          stage1: { type: Boolean },
-          stage2: { type: Boolean },
-          stage3: { type: Boolean },
-          stage4: { type: Boolean },
+          stage1: { type: Boolean, default: false },
+          stage2: { type: Boolean, default: false },
+          stage3: { type: Boolean, default: false },
+          stage4: { type: Boolean, default: false },
         },
       },
       stasisUlcer: {
-        hasStasisUlcer: { type: Boolean }, // Yes or No
+        hasStasisUlcer: { type: Boolean, default: false }, // Yes or No
         description: {
-          observable: { type: Boolean },
-          unobservable: { type: Boolean },
+          observable: { type: Boolean, default: false },
+          unobservable: { type: Boolean, default: false },
         },
       },
       surgicalWound: {
-        hasSurgicalWound: { type: Boolean }, // Yes or No
+        hasSurgicalWound: { type: Boolean, default: false }, // Yes or No
         description: {
-          observable: { type: Boolean },
-          unobservable: { type: Boolean },
+          observable: { type: Boolean, default: false },
+          unobservable: { type: Boolean, default: false },
         },
       },
       //woundmanager
       ordersForDisciplineAndTreatment: {
-        alterationInIntegumentaryStatus: { type: Boolean }, // Example: true or false
+        alterationInIntegumentaryStatus: { type: Boolean, default: false }, // Example: true or false
       },
     },
 
    // Respiratory Status Section
    respiratoryStatus: {
     respiratoryAssessment: {
-      noProblemsIdentified: { type: Boolean },
-      accessoryMuscleUse: { type: Boolean },
-      cpapBipap: { type: Boolean },
-      orthopnea: { type: Boolean },
-      abnormalBreathSounds: { type: Boolean },
-      dyspnea: { type: Boolean },
-      coughNonproductive: { type: Boolean },
-      coughProductive: { type: Boolean },
-      nebulizer: { type: Boolean },
-      oxygenUseIntermittent: { type: Boolean },
-      paroxysmalNocturnalDyspnea: { type: Boolean },
-      tachypnea: { type: Boolean },
-      tracheostomy: { type: Boolean },
-      oxygenUseContinuous: { type: Boolean },
+      noProblemsIdentified: { type: Boolean, default: false },
+      accessoryMuscleUse: { type: Boolean, default: false },
+      cpapBipap: { type: Boolean, default: false },
+      orthopnea: { type: Boolean, default: false },
+      abnormalBreathSounds: { type: Boolean, default: false },
+      dyspnea: { type: Boolean, default: false },
+      coughNonproductive: { type: Boolean, default: false },
+      coughProductive: { type: Boolean, default: false },
+      nebulizer: { type: Boolean, default: false },
+      oxygenUseIntermittent: { type: Boolean, default: false },
+      paroxysmalNocturnalDyspnea: { type: Boolean, default: false },
+      tachypnea: { type: Boolean, default: false },
+      tracheostomy: { type: Boolean, default: false },
+      oxygenUseContinuous: { type: Boolean, default: false },
       comments: { type: String },
     },
     shortnessOfBreath: {
@@ -398,37 +398,37 @@ const oasisAssessmentSchema = mongoose.Schema(
       },
     },
     ordersForDisciplineAndTreatment: {
-      alterationInRespiratoryStatus: { type: Boolean }, // Example: true or false
+      alterationInRespiratoryStatus: { type: Boolean, default: false }, // Example: true or false
     },
   },
       // Cardiac Status Section
       cardiacStatus: {
         cardiacAssessment: {
-          noProblemsIdentified: { type: Boolean },
-          activityIntolerance: { type: Boolean },
-          abnormalPulses: { type: Boolean },
-          aicd: { type: Boolean }, // Automated implantable cardioverter-defibrillator
-          distendedNeckVeins: { type: Boolean },
-          abnormalHeartRhythm: { type: Boolean },
-          abnormalLowerExtremitySensation: { type: Boolean },
-          capillaryRefillGreaterThan3Sec: { type: Boolean },
-          fatigueWeakness: { type: Boolean },
-          orthopnea: { type: Boolean },
-          dizzinessLightheadedness: { type: Boolean },
-          paroxysmalNocturnalDyspnea: { type: Boolean },
-          orthostaticHypotension: { type: Boolean },
-          palpitations: { type: Boolean },
-          pacemaker: { type: Boolean },
-          edemaPitting: { type: Boolean },
-          edemaNonPitting: { type: Boolean },
-          chestPain: { type: Boolean },
-          abnormalHeartSounds: { type: Boolean },
-          abnormalLowerExtremityAppearance: { type: Boolean },
-          exhibitingSignsOfHeartFailure: { type: Boolean },
+          noProblemsIdentified: { type: Boolean, default: false },
+          activityIntolerance: { type: Boolean, default: false },
+          abnormalPulses: { type: Boolean, default: false },
+          aicd: { type: Boolean, default: false }, // Automated implantable cardioverter-defibrillator
+          distendedNeckVeins: { type: Boolean, default: false },
+          abnormalHeartRhythm: { type: Boolean, default: false },
+          abnormalLowerExtremitySensation: { type: Boolean, default: false },
+          capillaryRefillGreaterThan3Sec: { type: Boolean, default: false },
+          fatigueWeakness: { type: Boolean, default: false },
+          orthopnea: { type: Boolean, default: false },
+          dizzinessLightheadedness: { type: Boolean, default: false },
+          paroxysmalNocturnalDyspnea: { type: Boolean, default: false },
+          orthostaticHypotension: { type: Boolean, default: false },
+          palpitations: { type: Boolean, default: false },
+          pacemaker: { type: Boolean, default: false },
+          edemaPitting: { type: Boolean, default: false },
+          edemaNonPitting: { type: Boolean, default: false },
+          chestPain: { type: Boolean, default: false },
+          abnormalHeartSounds: { type: Boolean, default: false },
+          abnormalLowerExtremityAppearance: { type: Boolean, default: false },
+          exhibitingSignsOfHeartFailure: { type: Boolean, default: false },
           comments: { type: String },
         },
         ordersForDisciplineAndTreatment: {
-          alterationInCardiacStatus: { type: Boolean }, // Problem statement
+          alterationInCardiacStatus: { type: Boolean, default: false }, // Problem statement
         },
       },
        // Elimination Status Section
@@ -444,37 +444,37 @@ const oasisAssessmentSchema = mongoose.Schema(
         present: { type: String }, // 0, 1, 2
       },
       genitourinaryAssessment: {
-        noProblemsIdentified: { type: Boolean },
-        nocturia: { type: Boolean },
-        abnormalUrineAppearance: { type: Boolean },
-        dialysis: { type: Boolean },
-        indwellingFoleyCatheter: { type: Boolean },
-        intermittentCatheterization: { type: Boolean },
-        suprapubicCatheter: { type: Boolean },
-        utiSignsOrSymptoms: { type: Boolean },
-        discharge: { type: Boolean },
+        noProblemsIdentified: { type: Boolean, default: false },
+        nocturia: { type: Boolean, default: false },
+        abnormalUrineAppearance: { type: Boolean, default: false },
+        dialysis: { type: Boolean, default: false },
+        indwellingFoleyCatheter: { type: Boolean, default: false },
+        intermittentCatheterization: { type: Boolean, default: false },
+        suprapubicCatheter: { type: Boolean, default: false },
+        utiSignsOrSymptoms: { type: Boolean, default: false },
+        discharge: { type: Boolean, default: false },
         comments: { type: String },
       },
       gastrointestinalAssessment: {
         lastBM: { type: Date },
-        noProblemsIdentified: { type: Boolean },
-        ascites: { type: Boolean },
-        hemorrhoids: { type: Boolean },
-        nausea: { type: Boolean },
-        tenderness: { type: Boolean },
-        abnormalBowelSounds: { type: Boolean },
-        bowelIncontinence: { type: Boolean },
-        distended: { type: Boolean },
-        hard: { type: Boolean },
-        laxativeEnemaUse: { type: Boolean },
-        pain: { type: Boolean },
-        vomiting: { type: Boolean },
-        abnormalStool: { type: Boolean },
+        noProblemsIdentified: { type: Boolean, default: false },
+        ascites: { type: Boolean, default: false },
+        hemorrhoids: { type: Boolean, default: false },
+        nausea: { type: Boolean, default: false },
+        tenderness: { type: Boolean, default: false },
+        abnormalBowelSounds: { type: Boolean, default: false },
+        bowelIncontinence: { type: Boolean, default: false },
+        distended: { type: Boolean, default: false },
+        hard: { type: Boolean, default: false },
+        laxativeEnemaUse: { type: Boolean, default: false },
+        pain: { type: Boolean, default: false },
+        vomiting: { type: Boolean, default: false },
+        abnormalStool: { type: Boolean, default: false },
         comments: { type: String },
       },
       ordersForDisciplineAndTreatment: {
-        alterationInGenitourinaryStatus: { type: Boolean },
-        alterationInGastrointestinalStatus: { type: Boolean },
+        alterationInGenitourinaryStatus: { type: Boolean, default: false },
+        alterationInGastrointestinalStatus: { type: Boolean, default: false },
       },
     },
 
@@ -490,38 +490,38 @@ const oasisAssessmentSchema = mongoose.Schema(
       },
       ordersForDisciplineAndTreatment: {
         needForProcessMeasures: {
-          type: Boolean, // Boolean to indicate whether process measures are required.
+          type: Boolean, default: false, // Boolean to indicate whether process measures are required.
           default: false,
         },
       },
       trainingAndEducationResources: {
         physicalAssessment: {
-          type: Boolean, // Boolean to indicate the use of physical assessment training resources.
+          type: Boolean, default: false, // Boolean to indicate the use of physical assessment training resources.
           default: false,
         },
         fifteenMinuteWalk: {
-          type: Boolean, // Boolean to indicate the use of 15-minute walk resources.
+          type: Boolean, default: false, // Boolean to indicate the use of 15-minute walk resources.
           default: false,
         },
         woundManager: {
-          type: Boolean, // Boolean to indicate the use of wound manager training resources.
+          type: Boolean, default: false, // Boolean to indicate the use of wound manager training resources.
           default: false,
         },
       },
     },
     endocrineHematologicalAssessment: {
       assessment: {
-        noProblemsIdentified: { type: Boolean },
-        anemia: { type: Boolean },
-        cancer: { type: Boolean },
-        hypothyroidism: { type: Boolean },
-        hyperthyroidism: { type: Boolean },
-        diabetes: { type: Boolean },
+        noProblemsIdentified: { type: Boolean, default: false },
+        anemia: { type: Boolean, default: false },
+        cancer: { type: Boolean, default: false },
+        hypothyroidism: { type: Boolean, default: false },
+        hyperthyroidism: { type: Boolean, default: false },
+        diabetes: { type: Boolean, default: false },
       },
       comments: { type: String }, // Field to store additional comments
       ordersForDisciplineAndTreatment: {
-        alterationInGlucoseMetabolism: { type: Boolean },
-        alterationInHematologicalStatus: { type: Boolean },
+        alterationInGlucoseMetabolism: { type: Boolean, default: false },
+        alterationInHematologicalStatus: { type: Boolean, default: false },
       },
     },
     functionalAbilitiesGoals: {
@@ -532,12 +532,12 @@ const oasisAssessmentSchema = mongoose.Schema(
         functionalCognition: { type: String },
       },
       priorDeviceUse: {
-        manualWheelchair: { type: Boolean },
-        motorizedWheelchairOrScooter: { type: Boolean },
-        mechanicalLift: { type: Boolean },
-        walker: { type: Boolean },
-        orthoticsProsthetics: { type: Boolean },
-        noneOfTheAbove: { type: Boolean },
+        manualWheelchair: { type: Boolean, default: false },
+        motorizedWheelchairOrScooter: { type: Boolean, default: false },
+        mechanicalLift: { type: Boolean, default: false },
+        walker: { type: Boolean, default: false },
+        orthoticsProsthetics: { type: Boolean, default: false },
+        noneOfTheAbove: { type: Boolean, default: false },
       },
       selfCarePerformance: {
         eating: {
@@ -630,7 +630,7 @@ const oasisAssessmentSchema = mongoose.Schema(
           socRocPerformance: { type: String },
           dischargeGoal: { type: String },
         },
-        usesWheelchairScooter: { type: Boolean },
+        usesWheelchairScooter: { type: Boolean, default: false },
       },
       comments: { type: String }, // Field for additional comments
     },
@@ -681,8 +681,8 @@ const oasisAssessmentSchema = mongoose.Schema(
       },
       ordersForDisciplineAndTreatment: {
         problemStatement: {
-          musculoskeletalIssues: { type: Boolean }, // "Alteration in Musculoskeletal Status"
-          fallPreventionPlan: { type: Boolean }, // "Need for Fall Prevention Plan"
+          musculoskeletalIssues: { type: Boolean, default: false }, // "Alteration in Musculoskeletal Status"
+          fallPreventionPlan: { type: Boolean, default: false }, // "Need for Fall Prevention Plan"
         },
       },
     },
@@ -700,13 +700,13 @@ const oasisAssessmentSchema = mongoose.Schema(
       },
       medicationStatus: {
         medications: {
-          received: { type: Boolean },
-          reconciled: { type: Boolean },
-          issuesIdentified: { type: Boolean },
-          adequateUse: { type: Boolean },
-          PRNUse: { type: Boolean },
-          initialPrescriptionsFilled: { type: Boolean },
-          infusion: { type: Boolean },
+          received: { type: Boolean, default: false },
+          reconciled: { type: Boolean, default: false },
+          issuesIdentified: { type: Boolean, default: false },
+          adequateUse: { type: Boolean, default: false },
+          PRNUse: { type: Boolean, default: false },
+          initialPrescriptionsFilled: { type: Boolean, default: false },
+          infusion: { type: Boolean, default: false },
         },
         pharmacyInfo: { type: String },
       },
@@ -724,24 +724,24 @@ const oasisAssessmentSchema = mongoose.Schema(
         },
       },
       highRiskDrugs: {
-        isTaking: { type: Boolean },
+        isTaking: { type: Boolean, default: false },
         categories: {
-          antipsychotic: { type: Boolean },
-          anticoagulant: { type: Boolean },
-          antibiotic: { type: Boolean },
-          opioid: { type: Boolean },
-          antiepileptic: { type: Boolean },
-          hypoglycemics: { type: Boolean },
-          noneOfTheAbove: { type: Boolean },
+          antipsychotic: { type: Boolean, default: false },
+          anticoagulant: { type: Boolean, default: false },
+          antibiotic: { type: Boolean, default: false },
+          opioid: { type: Boolean, default: false },
+          antiepileptic: { type: Boolean, default: false },
+          hypoglycemics: { type: Boolean, default: false },
+          noneOfTheAbove: { type: Boolean, default: false },
         },
-        indicationNeeded: { type: Boolean },
+        indicationNeeded: { type: Boolean, default: false },
       },
       comments: { type: String },
       ordersForDisciplineAndTreatment: {
-        medicationManagement: { type: Boolean },
-        injections: { type: Boolean },
-        parenteralTherapy: { type: Boolean },
-        diagnosticTesting: { type: Boolean },
+        medicationManagement: { type: Boolean, default: false },
+        injections: { type: Boolean, default: false },
+        parenteralTherapy: { type: Boolean, default: false },
+        diagnosticTesting: { type: Boolean, default: false },
       },
     },
     neuroEmotionalBehavioralStatus: {
@@ -804,12 +804,12 @@ const oasisAssessmentSchema = mongoose.Schema(
       },
       behavioralStatus: {
         cognitiveBehavioralSymptoms: {
-          memoryDeficit: { type: Boolean },
-          impairedDecisionMaking: { type: Boolean },
-          verbalDisruption: { type: Boolean },
-          physicalAggression: { type: Boolean },
-          disruptiveBehavior: { type: Boolean },
-          delusionalBehavior: { type: Boolean },
+          memoryDeficit: { type: Boolean, default: false },
+          impairedDecisionMaking: { type: Boolean, default: false },
+          verbalDisruption: { type: Boolean, default: false },
+          physicalAggression: { type: Boolean, default: false },
+          disruptiveBehavior: { type: Boolean, default: false },
+          delusionalBehavior: { type: Boolean, default: false },
         },
         frequencyOfDisruptiveBehavior: {
           type: String,
@@ -817,93 +817,93 @@ const oasisAssessmentSchema = mongoose.Schema(
       },
       planOfCare: {
         mentalCognitiveStatus: {
-          orientedX3: { type: Boolean },
-          orientedToSelf: { type: Boolean },
-          orientedToSelfAndPlace: { type: Boolean },
-          agitated: { type: Boolean },
-          comatose: { type: Boolean },
-          forgetful: { type: Boolean },
-          depressed: { type: Boolean },
-          disoriented: { type: Boolean },
-          lethargic: { type: Boolean },
+          orientedX3: { type: Boolean, default: false },
+          orientedToSelf: { type: Boolean, default: false },
+          orientedToSelfAndPlace: { type: Boolean, default: false },
+          agitated: { type: Boolean, default: false },
+          comatose: { type: Boolean, default: false },
+          forgetful: { type: Boolean, default: false },
+          depressed: { type: Boolean, default: false },
+          disoriented: { type: Boolean, default: false },
+          lethargic: { type: Boolean, default: false },
           other: { type: String },
         },
         ordersForDisciplineAndTreatment: {
-          alterationInNeurologicalStatus: { type: Boolean },
-          alterationInMentalStatus: { type: Boolean },
+          alterationInNeurologicalStatus: { type: Boolean, default: false },
+          alterationInMentalStatus: { type: Boolean, default: false },
         },
       },
     },
 
        nutritionAssessment: {
       nutritionAssessment: {
-        noProblemsIdentified: { type: Boolean },
-        difficultyChewing: { type: Boolean },
-        edentulous: { type: Boolean },
-        tubeFeedingPresent: { type: Boolean },
-        anorexic: { type: Boolean },
-        fairAppetite: { type: Boolean },
-        poorAppetite: { type: Boolean },
-        poorHydration: { type: Boolean },
-        soreThroat: { type: Boolean },
-        TPNorLipids: { type: Boolean },
-        weightLoss: { type: Boolean },
-        weightGain: { type: Boolean },
+        noProblemsIdentified: { type: Boolean, default: false },
+        difficultyChewing: { type: Boolean, default: false },
+        edentulous: { type: Boolean, default: false },
+        tubeFeedingPresent: { type: Boolean, default: false },
+        anorexic: { type: Boolean, default: false },
+        fairAppetite: { type: Boolean, default: false },
+        poorAppetite: { type: Boolean, default: false },
+        poorHydration: { type: Boolean, default: false },
+        soreThroat: { type: Boolean, default: false },
+        TPNorLipids: { type: Boolean, default: false },
+        weightLoss: { type: Boolean, default: false },
+        weightGain: { type: Boolean, default: false },
         comments: { type: String },
       },
       nutritionalHealthScreen: {
         questions: [
           {
             question: { type: String },
-            answer: { type: Boolean },
+            answer: { type: Boolean, default: false },
           },
         ],
         totalScore: { type: Number },
         riskCategory: { type: String }, // e.g., "Good Nutritional Status", "Moderate Nutritional Risk", or "High Nutritional Risk"
       },
       nutritionalApproaches: {
-        parenteralFeeding: { type: Boolean },
-        mechanicallyAlteredDiet: { type: Boolean },
-        therapeuticDiet: { type: Boolean },
-        other: { type: Boolean },
-        noneOfTheAbove: { type: Boolean },
-        noInformationAvailable: { type: Boolean },
+        parenteralFeeding: { type: Boolean, default: false },
+        mechanicallyAlteredDiet: { type: Boolean, default: false },
+        therapeuticDiet: { type: Boolean, default: false },
+        other: { type: Boolean, default: false },
+        noneOfTheAbove: { type: Boolean, default: false },
+        noInformationAvailable: { type: Boolean, default: false },
       },
       planOfCareNutritionalRequirements: {
-        regular: { type: Boolean },
-        mechanicalSoft: { type: Boolean },
-        heartHealthy: { type: Boolean },
-        lowCholesterol: { type: Boolean },
-        lowFat: { type: Boolean },
-        sodiumRestriction: { type: Boolean },
-        noAddedSalt: { type: Boolean },
-        calorieADA: { type: Boolean },
-        noConcentratedSweets: { type: Boolean },
-        consistentDiet: { type: Boolean },
-        renalDiet: { type: Boolean },
-        enteralNutrition: { type: Boolean },
-        TPN: { type: Boolean },
-        supplements: { type: Boolean },
-        fluidRestriction: { type: Boolean },
+        regular: { type: Boolean, default: false },
+        mechanicalSoft: { type: Boolean, default: false },
+        heartHealthy: { type: Boolean, default: false },
+        lowCholesterol: { type: Boolean, default: false },
+        lowFat: { type: Boolean, default: false },
+        sodiumRestriction: { type: Boolean, default: false },
+        noAddedSalt: { type: Boolean, default: false },
+        calorieADA: { type: Boolean, default: false },
+        noConcentratedSweets: { type: Boolean, default: false },
+        consistentDiet: { type: Boolean, default: false },
+        renalDiet: { type: Boolean, default: false },
+        enteralNutrition: { type: Boolean, default: false },
+        TPN: { type: Boolean, default: false },
+        supplements: { type: Boolean, default: false },
+        fluidRestriction: { type: Boolean, default: false },
         other: { type: String },
       },
       ordersForDisciplineAndTreatment: {
-        alterationInNutrition: { type: Boolean },
+        alterationInNutrition: { type: Boolean, default: false },
       },
     },
     supplyManagerDME: {
       durableMedicalEquipment: {
-        bedsideCommode: { type: Boolean, default: false },
-        cane: { type: Boolean, default: false },
-        elevatedToiletSeat: { type: Boolean, default: false },
-        grabBars: { type: Boolean, default: false },
-        hospitalBed: { type: Boolean, default: false },
-        nebulizer: { type: Boolean, default: false },
-        oxygen: { type: Boolean, default: false },
-        tubShowerBench: { type: Boolean, default: false },
-        walker: { type: Boolean, default: false },
-        wheelchair: { type: Boolean, default: false },
-        other: { type: Boolean, default: false },
+        bedsideCommode: { type: Boolean, default: false, default: false },
+        cane: { type: Boolean, default: false, default: false },
+        elevatedToiletSeat: { type: Boolean, default: false, default: false },
+        grabBars: { type: Boolean, default: false, default: false },
+        hospitalBed: { type: Boolean, default: false, default: false },
+        nebulizer: { type: Boolean, default: false, default: false },
+        oxygen: { type: Boolean, default: false, default: false },
+        tubShowerBench: { type: Boolean, default: false, default: false },
+        walker: { type: Boolean, default: false, default: false },
+        wheelchair: { type: Boolean, default: false, default: false },
+        other: { type: Boolean, default: false, default: false },
       },
       durableMedicalEquipmentProvider: {
         name: { type: String, maxlength: 255 }, // Name of the provider
@@ -921,7 +921,7 @@ const oasisAssessmentSchema = mongoose.Schema(
         
       },
       notApplicable: {
-        type: Boolean, // Whether marked as "Not Applicable"
+        type: Boolean, default: false, // Whether marked as "Not Applicable"
         default: false,
       },
       comments: {
@@ -929,20 +929,20 @@ const oasisAssessmentSchema = mongoose.Schema(
         maxlength: 5000, // Character limit
       },
       ordersForDisciplineAndTreatment: {
-        PT: { type: Boolean, default: false }, // Physical Therapy need
-        OT: { type: Boolean, default: false }, // Occupational Therapy need
-        ST: { type: Boolean, default: false }, // Speech-Language Therapy need
+        PT: { type: Boolean, default: false, default: false }, // Physical Therapy need
+        OT: { type: Boolean, default: false, default: false }, // Occupational Therapy need
+        ST: { type: Boolean, default: false, default: false }, // Speech-Language Therapy need
       },
     },
     aideCarePlan: {
       ordersForDisciplineAndTreatment: {
-        hhaNeedForHomeHealthAide: { type: Boolean, default: false }, // Checkbox for "HHA - Need for Home Health Aide"
-        needForOtherAideServicesMedicaid: { type: Boolean, default: false }, // Checkbox for "Need for Other Aide Services (Medicaid)"
+        hhaNeedForHomeHealthAide: { type: Boolean, default: false, default: false }, // Checkbox for "HHA - Need for Home Health Aide"
+        needForOtherAideServicesMedicaid: { type: Boolean, default: false, default: false }, // Checkbox for "Need for Other Aide Services (Medicaid)"
       },
       trainingAndEducationResources: {
-        physicalAssessment: { type: Boolean, default: false }, // Training option for Physical Assessment
-        fifteenMinuteWalk: { type: Boolean, default: false }, // Training option for 15-minute walk
-        woundManager: { type: Boolean, default: false }, // Training option for Wound Manager
+        physicalAssessment: { type: Boolean, default: false, default: false }, // Training option for Physical Assessment
+        fifteenMinuteWalk: { type: Boolean, default: false, default: false }, // Training option for 15-minute walk
+        woundManager: { type: Boolean, default: false, default: false }, // Training option for Wound Manager
       },
       comments: {
         type: String, // Additional comments
@@ -959,34 +959,34 @@ const oasisAssessmentSchema = mongoose.Schema(
         regarding: { type: String }, // Reason or purpose
       },
       planOfCareReview: {
-        planOfCare: { type: Boolean, default: false },
-        patientResponse: { type: Boolean, default: false },
-        legalRepresentativeResponse: { type: Boolean, default: false },
-        legalRepresentativeInvolvement: { type: Boolean, default: false },
-        noLegalRepresentativeInvolved: { type: Boolean, default: false },
-        identifyAssistivePeople: { type: Boolean, default: false },
+        planOfCare: { type: Boolean, default: false, default: false },
+        patientResponse: { type: Boolean, default: false, default: false },
+        legalRepresentativeResponse: { type: Boolean, default: false, default: false },
+        legalRepresentativeInvolvement: { type: Boolean, default: false, default: false },
+        noLegalRepresentativeInvolved: { type: Boolean, default: false, default: false },
+        identifyAssistivePeople: { type: Boolean, default: false, default: false },
         other: { type: String }, // Additional information
       },
       patientStrengths: {
-        noIssuesIdentified: { type: Boolean, default: false },
-        motivatedLearner: { type: Boolean, default: false },
-        strongSupportSystem: { type: Boolean, default: false },
-        absenceOfMultipleComorbidities: { type: Boolean, default: false },
-        enhancedSocioeconomicStatus: { type: Boolean, default: false },
-        collegeGraduate: { type: Boolean, default: false },
-        highSchoolGraduate: { type: Boolean, default: false },
+        noIssuesIdentified: { type: Boolean, default: false, default: false },
+        motivatedLearner: { type: Boolean, default: false, default: false },
+        strongSupportSystem: { type: Boolean, default: false, default: false },
+        absenceOfMultipleComorbidities: { type: Boolean, default: false, default: false },
+        enhancedSocioeconomicStatus: { type: Boolean, default: false, default: false },
+        collegeGraduate: { type: Boolean, default: false, default: false },
+        highSchoolGraduate: { type: Boolean, default: false, default: false },
         otherStrengths: { type: String
         },
       },
       visitInterventions: {
         reviewedAndInstructedOn: {
-          legal: { type: Boolean, default: false },
-          medicationReview: { type: Boolean, default: false },
-          diseaseProcess: { type: Boolean, default: false },
-          safety: { type: Boolean, default: false },
-          disciplinesScheduling: { type: Boolean, default: false },
-          physicianContact: { type: Boolean, default: false },
-          na: { type: Boolean, default: false },
+          legal: { type: Boolean, default: false, default: false },
+          medicationReview: { type: Boolean, default: false, default: false },
+          diseaseProcess: { type: Boolean, default: false, default: false },
+          safety: { type: Boolean, default: false, default: false },
+          disciplinesScheduling: { type: Boolean, default: false, default: false },
+          physicianContact: { type: Boolean, default: false, default: false },
+          na: { type: Boolean, default: false, default: false },
         },
         interventions: {
           template: { type: String }, // Selected template for interventions
@@ -999,27 +999,27 @@ const oasisAssessmentSchema = mongoose.Schema(
         visitNarrative: { type: String, maxlength: 5000 }, // Narrative details
       },
       planOfCareDisciplineOrdersAndTreatment: {
-        skilledNurseEvaluationPerformed: { type: Boolean, default: false },
-        therapyOnlyCase: { type: Boolean, default: false },
-        nonSkilledPlanOfCareManagement: { type: Boolean, default: false },
-        noFurtherVisitsRequired: { type: Boolean, default: false },
-        additionalPhysicianInvolvement: { type: Boolean, default: false },
-        patientRightsExplanation: { type: Boolean, default: false },
+        skilledNurseEvaluationPerformed: { type: Boolean, default: false, default: false },
+        therapyOnlyCase: { type: Boolean, default: false, default: false },
+        nonSkilledPlanOfCareManagement: { type: Boolean, default: false, default: false },
+        noFurtherVisitsRequired: { type: Boolean, default: false, default: false },
+        additionalPhysicianInvolvement: { type: Boolean, default: false, default: false },
+        patientRightsExplanation: { type: Boolean, default: false, default: false },
       },
       rehabilitationPotentialAndDischargePlans: {
         rehabilitationPotential: { type: String }, // E.g., "Good", "Poor", etc.
         dischargePlans: {
           providerAfterDischarge: { type: String }, // Care provider
           dischargePatientWhen: {
-            selfManageDiseaseProcess: { type: Boolean, default: false },
-            caregiverAidInManagement: { type: Boolean, default: false },
-            returnToStableStatus: { type: Boolean, default: false },
-            selfManagePain: { type: Boolean, default: false },
-            performProcedureWithoutPrompt: { type: Boolean, default: false },
-            caregiverPerformProcedureWithoutPrompt: { type: Boolean, default: false },
-            woundsHealed: { type: Boolean, default: false },
-            caregiverManageWounds: { type: Boolean, default: false },
-            caregiverDemonstrateInstruction: { type: Boolean, default: false },
+            selfManageDiseaseProcess: { type: Boolean, default: false, default: false },
+            caregiverAidInManagement: { type: Boolean, default: false, default: false },
+            returnToStableStatus: { type: Boolean, default: false, default: false },
+            selfManagePain: { type: Boolean, default: false, default: false },
+            performProcedureWithoutPrompt: { type: Boolean, default: false, default: false },
+            caregiverPerformProcedureWithoutPrompt: { type: Boolean, default: false, default: false },
+            woundsHealed: { type: Boolean, default: false, default: false },
+            caregiverManageWounds: { type: Boolean, default: false, default: false },
+            caregiverDemonstrateInstruction: { type: Boolean, default: false, default: false },
             other: { type: String },
           },
         },
@@ -1057,9 +1057,9 @@ const oasisAssessmentSchema = mongoose.Schema(
         },
       },
       trainingAndEducationResources: {
-        physicalAssessment: { type: Boolean, default: false },
-        oasis15MinuteWalk: { type: Boolean, default: false },
-        woundManager: { type: Boolean, default: false },
+        physicalAssessment: { type: Boolean, default: false, default: false },
+        oasis15MinuteWalk: { type: Boolean, default: false, default: false },
+        woundManager: { type: Boolean, default: false, default: false },
       },
     },
         

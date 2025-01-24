@@ -22,7 +22,7 @@ const faceToFaceSchema = mongoose.Schema(
       required: true,
     },
     certifyingPhysician: {
-      isCertifying: { type: Boolean, default: true },
+      isCertifying: { type: Boolean, default: false, default: true },
       name: { type: String }, // Optional if not the certifying physician
     },
     primaryReason: {
@@ -33,12 +33,12 @@ const faceToFaceSchema = mongoose.Schema(
       type: String,
     },
     homeHealthServices: {
-      skilledNursing: { type: Boolean, default: false },
-      physicalTherapy: { type: Boolean, default: false },
-      occupationalTherapy: { type: Boolean, default: false },
-      speechTherapy: { type: Boolean, default: false },
-      homeHealthAide: { type: Boolean, default: false },
-      msw: { type: Boolean, default: false }, // Medical Social Worker
+      skilledNursing: { type: Boolean, default: false, default: false },
+      physicalTherapy: { type: Boolean, default: false, default: false },
+      occupationalTherapy: { type: Boolean, default: false, default: false },
+      speechTherapy: { type: Boolean, default: false, default: false },
+      homeHealthAide: { type: Boolean, default: false, default: false },
+      msw: { type: Boolean, default: false, default: false }, // Medical Social Worker
       other: { type: String },
     },
     soc: { type: Date }, // Start of care

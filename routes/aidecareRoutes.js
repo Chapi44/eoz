@@ -5,11 +5,12 @@ const {
   updateAideCarePlan,
   getAllAideCarePlans,
   getAideCarePlanById,
-  getAideCarePlansByNurseId
+  getAideCarePlansByNurseId,
+  deleteAideCarePlan
 } = require("../controller/aidecareController");
-
+const updateTaskStatus = require("../middelware/updateTaskStatus");
 // Create a new AideCarePlan
-router.post("/createaid", createAideCarePlan);
+router.post("/createaid", updateTaskStatus, createAideCarePlan);
 
 // Update an existing AideCarePlan by ID
 router.put("/getaid/:id", updateAideCarePlan);
@@ -23,6 +24,8 @@ router.get("/aid/:id", getAideCarePlanById);
 
 router.get("/aid/nurse/:nurseId", getAideCarePlansByNurseId);
 
+router.delete("/aid/:id",deleteAideCarePlan)
+
 
 
 const {
@@ -35,7 +38,7 @@ const {
 } = require("../controller/aidesupervisoryController");
 
 // Create a new AideSupervisoryVisit
-router.post("/aidesupervisory", createAideSupervisoryVisit);
+router.post("/aidesupervisory", updateTaskStatus, createAideSupervisoryVisit);
 
 // Update an existing AideSupervisoryVisit by ID
 router.put("/aidesupervisory/:id", updateAideSupervisoryVisit);

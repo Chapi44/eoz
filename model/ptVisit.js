@@ -75,8 +75,8 @@ const ptVisitSchema = mongoose.Schema(
       reps: { type: Number },
     },
     teaching: {
-      patient: { type: Boolean, default: false },
-      caregiver: { type: Boolean, default: false },
+      patient: { type: Boolean, default: false, default: false },
+      caregiver: { type: Boolean, default: false, default: false },
       topics: { type: [String] }, // E.g., HEP, Safe Transfer, etc.
     },
     pain: {
@@ -88,14 +88,14 @@ const ptVisitSchema = mongoose.Schema(
     },
     assessment: { type: String },
     plan: {
-      continuePlan: { type: Boolean, default: false },
-      changePlan: { type: Boolean, default: false },
-      dischargePlan: { type: Boolean, default: false },
+      continuePlan: { type: Boolean, default: false, default: false },
+      changePlan: { type: Boolean, default: false, default: false },
+      dischargePlan: { type: Boolean, default: false, default: false },
       comments: { type: String },
     },
     progress: {
       towardsGoals: { type: String },
-      goalsMet: { type: Boolean, default: false },
+      goalsMet: { type: Boolean, default: false, default: false },
       skilledTreatmentProvided: { type: [String] }, // List of treatments provided
     },
     narrative: { type: String },

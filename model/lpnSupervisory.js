@@ -23,20 +23,20 @@ const lpnSupervisoryVisitSchema = mongoose.Schema(
       type: Date,
     },
     evaluation: {
-      openCommunication: { type: Boolean, default: false }, // Maintains open communication
-      scheduledVisits: { type: Boolean, default: false }, // Arrives for assigned visits
-      followsPlanOfCare: { type: Boolean, default: false },
-      demonstratesCompetency: { type: Boolean, default: false },
-      informsSupervisor: { type: Boolean, default: false }, // Informs supervisor of needs and changes
-      infectionControlCompliance: { type: Boolean, default: false },
-      honorsClientRights: { type: Boolean, default: false },
-      changesToPlanOfCare: { type: Boolean, default: false },
-      deficiencyIdentified: { type: Boolean, default: false }, // Deficiency in services identified
+      openCommunication: { type: Boolean, default: false, default: false }, // Maintains open communication
+      scheduledVisits: { type: Boolean, default: false, default: false }, // Arrives for assigned visits
+      followsPlanOfCare: { type: Boolean, default: false, default: false },
+      demonstratesCompetency: { type: Boolean, default: false, default: false },
+      informsSupervisor: { type: Boolean, default: false, default: false }, // Informs supervisor of needs and changes
+      infectionControlCompliance: { type: Boolean, default: false, default: false },
+      honorsClientRights: { type: Boolean, default: false, default: false },
+      changesToPlanOfCare: { type: Boolean, default: false, default: false },
+      deficiencyIdentified: { type: Boolean, default: false, default: false }, // Deficiency in services identified
     },
     services: {
-      insulinAdministration: { type: Boolean, default: false },
-      woundCare: { type: Boolean, default: false },
-      highRiskForReadmission: { type: Boolean, default: false },
+      insulinAdministration: { type: Boolean, default: false, default: false },
+      woundCare: { type: Boolean, default: false, default: false },
+      highRiskForReadmission: { type: Boolean, default: false, default: false },
     },
     additionalComments: {
       type: String,

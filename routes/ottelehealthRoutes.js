@@ -20,9 +20,10 @@ const {
   getOTVisitsByNurseId,
   deleteOTVisit,
 } = require("../controller/oTtelehealthController");
+const updateTaskStatus = require("../middelware/updateTaskStatus");
 
 // Create a new OT Telehealth Visit
-router.post("/ottelehealth", createOTTelehealth);
+router.post("/ottelehealth", updateTaskStatus, createOTTelehealth);
 
 // Update an existing OT Telehealth Visit by ID
 router.put("/ottelehealth/:id", updateOTTelehealth);
@@ -40,7 +41,7 @@ router.get("/ottelehealth/nurse/:nurseId", getOTTelehealthByNurseId);
 router.delete("/ottelehealth/:id", deleteOTTelehealth);
 
 // Create a new OT Re-Evaluation record
-router.post("/otreeval", createOTReEval);
+router.post("/otreeval", updateTaskStatus, createOTReEval);
 
 // Update an existing OT Re-Evaluation record by ID
 router.put("/otreeval/:id", updateOTReEval);
@@ -59,7 +60,7 @@ router.delete("/otreeval/:id", deleteOTReEval);
 
 
 // Create a new OT Visit
-router.post("/otvisit", createOTVisit);
+router.post("/otvisit", updateTaskStatus, createOTVisit);
 
 // Update an existing OT Visit by ID
 router.put("/otvisit/:id", updateOTVisit);

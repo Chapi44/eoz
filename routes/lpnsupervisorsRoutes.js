@@ -14,9 +14,10 @@ const {
   getLVNHourlyVisitsByNurseId,
   deleteLVNHourlyVisit
 } = require("../controller/lpnupervisoryvisitController");
+const updateTaskStatus = require("../middelware/updateTaskStatus");
 
 // Create a new LPN Supervisory Visit
-router.post("/lpnsupervisory", createLPNSupervisoryVisit);
+router.post("/lpnsupervisory", updateTaskStatus, createLPNSupervisoryVisit);
 
 // Update an existing LPN Supervisory Visit by ID
 router.put("/lpnsupervisory/:id", updateLPNSupervisoryVisit);
@@ -33,7 +34,7 @@ router.get("/lpnsupervisory/lpn/:lpnId", getLPNSupervisoryVisitsByLPNId);
 // Delete an LPN Supervisory Visit by ID
 router.delete("/lpnsupervisory/:id", deleteLPNSupervisoryVisit);
 
-router.post("/lvnhourly", createLVNHourlyVisit);
+router.post("/lvnhourly", updateTaskStatus, createLVNHourlyVisit);
 
 // Update an existing LVN Hourly Visit by ID
 router.put("/lvnhourly/:id", updateLVNHourlyVisit);
@@ -62,7 +63,7 @@ const {
 } = require("../controller/middayinsulinController");
 
 // Create a new Midday Insulin Administration record
-router.post("/middayinsulin", createMiddayInsulinAdministration);
+router.post("/middayinsulin", updateTaskStatus, createMiddayInsulinAdministration);
 
 // Update an existing Midday Insulin Administration record by ID
 router.put("/middayinsulin/:id", updateMiddayInsulinAdministration);

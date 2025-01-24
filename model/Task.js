@@ -16,7 +16,7 @@ const taskSchema = mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      // required: true,
     },
     status: {
       type: String,
@@ -28,7 +28,7 @@ const taskSchema = mongoose.Schema(
       default: "",
     },
     shift: {
-      type: Boolean,
+      type: Boolean, default: false,
       default: false,
     },
     nurseStatus: {
@@ -114,7 +114,7 @@ const taskSchema = mongoose.Schema(
         "Telehealth Notes",
         "Telehealth PT"
       ],
-      required: true,
+      // required: true,
     },
   },
   {

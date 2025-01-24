@@ -14,9 +14,9 @@ const {
   getIncidentReportsByPhysicianId,
   deleteIncidentReport,
 } = require("../controller/communicationNoteController");
-
+const updateTaskStatus = require("../middelware/updateTaskStatus");
 // Create a new CommunicationNote
-router.post("/communicationnote", createCommunicationNote);
+router.post("/communicationnote", updateTaskStatus, createCommunicationNote);
 
 // Update an existing CommunicationNote by ID
 router.put("/communicationnote/:id", updateCommunicationNote);
@@ -65,7 +65,7 @@ const {
   } = require("../controller/cordinationofcareController");
   
   // Create a new CoordinationOfCare
-  router.post("/coordinationofcare", createCoordinationOfCare);
+  router.post("/coordinationofcare", updateTaskStatus, createCoordinationOfCare);
   
   // Update an existing CoordinationOfCare by ID
   router.put("/coordinationofcare/:id", updateCoordinationOfCare);

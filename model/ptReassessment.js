@@ -63,13 +63,13 @@ const ptReassessmentSchema = mongoose.Schema(
     },
     livingSituation: {
       dwellingLevel: { type: String, enum: ["One", "Multiple"] },
-      stairs: { type: Boolean },
+      stairs: { type: Boolean, default: false },
       numberOfSteps: { type: Number },
       livesWith: { type: [String] }, // ["Alone", "Family", "Friends", "Significant Other"]
       caregiverSupport: {
-        willing: { type: Boolean },
-        limited: { type: Boolean },
-        unavailable: { type: Boolean },
+        willing: { type: Boolean, default: false },
+        limited: { type: Boolean, default: false },
+        unavailable: { type: Boolean, default: false },
       },
       homeSafetyBarriers: { type: String },
     },
@@ -91,15 +91,15 @@ const ptReassessmentSchema = mongoose.Schema(
       current: { type: String },
     },
     homeboundReason: {
-      taxingEffort: { type: Boolean },
-      medicalRestriction: { type: Boolean },
+      taxingEffort: { type: Boolean, default: false },
+      medicalRestriction: { type: Boolean, default: false },
       assistRequired: {
-        transfer: { type: Boolean },
-        ambulation: { type: Boolean },
-        leavingHome: { type: Boolean },
+        transfer: { type: Boolean, default: false },
+        ambulation: { type: Boolean, default: false },
+        leavingHome: { type: Boolean, default: false },
       },
-      severeSOB: { type: Boolean },
-      unsafeAlone: { type: Boolean },
+      severeSOB: { type: Boolean, default: false },
+      unsafeAlone: { type: Boolean, default: false },
       other: { type: String },
     },
     mobility: {
@@ -153,8 +153,8 @@ const ptReassessmentSchema = mongoose.Schema(
     careCoordination: { type: String },
     skilledCareProvided: { type: String },
     pocChangeStatus: {
-      unchanged: { type: Boolean, default: false },
-      changed: { type: Boolean, default: false },
+      unchanged: { type: Boolean, default: false, default: false },
+      changed: { type: Boolean, default: false, default: false },
     },
     clinicianSignature: { type: String },
     signatureDate: { type: Date },

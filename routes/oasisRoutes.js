@@ -4,12 +4,13 @@ const oasisAssessmentController = require("../controller/oasisController");
 const multer = require("multer");
 
 const upload = multer({ dest: "uploads/" }); // File upload middleware
+const updateTaskStatus = require("../middelware/updateTaskStatus");
 
 // POST route to send email
 router.post("/send-email", upload.single("file"), oasisAssessmentController.sendEmail);
 
 // Route to create a new OASIS Assessment
-router.post("/createoasis", oasisAssessmentController.createOASISAssessment);
+router.post("/createoasis", updateTaskStatus, oasisAssessmentController.createOASISAssessment);
 
 // Route to retrieve all OASIS Assessments
 router.get("/getall", oasisAssessmentController.getAllOASISAssessments);

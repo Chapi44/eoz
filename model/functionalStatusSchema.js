@@ -47,8 +47,8 @@ const functionalStatusSchema = new mongoose.Schema({
   },
   ordersForDisciplineAndTreatment: {
     problemStatement: { 
-      musculoskeletalIssues: { type: Boolean }, // "Alteration in Musculoskeletal Status"
-      fallPreventionPlan: { type: Boolean }, // "Need for Fall Prevention Plan"
+      musculoskeletalIssues: { type: Boolean, default: false }, // "Alteration in Musculoskeletal Status"
+      fallPreventionPlan: { type: Boolean, default: false }, // "Need for Fall Prevention Plan"
     },
   },
 }, { timestamps: true });

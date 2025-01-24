@@ -7,9 +7,10 @@ const {
   getCareManagementById,
   getCareManagementByOasisId
 } = require("../controller/caremangementController");
+const updateTaskStatus = require("../middelware/updateTaskStatus");
 
 // Route to create a new CareManagement entry
-router.post("/care-management", createCareManagement);
+router.post("/care-management", updateTaskStatus, createCareManagement);
 
 // Route to get CareManagement by OASIS Assessment ID
 router.get("/care-management/oasis/:oasisAssessmentId", getCareManagementByOasisId);

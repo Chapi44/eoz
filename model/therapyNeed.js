@@ -6,7 +6,7 @@ const therapyNeedSchema = new mongoose.Schema({
     required: true
   },
   notApplicable: {
-    type: Boolean, // Whether this section is marked as "Not Applicable"
+    type: Boolean, default: false, // Whether this section is marked as "Not Applicable"
     default: false
   },
   comments: {
@@ -14,9 +14,9 @@ const therapyNeedSchema = new mongoose.Schema({
     maxlength: 5000 // Matches the character limit in the form
   },
   ordersForDisciplineAndTreatment: {
-    PT: { type: Boolean, default: false }, // Physical Therapy need
-    OT: { type: Boolean, default: false }, // Occupational Therapy need
-    ST: { type: Boolean, default: false }  // Speech-Language Therapy need
+    PT: { type: Boolean, default: false, default: false }, // Physical Therapy need
+    OT: { type: Boolean, default: false, default: false }, // Occupational Therapy need
+    ST: { type: Boolean, default: false, default: false }  // Speech-Language Therapy need
   }
 });
 

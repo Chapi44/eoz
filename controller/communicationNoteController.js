@@ -70,6 +70,10 @@ exports.updateCommunicationNote = async (req, res) => {
 // Get all CommunicationNotes
 exports.getAllCommunicationNotes = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Communication Notes with pagination
     const notes = await CommunicationNote.find()
       .populate({
         path: "patientId",
@@ -78,12 +82,23 @@ exports.getAllCommunicationNotes = async (req, res) => {
       .populate({
         path: "physicianId",
         select: "name email phone role",
-      });
+      })
+      .sort({ createdAt: -1 }) // Sort by creation date (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Communication Notes
+    const totalNotes = await CommunicationNote.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All Communication Notes retrieved successfully",
       data: notes,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalNotes / limit),
+        totalItems: totalNotes,
+      },
     });
   } catch (error) {
     console.error("Error fetching Communication Notes:", error);
@@ -94,6 +109,57 @@ exports.getAllCommunicationNotes = async (req, res) => {
     });
   }
 };
+
+exports.getCommunicationNotesByPhysicianId = async (req, res) => {
+  try {
+    const { physicianId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Communication Notes for the specified Physician ID with pagination
+    const notes = await CommunicationNote.find({ physicianId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "physicianId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by creation date (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Communication Notes for the specified Physician ID
+    const totalNotes = await CommunicationNote.countDocuments({ physicianId });
+
+    if (!notes || notes.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Communication Notes found for the specified Physician ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Communication Notes retrieved successfully",
+      data: notes,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalNotes / limit),
+        totalItems: totalNotes,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Communication Notes by Physician ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Communication Notes by Physician ID",
+      error: error.message,
+    });
+  }
+};
+
 
 // Get a specific CommunicationNote by ID
 exports.getCommunicationNoteById = async (req, res) => {

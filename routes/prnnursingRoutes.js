@@ -96,9 +96,10 @@ const {
     getPTWithINRByNurseId,
     deletePTWithINR,
   } = require("../controller/PsychNurseAssessmentController");
+  const updateTaskStatus = require("../middelware/updateTaskStatus");
   
   // Create a new Psych Nurse Assessment
-  router.post("/psychnurseassessment", createPsychNurseAssessment);
+  router.post("/psychnurseassessment", updateTaskStatus, createPsychNurseAssessment);
   
   // Update an existing Psych Nurse Assessment by ID
   router.put("/psychnurseassessment/:id", updatePsychNurseAssessment);
@@ -116,7 +117,7 @@ const {
   router.delete("/psychnurseassessment/:id", deletePsychNurseAssessment);
 
   // Create a new PT Evaluation
-router.post("/ptevaluation", createPTEvaluation);
+router.post("/ptevaluation", updateTaskStatus, createPTEvaluation);
 
 // Update an existing PT Evaluation by ID
 router.put("/ptevaluation/:id", updatePTEvaluation);
@@ -134,7 +135,7 @@ router.get("/ptevaluation/nurse/:nurseId", getPTEvaluationsByNurseId);
 router.delete("/ptevaluation/:id", deletePTEvaluation);
 
 // Create a new PT with INR
-router.post("/ptwithinr", createPTWithINR);
+router.post("/ptwithinr", updateTaskStatus, createPTWithINR);
 
 // Update an existing PT with INR by ID
 router.put("/ptwithinr/:id", updatePTWithINR);

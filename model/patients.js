@@ -25,14 +25,14 @@ const patientSchema = mongoose.Schema(
     ethnicity: { type: [String] }, // Allows multiple selections like "Hispanic, Non-Hispanic"
     race: { type: [String] }, // Allows multiple selections like "White, Asian"
     preferredLanguage: { type: String },
-    interpreterRequired: { type: Boolean },
+    interpreterRequired: { type: Boolean, default: false },
     livingSituation: { type: String }, // E.g., Alone, With Family
     payers: {
       mbiNumber: { type: String },
       healthInsuranceClaimNumber: { type: String },
       medicaidNumber: { type: String },
       alternateMedicaidNumber: { type: String },
-      verifyMedicaidEligibility: { type: Boolean },
+      verifyMedicaidEligibility: { type: Boolean, default: false },
     },
     clinicalRecords: {
       physicianName: { type: String },

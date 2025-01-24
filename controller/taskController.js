@@ -204,91 +204,187 @@ exports.getTaskById = async (req, res) => {
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
   try {
-    const { status } = req.query; // Get the status from query parameters
+    // Get pagination parameters from query, default to page 1 and limit 10
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    // Extract filters from the query
+    const { status, taskType, patientName } = req.query;
+
+    // Calculate the number of documents to skip
+    const skip = (page - 1) * limit;
 
     // Build the query object
-    const query = {};
+    let query = {};
+
+    // Filter by status
     if (status) {
       query.status = status;
     }
 
-    const tasks = await Task.find(query).populate("patientId nurseId");
+    // Filter by task type
+    if (taskType) {
+      query.taskType = taskType;
+    }
 
-    // Count tasks based on their status
-    const counts = await Task.aggregate([
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 }
-        }
-      }
-    ]);
+    // Filter by patient name (first or last)
+    if (patientName) {
+      const nameRegex = new RegExp(patientName, "i"); // Case-insensitive regex
+      const patients = await Patient.find({
+        $or: [{ firstName: nameRegex }, { lastName: nameRegex }],
+      }).select("_id"); // Get patient IDs matching the name
 
-    // Transform the counts array to an object with status as keys
-    const statusCounts = counts.reduce((acc, curr) => {
-      acc[curr._id] = curr.count;
-      return acc;
-    }, {});
+      query.patientId = { $in: patients.map((patient) => patient._id) }; // Add to query
+    }
+
+    // Fetch tasks with pagination, excluding unnecessary fields
+    const tasks = await Task.find(query)
+      .populate("patientId nurseId") // Populate patient and nurse details
+      .sort({ createdAt: -1 }) // Sort by creation date (newest first)
+      .skip(skip)
+      .limit(limit);
+
+    // Get the total number of tasks that match the query
+    const totalTasks = await Task.countDocuments(query);
+
+    // Count tasks for each status (for summary purposes)
+    const pendingTasksCount = await Task.countDocuments({ status: "pending" });
+    const completedTasksCount = await Task.countDocuments({ status: "completed" });
 
     res.status(StatusCodes.OK).json({
       tasks,
-      counts: {
-        totalPending: statusCounts.pending || 0,
-        totalCompleted: statusCounts.completed || 0,
-        totalPastdue: statusCounts.pastdue || 0,
-        totalOngoing: statusCounts.ongoing || 0
-      }
+      currentPage: page,
+      totalPages: Math.ceil(totalTasks / limit),
+      totalTasks,
+      taskSummary: {
+        pending: pendingTasksCount,
+        completed: completedTasksCount,
+      },
     });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "An error occurred while fetching tasks",
-      error: error.message
+      error: "An error occurred while fetching tasks",
+      details: error.message,
     });
   }
 };
+
 
 // Get tasks by patient ID
 exports.getTasksByPatientId = async (req, res) => {
   try {
     const { patientId } = req.params;
-    const tasks = await Task.find({ patientId }).populate("patientId nurseId");
+    const { status, taskType, page = 1, limit = 10 } = req.query;
 
+    // Calculate pagination parameters
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Build the query object
+    const query = { patientId };
+
+    // Filter by status if provided
+    if (status) {
+      query.status = status;
+    }
+
+    // Filter by task type if provided
+    if (taskType) {
+      query.taskType = taskType;
+    }
+
+    // Fetch tasks with filtering and pagination
+    const tasks = await Task.find(query)
+      .populate("patientId nurseId")
+      .sort({ appointmentDate: 1 }) // Sort by appointment date (earliest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // If no tasks are found
     if (!tasks || tasks.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({
-        message: "No tasks found for the given patient ID"
+        message: "No tasks found for the given patient ID",
       });
     }
 
-    res.status(StatusCodes.OK).json(tasks);
+    // Get the total number of tasks matching the query
+    const totalTasks = await Task.countDocuments(query);
+
+    // Count tasks based on their status (for summary purposes)
+    const pendingTasksCount = await Task.countDocuments({
+      patientId,
+      status: "pending",
+    });
+    const completedTasksCount = await Task.countDocuments({
+      patientId,
+      status: "completed",
+    });
+    const pastdueTasksCount = await Task.countDocuments({
+      patientId,
+      status: "pastdue",
+    });
+
+    res.status(StatusCodes.OK).json({
+      tasks,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(totalTasks / limit),
+      totalTasks,
+      taskSummary: {
+        pending: pendingTasksCount,
+        completed: completedTasksCount,
+        pastdue: pastdueTasksCount,
+      },
+    });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: "An error occurred while fetching tasks by patient ID",
-      error: error.message
+      error: error.message,
     });
   }
 };
+
 
 // Get tasks by nurse ID
 exports.getTasksByNurseId = async (req, res) => {
   try {
     const { nurseId } = req.params;
-    const { currentDate } = req.query;
+    const { currentDate, status, taskType, page = 1, limit = 10, pastdue } = req.query;
 
     // Check if currentDate is provided
     if (!currentDate) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message: "Current date is required"
+        message: "Current date is required",
       });
     }
 
     const now = new Date(currentDate);
 
-    // Find all tasks for the given nurse ID
-    const tasks = await Task.find({ nurseId }).populate("patientId nurseId");
+    // Build the query object
+    const query = { nurseId };
 
+    // Filter by status if provided
+    if (status) {
+      query.status = status;
+    }
+
+    // Filter by task type if provided
+    if (taskType) {
+      query.taskType = taskType;
+    }
+
+    // Pagination parameters
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch tasks with filtering and pagination
+    const tasks = await Task.find(query)
+      .populate("patientId nurseId")
+      .sort({ appointmentDate: 1 }) // Sort by appointmentDate (earliest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // If no tasks are found
     if (!tasks || tasks.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({
-        message: "No tasks found for the given nurse ID"
+        message: "No tasks found for the given nurse ID",
       });
     }
 
@@ -303,11 +399,15 @@ exports.getTasksByNurseId = async (req, res) => {
       })
     );
 
-    // If the request is to fetch pastdue tasks
-    const { pastdue } = req.query;
-    if (pastdue === 'true') {
-      const pastdueTasks = updatedTasks.filter(task => task.status === "pastdue");
-      return res.status(StatusCodes.OK).json(pastdueTasks);
+    // If the request is to fetch only pastdue tasks
+    if (pastdue === "true") {
+      const pastdueTasks = updatedTasks.filter((task) => task.status === "pastdue");
+      return res.status(StatusCodes.OK).json({
+        tasks: pastdueTasks,
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(pastdueTasks.length / limit),
+        totalTasks: pastdueTasks.length,
+      });
     }
 
     // Count tasks based on their status
@@ -316,22 +416,29 @@ exports.getTasksByNurseId = async (req, res) => {
       return acc;
     }, {});
 
+    // Get the total number of tasks matching the query (for pagination metadata)
+    const totalTasks = await Task.countDocuments(query);
+
     res.status(StatusCodes.OK).json({
       tasks: updatedTasks,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(totalTasks / limit),
+      totalTasks,
       counts: {
         totalPending: counts.pending || 0,
         totalCompleted: counts.completed || 0,
         totalPastdue: counts.pastdue || 0,
-        totalOngoing: counts.ongoing || 0
-      }
+        totalOngoing: counts.ongoing || 0,
+      },
     });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: "An error occurred while fetching tasks by nurse ID",
-      error: error.message
+      error: error.message,
     });
   }
 };
+
 
 
 // Update task status
@@ -495,73 +602,13 @@ exports.getTasksstatusByNurseId = async (req, res) => {
 exports.updateTask = async (req, res) => {
   try {
     const taskId = req.params.id;
-    const { status, comment, personalNote, appointmentDate, description, taskType } = req.body;
+    const  status  = "completed" ;
 
-    // Validate taskType if provided
-    if (taskType) {
-      const validTaskTypes =[
-        "Aide Visit",
-        "AideSupervisory",
-        "CommunicationNote",
-        "CoordinationOfCare",
-        "Doctor Order",
-        "FaceToFace",
-        "FoleyCathChange",
-        "HHA Plan of Care",
-        "Incident Report",
-        "Infection Report",
-        "INFUSION THERAPY",
-        "LPN Supervisory",
-        "LPN SupervisoryVisit",
-        "LVNHourly",
-        "LVNVisit",
-        "Midday Insulin Administration",
-        "OASIS E1 DISCHARGE",
-        "OASIS TRANSFER",
-        "OT Telehealth",
-        "OTReEval",
-        "OTVisit",
-        "PRN Nursing Visit",
-        "Psych Nurse Assessment",
-        "PT Visit",
-        "PTEval",
-        "PTReassessment",
-        "PTWithINR",
-        "Recertification E-1",
-        "Resumption Of Care",
-        "RNVisit",
-        "SkilledNurseVisit",
-        "SN BMP",
-        "SN CBC",
-        "SN Diabetic Daily",
-        "SN IV Insertion",
-        "SN_Psychiatric_Nurse_Visit",
-        "SNB12INJECTION",
-        "SNHaldolInj",
-        "SNInsulinAM",
-        "SNInsulinHS",
-        "SNInsulinPM",
-        "SNLabs",
-        "SNPediatric Hourly",
-        "SNPediatricVisit",
-        "SNWoundCare Visit",
-        "Speech Therapy Visit",
-        "ST ReEval",
-        "ST TelehealthVisit",
-        "Telehealth Notes",
-        "Telehealth PT"
-      ];
 
-      if (!validTaskTypes.includes(taskType)) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          message: `Invalid task type. Valid types are: ${validTaskTypes.join(", ")}`,
-        });
-      }
-    }
 
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
-      { status, comment, personalNote, appointmentDate, description, taskType },
+      { status },
       { new: true }
     );
 

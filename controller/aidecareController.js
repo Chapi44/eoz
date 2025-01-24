@@ -67,28 +67,93 @@ exports.updateAideCarePlan = async (req, res) => {
   }
 };
 
-// Get all AideCarePlans
+// Get all AideCarePlans with pagination
 exports.getAllAideCarePlans = async (req, res) => {
   try {
-    const aideCarePlans = await AideCarePlan.find().populate({
-      path: "patientId",
-      select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-    })
-    .populate({
-      path: "nurseId",
-      select: "name email phone role",
-    });;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch AideCarePlans with pagination
+    const aideCarePlans = await AideCarePlan.find()
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of AideCarePlans
+    const totalAideCarePlans = await AideCarePlan.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All Aide Care Plans retrieved successfully",
       data: aideCarePlans,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalAideCarePlans / limit),
+        totalItems: totalAideCarePlans,
+      },
     });
   } catch (error) {
     console.error("Error fetching Aide Care Plans:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve Aide Care Plans",
+      error: error.message,
+    });
+  }
+};
+
+// Get AideCarePlans by Nurse ID with pagination
+exports.getAideCarePlansByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params; // Get Nurse ID from route parameters
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch AideCarePlans for the specified Nurse ID with pagination
+    const aideCarePlans = await AideCarePlan.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of AideCarePlans for the specified Nurse ID
+    const totalAideCarePlans = await AideCarePlan.countDocuments({ nurseId });
+
+    if (!aideCarePlans || aideCarePlans.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Aide Care Plans found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Aide Care Plans retrieved successfully",
+      data: aideCarePlans,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalAideCarePlans / limit),
+        totalItems: totalAideCarePlans,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Aide Care Plans by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Aide Care Plans by Nurse ID",
       error: error.message,
     });
   }
@@ -161,39 +226,3 @@ exports.deleteAideCarePlan = async (req, res) => {
 };
 
 
-exports.getAideCarePlansByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params; // Get Nurse ID from route parameters
-    console.log(nurseId);
-
-    // Find all AideCarePlans for the specified Nurse ID
-    const aideCarePlans = await AideCarePlan.find({ nurseId }).populate({
-      path: "patientId",
-      select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-    })
-    .populate({
-      path: "nurseId",
-      select: "name email phone role",
-    });;
-
-    if (!aideCarePlans || aideCarePlans.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No Aide Care Plans found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Aide Care Plans retrieved successfully",
-      data: aideCarePlans,
-    });
-  } catch (error) {
-    console.error("Error fetching Aide Care Plans by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Aide Care Plans by Nurse ID",
-      error: error.message,
-    });
-  }
-};

@@ -17,21 +17,21 @@ const careManagementSchema = new mongoose.Schema({
   },
   ordersForDisciplineAndTreatment: {
     needForProcessMeasures: {
-      type: Boolean, // Boolean to indicate whether process measures are required.
+      type: Boolean, default: false, // Boolean to indicate whether process measures are required.
       default: false,
     },
   },
   trainingAndEducationResources: {
     physicalAssessment: {
-      type: Boolean, // Boolean to indicate the use of physical assessment training resources.
+      type: Boolean, default: false, // Boolean to indicate the use of physical assessment training resources.
       default: false,
     },
     fifteenMinuteWalk: {
-      type: Boolean, // Boolean to indicate the use of 15-minute walk resources.
+      type: Boolean, default: false, // Boolean to indicate the use of 15-minute walk resources.
       default: false,
     },
     woundManager: {
-      type: Boolean, // Boolean to indicate the use of wound manager training resources.
+      type: Boolean, default: false, // Boolean to indicate the use of wound manager training resources.
       default: false,
     },
   },

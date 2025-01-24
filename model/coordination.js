@@ -20,32 +20,32 @@ const coordinationOfCareSchema = mongoose.Schema(
     primaryDiagnosis: { type: String },
     secondaryDiagnosis: { type: String },
     functionalLimitations: {
-      amputation: { type: Boolean, default: false },
-      bowelIncontinence: { type: Boolean, default: false },
-      contracture: { type: Boolean, default: false },
-      hearing: { type: Boolean, default: false },
-      paralysis: { type: Boolean, default: false },
-      endurance: { type: Boolean, default: false },
-      ambulation: { type: Boolean, default: false },
-      speech: { type: Boolean, default: false },
-      legallyBlind: { type: Boolean, default: false },
-      dyspnea: { type: Boolean, default: false },
+      amputation: { type: Boolean, default: false, default: false },
+      bowelIncontinence: { type: Boolean, default: false, default: false },
+      contracture: { type: Boolean, default: false, default: false },
+      hearing: { type: Boolean, default: false, default: false },
+      paralysis: { type: Boolean, default: false, default: false },
+      endurance: { type: Boolean, default: false, default: false },
+      ambulation: { type: Boolean, default: false, default: false },
+      speech: { type: Boolean, default: false, default: false },
+      legallyBlind: { type: Boolean, default: false, default: false },
+      dyspnea: { type: Boolean, default: false, default: false },
       other: { type: String },
     },
     patientCondition: {
-      stable: { type: Boolean, default: false },
-      improved: { type: Boolean, default: false },
-      unchanged: { type: Boolean, default: false },
-      unstable: { type: Boolean, default: false },
-      declined: { type: Boolean, default: false },
+      stable: { type: Boolean, default: false, default: false },
+      improved: { type: Boolean, default: false, default: false },
+      unchanged: { type: Boolean, default: false, default: false },
+      unstable: { type: Boolean, default: false, default: false },
+      declined: { type: Boolean, default: false, default: false },
     },
     servicesProvided: {
-      sn: { type: Boolean, default: false }, // Skilled Nursing
-      pt: { type: Boolean, default: false }, // Physical Therapy
-      ot: { type: Boolean, default: false }, // Occupational Therapy
-      st: { type: Boolean, default: false }, // Speech Therapy
-      msw: { type: Boolean, default: false }, // Medical Social Worker
-      hha: { type: Boolean, default: false }, // Home Health Aide
+      sn: { type: Boolean, default: false, default: false }, // Skilled Nursing
+      pt: { type: Boolean, default: false, default: false }, // Physical Therapy
+      ot: { type: Boolean, default: false, default: false }, // Occupational Therapy
+      st: { type: Boolean, default: false, default: false }, // Speech Therapy
+      msw: { type: Boolean, default: false, default: false }, // Medical Social Worker
+      hha: { type: Boolean, default: false, default: false }, // Home Health Aide
       other: { type: String },
     },
     vitalSignRanges: {
@@ -58,12 +58,12 @@ const coordinationOfCareSchema = mongoose.Schema(
       bg: { min: { type: Number }, max: { type: Number } },    // Blood Glucose
     },
     homeBoundStatus: {
-      considerableEffort: { type: Boolean, default: false },
-      requiresAssistance: { type: Boolean, default: false },
-      severeDyspnea: { type: Boolean, default: false },
-      unsafeUnassisted: { type: Boolean, default: false },
-      psychiatricImpairments: { type: Boolean, default: false },
-      medicalRestrictions: { type: Boolean, default: false },
+      considerableEffort: { type: Boolean, default: false, default: false },
+      requiresAssistance: { type: Boolean, default: false, default: false },
+      severeDyspnea: { type: Boolean, default: false, default: false },
+      unsafeUnassisted: { type: Boolean, default: false, default: false },
+      psychiatricImpairments: { type: Boolean, default: false, default: false },
+      medicalRestrictions: { type: Boolean, default: false, default: false },
       other: { type: String },
     },
     homeEnvironment: { type: String },
@@ -74,8 +74,8 @@ const coordinationOfCareSchema = mongoose.Schema(
       servicesProvided: { type: String },
     },
     summaryOfCare: { type: String }, // Summary of care provided
-    pocSentWithPatient: { type: Boolean, default: false }, // Plan of Care sent with the patient
-    medicationSentWithPatient: { type: Boolean, default: false },
+    pocSentWithPatient: { type: Boolean, default: false, default: false }, // Plan of Care sent with the patient
+    medicationSentWithPatient: { type: Boolean, default: false, default: false },
     signature: { type: String }, // RN signature
     signatureDate: { type: Date },
   },

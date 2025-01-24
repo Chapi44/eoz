@@ -25,7 +25,7 @@ const doctorOrderSchema = mongoose.Schema(
       type: String,
       default: "NKA (Food/Drugs/Latex/Environment)", // Default to "No Known Allergies"
     },
-    readBackVerified: { type: Boolean, default: true },
+    readBackVerified: { type: Boolean, default: false, default: true },
     clinicianSignature: { type: String }, // Signature of the clinician
     clinicianSignatureDate: { type: Date },
     physicianSignature: { type: String }, // Signature of the physician

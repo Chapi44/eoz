@@ -13,20 +13,20 @@ const aideSupervisoryVisitSchema = mongoose.Schema(
       required: true,
     },
     homeHealthAide: { type: String, required: true }, // Name of the home health aide
-    aidePresent: { type: Boolean, required: true }, // Whether the aide was present
+    aidePresent: { type: Boolean, default: false, default: false }, // Whether the aide was present
     visitDate: { type: Date, required: true },
     associatedMileage: { type: Number },
     annualOnsiteSupervisoryVisitDate: { type: Date },
     evaluation: {
-      openCommunication: { type: Boolean, required: true },
-      arrivesAsScheduled: { type: Boolean, required: true },
-      followsPlanOfCare: { type: Boolean, required: true },
-      demonstratesCompetency: { type: Boolean, required: true },
-      informsSupervisor: { type: Boolean, required: true },
-      infectionControl: { type: Boolean, required: true },
-      honorsClientRights: { type: Boolean, required: true },
-      changesToPlanOfCare: { type: Boolean },
-      deficienciesIdentified: { type: Boolean },
+      openCommunication: { type: Boolean, default: false, default: false },
+      arrivesAsScheduled: { type: Boolean, default: false, default: false },
+      followsPlanOfCare: { type: Boolean, default: false, default: false },
+      demonstratesCompetency: { type: Boolean, default: false, default: false },
+      informsSupervisor: { type: Boolean, default: false, default: false },
+      infectionControl: { type: Boolean, default: false, default: false },
+      honorsClientRights: { type: Boolean, default: false, default: false },
+      changesToPlanOfCare: { type: Boolean, default: false, default: false }, // Defaulting to false
+      deficienciesIdentified: { type: Boolean, default: false, default: false }, // Defaulting to false
     },
     additionalComments: { type: String }, // Comments/Findings
     signature: { type: String }, // Signature of the supervisor

@@ -62,12 +62,12 @@ const neuroEmotionalBehavioralStatusSchema = new mongoose.Schema({
   },
   behavioralStatus: {
     cognitiveBehavioralSymptoms: {
-      memoryDeficit: { type: Boolean },
-      impairedDecisionMaking: { type: Boolean },
-      verbalDisruption: { type: Boolean },
-      physicalAggression: { type: Boolean },
-      disruptiveBehavior: { type: Boolean },
-      delusionalBehavior: { type: Boolean },
+      memoryDeficit: { type: Boolean, default: false },
+      impairedDecisionMaking: { type: Boolean, default: false },
+      verbalDisruption: { type: Boolean, default: false },
+      physicalAggression: { type: Boolean, default: false },
+      disruptiveBehavior: { type: Boolean, default: false },
+      delusionalBehavior: { type: Boolean, default: false },
     },
     frequencyOfDisruptiveBehavior: {
  type:String
@@ -75,20 +75,20 @@ const neuroEmotionalBehavioralStatusSchema = new mongoose.Schema({
   },
   planOfCare: {
     mentalCognitiveStatus: {
-      orientedX3: { type: Boolean },
-      orientedToSelf: { type: Boolean },
-      orientedToSelfAndPlace: { type: Boolean },
-      agitated: { type: Boolean },
-      comatose: { type: Boolean },
-      forgetful: { type: Boolean },
-      depressed: { type: Boolean },
-      disoriented: { type: Boolean },
-      lethargic: { type: Boolean },
+      orientedX3: { type: Boolean, default: false },
+      orientedToSelf: { type: Boolean, default: false },
+      orientedToSelfAndPlace: { type: Boolean, default: false },
+      agitated: { type: Boolean, default: false },
+      comatose: { type: Boolean, default: false },
+      forgetful: { type: Boolean, default: false },
+      depressed: { type: Boolean, default: false },
+      disoriented: { type: Boolean, default: false },
+      lethargic: { type: Boolean, default: false },
       other: { type: String },
     },
     ordersForDisciplineAndTreatment: {
-      alterationInNeurologicalStatus: { type: Boolean },
-      alterationInMentalStatus: { type: Boolean },
+      alterationInNeurologicalStatus: { type: Boolean, default: false },
+      alterationInMentalStatus: { type: Boolean, default: false },
     },
   },
 }, { timestamps: true });

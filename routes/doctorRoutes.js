@@ -15,8 +15,10 @@ const {
   deleteFoleyCathChange,
 } = require("../controller/doctororderController");
 
+const updateTaskStatus = require("../middelware/updateTaskStatus");
+
 // Create a new Doctor Order
-router.post("/doctororder", createDoctorOrder);
+router.post("/doctororder", updateTaskStatus, createDoctorOrder);
 
 // Update an existing Doctor Order by ID
 router.put("/doctororder/:id", updateDoctorOrder);
@@ -35,7 +37,7 @@ router.delete("/doctororder/:id", deleteDoctorOrder);
 
 
 // Create a new Foley Cath Change record
-router.post("/foleycathchange", createFoleyCathChange);
+router.post("/foleycathchange",updateTaskStatus, createFoleyCathChange);
 
 // Update an existing Foley Cath Change record by ID
 router.put("/foleycathchange/:id", updateFoleyCathChange);

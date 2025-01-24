@@ -131,6 +131,7 @@ exports.fetchPlanOfCare = async (req, res) => {
       // "aideCarePlan.ordersForDisciplineAndTreatment": 1,
       "neuroEmotionalBehavioralStatus.planOfCare": 1,
       "summaryOfCare": 1,
+      "medications":1,
       "medicalNecessity": 1,
       "admissionNarrative": 1,
       "nurseTherapistSignatureDate": 1,

@@ -2,17 +2,17 @@ const mongoose = require("mongoose");
 
 const supplyManagerDMESchema = new mongoose.Schema({
   durableMedicalEquipment: {
-    bedsideCommode: { type: Boolean, default: false },
-    cane: { type: Boolean, default: false },
-    elevatedToiletSeat: { type: Boolean, default: false },
-    grabBars: { type: Boolean, default: false },
-    hospitalBed: { type: Boolean, default: false },
-    nebulizer: { type: Boolean, default: false },
-    oxygen: { type: Boolean, default: false },
-    tubShowerBench: { type: Boolean, default: false },
-    walker: { type: Boolean, default: false },
-    wheelchair: { type: Boolean, default: false },
-    other: { type: Boolean, default: false },
+    bedsideCommode: { type: Boolean, default: false, default: false },
+    cane: { type: Boolean, default: false, default: false },
+    elevatedToiletSeat: { type: Boolean, default: false, default: false },
+    grabBars: { type: Boolean, default: false, default: false },
+    hospitalBed: { type: Boolean, default: false, default: false },
+    nebulizer: { type: Boolean, default: false, default: false },
+    oxygen: { type: Boolean, default: false, default: false },
+    tubShowerBench: { type: Boolean, default: false, default: false },
+    walker: { type: Boolean, default: false, default: false },
+    wheelchair: { type: Boolean, default: false, default: false },
+    other: { type: Boolean, default: false, default: false },
   },
   durableMedicalEquipmentProvider: {
     name: { type: String, maxlength: 255 }, // Name of the provider

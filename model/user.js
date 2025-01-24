@@ -61,7 +61,7 @@ const UserSchema = new Schema(
       required: true,
     },
     employeetype: {
-      type: Boolean,
+      type: Boolean, default: false,
       default: false, // Default value if not specified
     },
   },

@@ -20,9 +20,10 @@ const {
   getNurseVisitsAdvancedByTypeAndNurseId,
   deleteNurseVisitAdvanced,
 } = require("../controller/nursevisitpsychatristController");
+const updateTaskStatus = require("../middelware/updateTaskStatus");
 
 // Create a new Nurse Visit
-router.post("/nursevisit", createNurseVisit);
+router.post("/nursevisit", updateTaskStatus, createNurseVisit);
 
 // Update an existing Nurse Visit by ID
 router.put("/nursevisit/:id", updateNurseVisit);
@@ -40,7 +41,7 @@ router.get("/nursevisit/nurse/:nurseId", getNurseVisitsByTypeAndNurseId);
 router.delete("/nursevisit/:id", deleteNurseVisit);
 
 // Create a new Nursing Visit
-router.post("/nursingvisit/special", createNursingVisitSpecial);
+router.post("/nursingvisit/special", updateTaskStatus, createNursingVisitSpecial);
 
 // Update an existing Nursing Visit by ID
 router.put("/nursingvisit/special/:id", updateNursingVisitSpecial);
@@ -58,7 +59,7 @@ router.get("/nursingvisit/special/nurse/:nurseId", getNursingVisitsByTypeAndNurs
 router.delete("/nursingvisit/special/:id", deleteNursingVisitSpecial);
 
 // Create a new Nurse Visit Advanced
-router.post("/nursevisitadvanced", createNurseVisitAdvanced);
+router.post("/nursevisitadvanced",  updateTaskStatus, createNurseVisitAdvanced);
 
 // Update an existing Nurse Visit Advanced by ID
 router.put("/nursevisitadvanced/:id", updateNurseVisitAdvanced);

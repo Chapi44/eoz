@@ -7,9 +7,10 @@ const {
   getMedicationById,
   deleteMedication,
 } = require("../controller/medicationsController");
+const updateTaskStatus = require("../middelware/updateTaskStatus");
 
 // Create a new Medications entry
-router.post("/", createMedication);
+router.post("/", updateTaskStatus, createMedication);
 
 // Update an existing Medications entry by ID
 router.put("/:id", updateMedication);

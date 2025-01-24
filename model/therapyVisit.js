@@ -31,11 +31,11 @@ const therapyVisitSchema = new mongoose.Schema({
     type: [String],  // Specific tasks performed in this session
   },
   reassessment: {
-    type: Boolean,
+    type: Boolean, default: false,
     default: false,
   },
   dischargePlan: {
-    type: Boolean,
+    type: Boolean, default: false,
     default: false, // Flag for indicating discharge
   },
   followUp: {

@@ -8,17 +8,17 @@ const endocrineHematologicalAssessmentSchema = new mongoose.Schema(
       required: true,
     },
     assessment: {
-      noProblemsIdentified: { type: Boolean },
-      anemia: { type: Boolean },
-      cancer: { type: Boolean },
-      hypothyroidism: { type: Boolean },
-      hyperthyroidism: { type: Boolean },
-      diabetes: { type: Boolean },
+      noProblemsIdentified: { type: Boolean, default: false , default: false},
+      anemia: { type: Boolean, default: false , default: false},
+      cancer: { type: Boolean, default: false , default: false},
+      hypothyroidism: { type: Boolean, default: false , default: false},
+      hyperthyroidism: { type: Boolean, default: false, default: false },
+      diabetes: { type: Boolean, default: false, default: false },
     },
     comments: { type: String }, // Field to store additional comments
     ordersForDisciplineAndTreatment: {
-      alterationInGlucoseMetabolism: { type: Boolean },
-      alterationInHematologicalStatus: { type: Boolean },
+      alterationInGlucoseMetabolism: { type: Boolean, default: false , default: false},
+      alterationInHematologicalStatus: { type: Boolean, default: false , default: false},
     },
   },
   { timestamps: true }

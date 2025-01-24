@@ -14,9 +14,10 @@ const {
   getInfusionTherapiesByPhysicianId,
   deleteInfusionTherapy,
 } = require("../controller/infectionController");
+const updateTaskStatus = require("../middelware/updateTaskStatus");
 
 // Create a new Infection Report
-router.post("/infectionreport", createInfectionReport);
+router.post("/infectionreport", updateTaskStatus, createInfectionReport);
 
 // Update an existing Infection Report by ID
 router.put("/infectionreport/:id", updateInfectionReport);
@@ -35,7 +36,7 @@ router.delete("/infectionreport/:id", deleteInfectionReport);
 
 
 // Create a new Infusion Therapy record
-router.post("/infusiontherapy", createInfusionTherapy);
+router.post("/infusiontherapy", updateTaskStatus, createInfusionTherapy);
 
 // Update an existing Infusion Therapy record by ID
 router.put("/infusiontherapy/:id", updateInfusionTherapy);
