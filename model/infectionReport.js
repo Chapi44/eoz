@@ -21,11 +21,6 @@ const infectionReportSchema = mongoose.Schema(
     secondaryDiagnosis: { type: String },
     clinicalManager: { type: String },
     caseManager: { type: String },
-    attendingPhysician: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
     mrn: { type: String },
     dateOfInfection: { type: Date, required: true },
     gender: { type: String, enum: ["Male", "Female", "Other"], required: true },

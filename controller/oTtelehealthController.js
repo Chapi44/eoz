@@ -67,10 +67,18 @@ exports.updateOTTelehealth = async (req, res) => {
   }
 };
 
-// Get all OT Telehealth Visits
+// Get all OT Telehealth Visits with pagination and sorting
 exports.getAllOTTelehealth = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
     const visits = await OTTelehealth.find()
+      .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
+      .skip(skip) // Skip documents for pagination
+      .limit(Number(limit)) // Limit the number of documents returned
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -80,9 +88,14 @@ exports.getAllOTTelehealth = async (req, res) => {
         select: "name email phone role",
       });
 
+    const totalRecords = await OTTelehealth.countDocuments(); // Total number of records
+
     res.status(200).json({
       success: true,
       message: "All OT Telehealth Visits retrieved successfully",
+      totalRecords,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalRecords / limit),
       data: visits,
     });
   } catch (error) {
@@ -94,6 +107,56 @@ exports.getAllOTTelehealth = async (req, res) => {
     });
   }
 };
+
+// Get OT Telehealth Visits by Nurse ID with pagination and sorting
+exports.getOTTelehealthByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
+    const visits = await OTTelehealth.find({ nurseId })
+      .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
+      .skip(skip) // Skip documents for pagination
+      .limit(Number(limit)) // Limit the number of documents returned
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      });
+
+    if (!visits || visits.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No OT Telehealth Visits found for the specified Nurse ID",
+      });
+    }
+
+    const totalRecords = await OTTelehealth.countDocuments({ nurseId }); // Total records for the nurse
+
+    res.status(200).json({
+      success: true,
+      message: "OT Telehealth Visits retrieved successfully",
+      totalRecords,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalRecords / limit),
+      data: visits,
+    });
+  } catch (error) {
+    console.error("Error fetching OT Telehealth Visits by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve OT Telehealth Visits by Nurse ID",
+      error: error.message,
+    });
+  }
+};
+
 
 // Get a specific OT Telehealth Visit by ID
 exports.getOTTelehealthById = async (req, res) => {
@@ -133,43 +196,7 @@ exports.getOTTelehealthById = async (req, res) => {
   }
 };
 
-// Get OT Telehealth Visits by Nurse ID
-exports.getOTTelehealthByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
 
-    // Find OT Telehealth Visits by Nurse ID
-    const visits = await OTTelehealth.find({ nurseId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      });
-
-    if (!visits || visits.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No OT Telehealth Visits found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "OT Telehealth Visits retrieved successfully",
-      data: visits,
-    });
-  } catch (error) {
-    console.error("Error fetching OT Telehealth Visits by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve OT Telehealth Visits by Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete an OT Telehealth Visit by ID
 exports.deleteOTTelehealth = async (req, res) => {
@@ -210,12 +237,12 @@ exports.createOTReEval = async (req, res) => {
     console.log(data);
 
     // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.primaryDiagnosis) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Primary Diagnosis are required",
-      });
-    }
+    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.primaryDiagnosis) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Primary Diagnosis are required",
+    //   });
+    // }
 
     // Create and save the new OT Re-Evaluation record
     const newRecord = new OTReEval(data);
@@ -271,9 +298,13 @@ exports.updateOTReEval = async (req, res) => {
   }
 };
 
-// Get all OT Re-Evaluation records
+// Get all OT Re-Evaluation records with pagination and sorting
 exports.getAllOTReEvals = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch OT Re-Evaluation records with pagination and sorting
     const records = await OTReEval.find()
       .populate({
         path: "patientId",
@@ -283,21 +314,79 @@ exports.getAllOTReEvals = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of OT Re-Evaluation records
+    const totalRecords = await OTReEval.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All OT Re-Evaluation records retrieved successfully",
       data: records,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalRecords / limit),
+        totalItems: totalRecords,
+      },
     });
   } catch (error) {
     console.error("Error fetching OT Re-Evaluation records:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve OT Re-Evaluation records",
+      error: error.message,
+    });
+  }
+};
+
+// Get OT Re-Evaluation records by Nurse ID with pagination and sorting
+exports.getOTReEvalsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch OT Re-Evaluation records by Nurse ID with pagination and sorting
+    const records = await OTReEval.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of OT Re-Evaluation records for the specified Nurse ID
+    const totalRecords = await OTReEval.countDocuments({ nurseId });
+
+    if (!records || records.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No OT Re-Evaluation records found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "OT Re-Evaluation records retrieved successfully",
+      data: records,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalRecords / limit),
+        totalItems: totalRecords,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching OT Re-Evaluation records by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve OT Re-Evaluation records by Nurse ID",
       error: error.message,
     });
   }
@@ -318,10 +407,7 @@ exports.getOTReEvalById = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+
 
     if (!record) {
       return res.status(404).json({
@@ -346,46 +432,6 @@ exports.getOTReEvalById = async (req, res) => {
 };
 
 // Get OT Re-Evaluation records by Nurse ID
-exports.getOTReEvalsByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
-
-    // Find OT Re-Evaluation records by Nurse ID
-    const records = await OTReEval.find({ nurseId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
-
-    if (!records || records.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No OT Re-Evaluation records found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "OT Re-Evaluation records retrieved successfully",
-      data: records,
-    });
-  } catch (error) {
-    console.error("Error fetching OT Re-Evaluation records by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve OT Re-Evaluation records by Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete an OT Re-Evaluation record by ID
 exports.deleteOTReEval = async (req, res) => {
@@ -424,13 +470,13 @@ exports.createOTVisit = async (req, res) => {
   try {
     const data = req.body;
 
-    // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-      });
-    }
+    // // Validate required fields
+    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
+    //   });
+    // }
 
     // Create and save the new OT Visit
     const newVisit = new OTVisit(data);
@@ -486,9 +532,13 @@ exports.updateOTVisit = async (req, res) => {
   }
 };
 
-// Get all OT Visits
+// Get all OT Visits with pagination and sorting
 exports.getAllOTVisits = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch OT Visits with pagination and sorting
     const visits = await OTVisit.find()
       .populate({
         path: "patientId",
@@ -498,21 +548,79 @@ exports.getAllOTVisits = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of OT Visits
+    const totalVisits = await OTVisit.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All OT Visits retrieved successfully",
       data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
     });
   } catch (error) {
     console.error("Error fetching OT Visits:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve OT Visits",
+      error: error.message,
+    });
+  }
+};
+
+// Get OT Visits by Nurse ID with pagination and sorting
+exports.getOTVisitsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch OT Visits by Nurse ID with pagination and sorting
+    const visits = await OTVisit.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of OT Visits for the specified Nurse ID
+    const totalVisits = await OTVisit.countDocuments({ nurseId });
+
+    if (!visits || visits.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No OT Visits found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "OT Visits retrieved successfully",
+      data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching OT Visits by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve OT Visits by Nurse ID",
       error: error.message,
     });
   }
@@ -533,10 +641,7 @@ exports.getOTVisitById = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+
 
     if (!visit) {
       return res.status(404).json({
@@ -560,47 +665,7 @@ exports.getOTVisitById = async (req, res) => {
   }
 };
 
-// Get OT Visits by Nurse ID
-exports.getOTVisitsByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
 
-    // Find OT Visits by Nurse ID
-    const visits = await OTVisit.find({ nurseId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
-
-    if (!visits || visits.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No OT Visits found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "OT Visits retrieved successfully",
-      data: visits,
-    });
-  } catch (error) {
-    console.error("Error fetching OT Visits by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve OT Visits by Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete an OT Visit by ID
 exports.deleteOTVisit = async (req, res) => {

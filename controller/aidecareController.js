@@ -67,13 +67,13 @@ exports.updateAideCarePlan = async (req, res) => {
   }
 };
 
-// Get all AideCarePlans with pagination
+// Get all AideCarePlans with pagination and sorting
 exports.getAllAideCarePlans = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Fetch AideCarePlans with pagination
+    // Fetch AideCarePlans with pagination and sorting by createdAt in descending order
     const aideCarePlans = await AideCarePlan.find()
       .populate({
         path: "patientId",
@@ -83,6 +83,7 @@ exports.getAllAideCarePlans = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
       .skip(skip)
       .limit(parseInt(limit));
 
@@ -109,14 +110,14 @@ exports.getAllAideCarePlans = async (req, res) => {
   }
 };
 
-// Get AideCarePlans by Nurse ID with pagination
+// Get AideCarePlans by Nurse ID with pagination and sorting
 exports.getAideCarePlansByNurseId = async (req, res) => {
   try {
     const { nurseId } = req.params; // Get Nurse ID from route parameters
     const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Fetch AideCarePlans for the specified Nurse ID with pagination
+    // Fetch AideCarePlans for the specified Nurse ID with pagination and sorting
     const aideCarePlans = await AideCarePlan.find({ nurseId })
       .populate({
         path: "patientId",
@@ -126,6 +127,7 @@ exports.getAideCarePlansByNurseId = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
       .skip(skip)
       .limit(parseInt(limit));
 

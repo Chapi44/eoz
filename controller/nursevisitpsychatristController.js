@@ -67,38 +67,50 @@ exports.updateNurseVisit = async (req, res) => {
   }
 };
 
-// Get all Nurse Visits
+// Get all Nurse Visits with pagination and sorting
 exports.getAllNurseVisits = async (req, res) => {
-    try {
-      const { type } = req.query;
-  
-      const filter = type ? { type } : {};
-  
-      const visits = await NurseVisit.find(filter)
-        .populate({
-          path: "patientId",
-          select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-        })
-        .populate({
-          path: "nurseId",
-          select: "name email phone role",
-        });
-  
-      res.status(200).json({
-        success: true,
-        message: "All Nurse Visits retrieved successfully",
-        data: visits,
-      });
-    } catch (error) {
-      console.error("Error fetching Nurse Visits:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to retrieve Nurse Visits",
-        error: error.message,
-      });
-    }
-  };
-  
+  try {
+    const { type, page = 1, limit = 10 } = req.query; // Extract type, page, and limit from query
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const filter = type ? { type } : {};
+
+    // Fetch Nurse Visits with pagination and sorting
+    const visits = await NurseVisit.find(filter)
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Nurse Visits matching the filter
+    const totalVisits = await NurseVisit.countDocuments(filter);
+
+    res.status(200).json({
+      success: true,
+      message: "All Nurse Visits retrieved successfully",
+      data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Nurse Visits:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Nurse Visits",
+      error: error.message,
+    });
+  }
+};
 
 // Get a specific Nurse Visit by ID
 exports.getNurseVisitById = async (req, res) => {
@@ -137,6 +149,7 @@ exports.getNurseVisitById = async (req, res) => {
     });
   }
 };
+
 
 // Get Nurse Visits by Type
 exports.getNurseVisitsByTypeAndNurseId = async (req, res) => {
@@ -283,13 +296,15 @@ exports.updateNursingVisitSpecial = async (req, res) => {
   }
 };
 
-// Get all Nursing Visits
+// Get all Nursing Visits with pagination and sorting
 exports.getAllNursingVisitsSpecial = async (req, res) => {
   try {
-    const { type } = req.query;
+    const { page = 1, limit = 10, type } = req.query; // Extract page, limit, and type from query
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const filter = type ? { type } : {};
 
+    // Fetch Nursing Visits with pagination and sorting
     const visits = await NursingVisitSpecialist.find(filter)
       .populate({
         path: "patientId",
@@ -298,18 +313,86 @@ exports.getAllNursingVisitsSpecial = async (req, res) => {
       .populate({
         path: "nurseId",
         select: "name email phone role",
-      });
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Nursing Visits
+    const totalVisits = await NursingVisitSpecialist.countDocuments(filter);
 
     res.status(200).json({
       success: true,
       message: "All Nursing Visits retrieved successfully",
       data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
     });
   } catch (error) {
     console.error("Error fetching Nursing Visits:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve Nursing Visits",
+      error: error.message,
+    });
+  }
+};
+
+// Get Nursing Visits by Type and Nurse ID with pagination and sorting
+exports.getNursingVisitsByTypeAndNurseIdSpecial = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10, type } = req.query; // Extract page, limit, and type from query
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Construct filter object
+    const filter = { nurseId };
+    if (type) {
+      filter.type = type;
+    }
+
+    // Fetch Nursing Visits by Type and Nurse ID with pagination and sorting
+    const visits = await NursingVisitSpecialist.find(filter)
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Nursing Visits for the specified filter
+    const totalVisits = await NursingVisitSpecialist.countDocuments(filter);
+
+    if (!visits || visits.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Nursing Visits found for the specified type and nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Nursing Visits retrieved successfully",
+      data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Nursing Visits by Type and Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Nursing Visits by Type and Nurse ID",
       error: error.message,
     });
   }
@@ -353,50 +436,7 @@ exports.getNursingVisitByIdSpecial = async (req, res) => {
   }
 };
 
-// Get Nursing Visits by Type and Nurse ID
-exports.getNursingVisitsByTypeAndNurseIdSpecial = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
-    const { type } = req.query;
 
-    // Construct filter object
-    const filter = { nurseId };
-    if (type) {
-      filter.type = type;
-    }
-
-    // Find Nursing Visits by Type and Nurse ID
-    const visits = await NursingVisitSpecialist.find(filter)
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      });
-
-    if (!visits || visits.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No Nursing Visits found for the specified type and nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Nursing Visits retrieved successfully",
-      data: visits,
-    });
-  } catch (error) {
-    console.error("Error fetching Nursing Visits by Type and Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Nursing Visits by Type and Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a Nursing Visit by ID
 exports.deleteNursingVisitSpecial = async (req, res) => {
@@ -496,13 +536,15 @@ exports.updateNurseVisitAdvanced = async (req, res) => {
   }
 };
 
-// Get all Nurse Visit Advanced
+// Get all Nurse Visit Advanced with pagination and sorting
 exports.getAllNurseVisitsAdvanced = async (req, res) => {
   try {
-    const { type } = req.query;
+    const { type, page = 1, limit = 10 } = req.query; // Extract type, page, and limit from query
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const filter = type ? { type } : {};
 
+    // Fetch Nurse Visit Advanced with pagination and sorting
     const visits = await NurseVisitAdvanced.find(filter)
       .populate({
         path: "patientId",
@@ -511,18 +553,86 @@ exports.getAllNurseVisitsAdvanced = async (req, res) => {
       .populate({
         path: "nurseId",
         select: "name email phone role",
-      });
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Nurse Visit Advanced matching the filter
+    const totalVisits = await NurseVisitAdvanced.countDocuments(filter);
 
     res.status(200).json({
       success: true,
       message: "All Nurse Visit Advanced records retrieved successfully",
       data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
     });
   } catch (error) {
     console.error("Error fetching Nurse Visit Advanced records:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve Nurse Visit Advanced records",
+      error: error.message,
+    });
+  }
+};
+
+// Get Nurse Visits Advanced by Type and Nurse ID with pagination and sorting
+exports.getNurseVisitsAdvancedByTypeAndNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { type, page = 1, limit = 10 } = req.query; // Extract type, page, and limit from query
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Construct filter object
+    const filter = { nurseId };
+    if (type) {
+      filter.type = type;
+    }
+
+    // Fetch Nurse Visits Advanced by Type and Nurse ID with pagination and sorting
+    const visits = await NurseVisitAdvanced.find(filter)
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Nurse Visits Advanced matching the filter
+    const totalVisits = await NurseVisitAdvanced.countDocuments(filter);
+
+    if (!visits || visits.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Nurse Visits Advanced found for the specified type and nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Nurse Visits Advanced retrieved successfully",
+      data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Nurse Visits Advanced by Type and Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Nurse Visits Advanced by Type and Nurse ID",
       error: error.message,
     });
   }
@@ -566,50 +676,7 @@ exports.getNurseVisitAdvancedById = async (req, res) => {
   }
 };
 
-// Get Nurse Visits Advanced by Type and Nurse ID
-exports.getNurseVisitsAdvancedByTypeAndNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
-    const { type } = req.query;
 
-    // Construct filter object
-    const filter = { nurseId };
-    if (type) {
-      filter.type = type;
-    }
-
-    // Find Nurse Visits Advanced by Type and Nurse ID
-    const visits = await NurseVisitAdvanced.find(filter)
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      });
-
-    if (!visits || visits.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No Nurse Visits Advanced found for the specified type and nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Nurse Visits Advanced retrieved successfully",
-      data: visits,
-    });
-  } catch (error) {
-    console.error("Error fetching Nurse Visits Advanced by Type and Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Nurse Visits Advanced by Type and Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a Nurse Visit Advanced by ID
 exports.deleteNurseVisitAdvanced = async (req, res) => {

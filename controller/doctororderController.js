@@ -74,6 +74,10 @@ exports.updateDoctorOrder = async (req, res) => {
 // Get all DoctorOrders
 exports.getAllDoctorOrders = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Doctor Orders with pagination
     const orders = await DoctorOrder.find()
       .populate({
         path: "patientId",
@@ -82,18 +86,79 @@ exports.getAllDoctorOrders = async (req, res) => {
       .populate({
         path: "physicianId",
         select: "name email phone role",
-      });
+      })
+      .skip(skip)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+
+    // Get the total count of Doctor Orders
+    const totalOrders = await DoctorOrder.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All Doctor Orders retrieved successfully",
       data: orders,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalOrders / limit),
+        totalItems: totalOrders,
+      },
     });
   } catch (error) {
     console.error("Error fetching Doctor Orders:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve Doctor Orders",
+      error: error.message,
+    });
+  }
+};
+
+exports.getDoctorOrdersByPhysicianId = async (req, res) => {
+  try {
+    const { physicianId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Doctor Orders by Physician ID with pagination
+    const orders = await DoctorOrder.find({ physicianId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "physicianId",
+        select: "name email phone role",
+      })
+      .skip(skip)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+
+    // Get the total count of Doctor Orders for the specified Physician ID
+    const totalOrders = await DoctorOrder.countDocuments({ physicianId });
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Doctor Orders found for the specified Physician ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Doctor Orders retrieved successfully",
+      data: orders,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalOrders / limit),
+        totalItems: totalOrders,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Doctor Orders by Physician ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Doctor Orders by Physician ID",
       error: error.message,
     });
   }
@@ -138,42 +203,7 @@ exports.getDoctorOrderById = async (req, res) => {
 };
 
 // Get DoctorOrders by Physician ID
-exports.getDoctorOrdersByPhysicianId = async (req, res) => {
-  try {
-    const { physicianId } = req.params;
 
-    // Find DoctorOrders by Physician ID
-    const orders = await DoctorOrder.find({ physicianId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "physicianId",
-        select: "name email phone role",
-      });
-
-    if (!orders || orders.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No Doctor Orders found for the specified Physician ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Doctor Orders retrieved successfully",
-      data: orders,
-    });
-  } catch (error) {
-    console.error("Error fetching Doctor Orders by Physician ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Doctor Orders by Physician ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a DoctorOrder by ID
 exports.deleteDoctorOrder = async (req, res) => {

@@ -1,11 +1,7 @@
 const mongoose = require("mongoose");
 
-const stReEvaluationSchema = mongoose.Schema(
+const stReevaluationSchema = mongoose.Schema(
   {
-    orderNumber: {
-      type: String,
-      default: () => `STRE-${Math.floor(100000 + Math.random() * 900000)}`, // Automatically generate order number
-    },
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Patients",
@@ -23,119 +19,188 @@ const stReEvaluationSchema = mongoose.Schema(
       start: { type: Date, required: true },
       end: { type: Date, required: true },
     },
-    physician: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    diagnosis: {
-      medical: { type: String },
-      onset: { type: Date },
-    },
     homeboundReason: {
-      needsAssistance: { type: Boolean, default: false, default: false },
-      residualWeakness: { type: Boolean, default: false, default: false },
-      requiresAmbulationAssist: { type: Boolean, default: false, default: false },
-      confusion: { type: Boolean, default: false, default: false },
-      adaptiveDevices: { type: Boolean, default: false, default: false },
-      severeSOB: { type: Boolean, default: false, default: false },
-      medicalRestrictions: { type: Boolean, default: false, default: false },
-      other: { type: String },
+      needsAssistance: { type: Boolean, default: false },
+      residualWeakness: { type: Boolean, default: false },
+      requiresAssistanceToAmbulate: { type: Boolean, default: false },
+      confusionUnableToLeaveHomeAlone: { type: Boolean, default: false },
+      dependentOnAdaptiveDevices: { type: Boolean, default: false },
+      severeSOBUponExertion: { type: Boolean, default: false },
+      unableToLeaveHomeUnassisted: { type: Boolean, default: false },
+      medicalRestrictions: { type: Boolean, default: false },
+      other: { type: String, default: "" },
     },
-    priorFunctionLevel: { type: String },
-    livingSituation: { type: String },
-    medicalHistory: { type: String },
-    safeSwallowingEvaluation: { type: Boolean, default: false, default: false },
-    videoFluoroscopy: { type: Boolean, default: false, default: false },
-    currentDiet: {
-      texture: { type: String },
-      liquids: { type: String },
+    priorLevelOfFunctioning: { type: String, default: "" },
+    livingSituation: {
+      supportSystem: { type: String, default: "" },
+      pertinentHistory: { type: String, default: "" },
     },
-    cognitionFunction: {
-      orientation: { type: String },
-      attentionSpan: { type: String },
-      shortTermMemory: { type: String },
-      longTermMemory: { type: String },
-      judgment: { type: String },
-      problemSolving: { type: String },
-      organization: { type: String },
-      comments: { type: String },
+    medicalPrecautions: { type: String, default: "" },
+    swallowingEvaluation: {
+      safeSwallowingEvaluation: { type: Boolean, default: false },
+      videoFluoroscopy: { type: Boolean, default: false },
     },
-    speechEvaluation: {
-      oralFacialExam: { type: String },
-      articulation: { type: String },
-      prosody: { type: String },
-      voiceRespiration: { type: String },
-      intelligibility: { type: String },
-      other: { type: String },
+    currentDietTexture: {
+      liquids: {
+        thin: { type: Boolean, default: false },
+        thickened: { type: Boolean, default: false },
+        other: { type: String, default: "" },
+      },
     },
-    swallowingFunction: {
-      chewingAbility: { type: String },
-      oralStageManagement: { type: String },
-      pharyngealStageManagement: { type: String },
-      reflexTime: { type: String },
-      comments: { type: String },
-    },
-    verbalExpression: {
-      naming: { type: String },
-      appropriateComplexSentences: { type: String },
-      conversation: { type: String },
-      comments: { type: String },
-    },
-    writingFunction: {
-      lettersNumbers: { type: String },
-      words: { type: String },
-      sentences: { type: String },
-      spellingFormulation: { type: String },
-      comments: { type: String },
-    },
-    painAssessment: {
-      location: { type: String },
-      level: { type: Number },
-      increasedBy: { type: String },
-      relievedBy: { type: String },
+    speechLanguageEvaluation: {
+      cognitionFunction: {
+        orientation: { type: String, default: "" },
+        attentionSpan: { type: String, default: "" },
+        shortTermMemory: { type: String, default: "" },
+        longTermMemory: { type: String, default: "" },
+        judgment: { type: String, default: "" },
+        problemSolving: { type: String, default: "" },
+        organization: { type: String, default: "" },
+        comments: { type: String, default: "" },
+      },
+      speechVoiceFunction: {
+        oralFacialExam: { type: String, default: "" },
+        articulation: { type: String, default: "" },
+        prosody: { type: String, default: "" },
+        voiceRespiration: { type: String, default: "" },
+        intelligibility: { type: String, default: "" },
+        other: { type: String, default: "" },
+        comments: { type: String, default: "" },
+      },
+      auditoryComprehension: {
+        wordDiscrimination: { type: String, default: "" },
+        oneStepDirections: { type: String, default: "" },
+        twoStepDirections: { type: String, default: "" },
+        complexSentences: { type: String, default: "" },
+        conversationSpeech: { type: String, default: "" },
+        reading: { type: String, default: "" },
+        comments: { type: String, default: "" },
+      },
+      swallowingFunction: {
+        chewingAbility: { type: String, default: "" },
+        oralStageManagement: { type: String, default: "" },
+        pharyngealStageManagement: { type: String, default: "" },
+        reflexTime: { type: String, default: "" },
+        otherComments: { type: String, default: "" },
+      },
+      verbalExpression: {
+        naming: { type: String, default: "" },
+        appropriateComplexSentences: { type: String, default: "" },
+        conversationComments: { type: String, default: "" },
+      },
+      readingFunction: {
+        lettersNumbers: { type: String, default: "" },
+        words: { type: String, default: "" },
+        simpleSentences: { type: String, default: "" },
+        complexSentences: { type: String, default: "" },
+        paragraphComments: { type: String, default: "" },
+      },
+      writingFunction: {
+        lettersNumbers: { type: String, default: "" },
+        words: { type: String, default: "" },
+        sentences: { type: String, default: "" },
+        spellingFormulation: { type: String, default: "" },
+        simpleAdditionSubtraction: { type: String, default: "" },
+        comments: { type: String, default: "" },
+      },
     },
     dme: {
-      available: { type: String },
-      needs: { type: String },
-      suggestions: { type: String },
+      na: { type: Boolean, default: false }, // Checkbox for "N/A"
+      available: { type: String, default: "" }, // Details of available DME
+      needs: { type: String, default: "" }, // Equipment needs
+      suggestion: { type: String, default: "" }, // Suggestions for additional equipment
+    },
+    medicalDiagnosis: {
+      na: { type: Boolean, default: false }, // Checkbox for "N/A"
+      diagnosis: { type: String, default: "" }, // Medical diagnosis details
+      onset: { type: String, default: "" }, // Onset of the medical diagnosis
+      ptDiagnosis: {
+        diagnosis: { type: String, default: "" }, // PT diagnosis details
+        onset: { type: String, default: "" }, // Onset of the PT diagnosis
+      },
+      comment: { type: String, default: "" }, // Additional comments for the section
+    },
+    painAssessment: {
+      location: { type: String, default: "" },
+      level: { type: String, default: "" },
+      increasedBy: { type: String, default: "" },
+      relievedBy: { type: String, default: "" },
     },
     treatmentPlan: {
-      evaluation: { type: Boolean, default: false, default: false },
-      patientEducation: { type: Boolean, default: false, default: false },
-      speechArticulation: { type: Boolean, default: false, default: false },
-      languageDisorders: { type: Boolean, default: false, default: false },
-      nonOralCommunication: { type: Boolean, default: false, default: false },
-      languageProcessing: { type: Boolean, default: false, default: false },
-      safeSwallowing: { type: Boolean, default: false, default: false },
-      facialExercises: { type: Boolean, default: false, default: false },
-      voiceDisorders: { type: Boolean, default: false, default: false },
-      dysphagiaTreatments: { type: Boolean, default: false, default: false },
-      auralRehabilitation: { type: Boolean, default: false, default: false },
-      alaryngealSpeech: { type: Boolean, default: false, default: false },
-      foodTextureRecommendations: { type: Boolean, default: false, default: false },
-      articulationTraining: { type: Boolean, default: false, default: false },
-      painManagement: { type: Boolean, default: false, default: false },
+      evaluation: { type: Boolean, default: false },
+      patientFamilyEducation: { type: Boolean, default: false },
+      speechArticulationDisorders: { type: Boolean, default: false },
+      languageDisorders: { type: Boolean, default: false },
+      nonOralCommunication: { type: Boolean, default: false },
+      languageProcessing: { type: Boolean, default: false },
+      safeSwallowingEvaluation: { type: Boolean, default: false },
+      facialExercises: { type: Boolean, default: false },
+      rehabProgram: { type: Boolean, default: false },
+      voiceDisorders: { type: Boolean, default: false },
+      dysphagiaTreatments: { type: Boolean, default: false },
+      auralRehabilitation: { type: Boolean, default: false },
+      alaryngealSpeechSkills: { type: Boolean, default: false },
+      foodTextureRecommendations: { type: Boolean, default: false },
+      articulationVerbalExpression: { type: Boolean, default: false },
+      painManagement: { type: Boolean, default: false },
+      speechDysphagiaInstructionProgram: { type: Boolean, default: false }, // From the image
+      careOfVoiceProsthesis: { type: Boolean, default: false }, // Removal, cleaning, maintenance
+      teachDevelopCommSystem: { type: Boolean, default: false }, // Teaching/Developing Communication System
+      trachInstAndCare: { type: Boolean, default: false }, // Tracheostomy Instruction and Care
+      other: { type: String, default: "" }, // Free-text for additional treatments
     },
-    rehabPotential: { type: String, enum: ["Good", "Fair", "Poor"] },
+    frequencyDuration: { type: String, default: "" }, // ST Frequency & Duration
+    equipmentRecommendations: { type: String, default: "" }, // Equipment Recommendations
+    
+    stGoals: {
+      shortTerm: { type: String, default: "" },
+      longTerm: { type: String, default: "" },
+    },
+    otherDisciplineRecommendation: {
+      ot: { type: Boolean, default: false },
+      pt: { type: Boolean, default: false },
+      msw: { type: Boolean, default: false },
+      podiatrist: { type: Boolean, default: false },
+      other: { type: String, default: "" },
+      reason: { type: String, default: "" },
+    },
+    rehabPotential: {
+      good: { type: Boolean, default: false },
+      fair: { type: Boolean, default: false },
+      poor: { type: Boolean, default: false },
+    },
     dischargePlan: {
-      to: { type: String, enum: ["Physician", "Caregiver", "Selfcare"] },
-      when: { type: String, enum: ["When goals met", "Caregiver is ready"] },
-      comments: { type: String },
+      toCareOf: {
+        caregiver: { type: Boolean, default: false },
+        selfcare: { type: Boolean, default: false },
+      },
+      plans: {
+        caregiverAbleToManage: { type: Boolean, default: false },
+        goalsMet: { type: Boolean, default: false },
+      },
+    },
+    skilledCareProvided: {
+      trainingTopics: { type: String, default: "" },
+      trained: {
+        patient: { type: Boolean, default: false },
+        caregiver: { type: Boolean, default: false },
+      },
+      treatmentPerformed: { type: String, default: "" },
+      patientResponse: { type: String, default: "" },
+    },
+    safetyIssuesInstructionEducation: {
+      details: { type: String, default: "" },
     },
     careCoordination: {
-      topicsTrained: { type: [String] },
-      safetyIssues: { type: String },
-      notifications: { type: [String] }, // ["Patient", "Caregiver"]
-      physicianNotified: { type: Boolean, default: false, default: false },
-      physicianComments: { type: String },
+      details: { type: String, default: "" },
     },
-    clinicianSignature: { type: String },
+    narrative: { type: String, default: "" },
+    signature: { type: String },
     signatureDate: { type: Date },
   },
   { timestamps: true }
 );
 
-const STReEvaluation = mongoose.model("STReEvaluation", stReEvaluationSchema);
+const STReEvaluation = mongoose.model("STReEvaluation", stReevaluationSchema);
 
 module.exports = STReEvaluation;

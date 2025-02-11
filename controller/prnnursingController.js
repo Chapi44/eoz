@@ -208,13 +208,13 @@ exports.createPTVisit = async (req, res) => {
   try {
     const data = req.body;
 
-    // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-      });
-    }
+    // // Validate required fields
+    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
+    //   });
+    // }
 
     // Create and save the new PT Visit
     const newVisit = new PTVisit(data);
@@ -270,9 +270,13 @@ exports.updatePTVisit = async (req, res) => {
   }
 };
 
-// Get all PT Visits
+// Get all PT Visits with pagination and sorting
 exports.getAllPTVisits = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch PT Visits with pagination and sorting
     const visits = await PTVisit.find()
       .populate({
         path: "patientId",
@@ -282,21 +286,79 @@ exports.getAllPTVisits = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of PT Visits
+    const totalVisits = await PTVisit.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All PT Visits retrieved successfully",
       data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
     });
   } catch (error) {
     console.error("Error fetching PT Visits:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve PT Visits",
+      error: error.message,
+    });
+  }
+};
+
+// Get PT Visits by Nurse ID with pagination and sorting
+exports.getPTVisitsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch PT Visits by Nurse ID with pagination and sorting
+    const visits = await PTVisit.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of PT Visits for the specified Nurse ID
+    const totalVisits = await PTVisit.countDocuments({ nurseId });
+
+    if (!visits || visits.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No PT Visits found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "PT Visits retrieved successfully",
+      data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching PT Visits by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve PT Visits by Nurse ID",
       error: error.message,
     });
   }
@@ -317,10 +379,7 @@ exports.getPTVisitById = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+
 
     if (!visit) {
       return res.status(404).json({
@@ -344,47 +403,7 @@ exports.getPTVisitById = async (req, res) => {
   }
 };
 
-// Get PT Visits by Nurse ID
-exports.getPTVisitsByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
 
-    // Find PT Visits by Nurse ID
-    const visits = await PTVisit.find({ nurseId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
-
-    if (!visits || visits.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No PT Visits found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "PT Visits retrieved successfully",
-      data: visits,
-    });
-  } catch (error) {
-    console.error("Error fetching PT Visits by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve PT Visits by Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a PT Visit by ID
 exports.deletePTVisit = async (req, res) => {
@@ -424,12 +443,12 @@ exports.createPTReassessment = async (req, res) => {
     const data = req.body;
 
     // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-      });
-    }
+    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
+    //   });
+    // }
 
     // Create and save the new PT Reassessment
     const newReassessment = new PTReassessment(data);
@@ -485,9 +504,13 @@ exports.updatePTReassessment = async (req, res) => {
   }
 };
 
-// Get all PT Reassessments
+// Get all PT Reassessments with pagination and sorting
 exports.getAllPTReassessments = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch PT Reassessments with pagination and sorting
     const reassessments = await PTReassessment.find()
       .populate({
         path: "patientId",
@@ -497,21 +520,79 @@ exports.getAllPTReassessments = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of PT Reassessments
+    const totalReassessments = await PTReassessment.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All PT Reassessments retrieved successfully",
       data: reassessments,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalReassessments / limit),
+        totalItems: totalReassessments,
+      },
     });
   } catch (error) {
     console.error("Error fetching PT Reassessments:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve PT Reassessments",
+      error: error.message,
+    });
+  }
+};
+
+// Get PT Reassessments by Nurse ID with pagination and sorting
+exports.getPTReassessmentsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch PT Reassessments by Nurse ID with pagination and sorting
+    const reassessments = await PTReassessment.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of PT Reassessments for the specified Nurse ID
+    const totalReassessments = await PTReassessment.countDocuments({ nurseId });
+
+    if (!reassessments || reassessments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No PT Reassessments found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "PT Reassessments retrieved successfully",
+      data: reassessments,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalReassessments / limit),
+        totalItems: totalReassessments,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching PT Reassessments by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve PT Reassessments by Nurse ID",
       error: error.message,
     });
   }
@@ -532,10 +613,7 @@ exports.getPTReassessmentById = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+
 
     if (!reassessment) {
       return res.status(404).json({
@@ -559,47 +637,7 @@ exports.getPTReassessmentById = async (req, res) => {
   }
 };
 
-// Get PT Reassessments by Nurse ID
-exports.getPTReassessmentsByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
 
-    // Find PT Reassessments by Nurse ID
-    const reassessments = await PTReassessment.find({ nurseId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
-
-    if (!reassessments || reassessments.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No PT Reassessments found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "PT Reassessments retrieved successfully",
-      data: reassessments,
-    });
-  } catch (error) {
-    console.error("Error fetching PT Reassessments by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve PT Reassessments by Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a PT Reassessment by ID
 exports.deletePTReassessment = async (req, res) => {

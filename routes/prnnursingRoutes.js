@@ -20,9 +20,11 @@ const {
   getPTReassessmentsByNurseId,
   deletePTReassessment,
 } = require("../controller/prnnursingController");
+const updateTaskStatus = require("../middelware/updateTaskStatus");
+
 
 // Create a new PRN Nursing Visit
-router.post("/prnnursingvisit", createPRNNursingVisit);
+router.post("/prnnursingvisit", updateTaskStatus, createPRNNursingVisit);
 
 // Update an existing PRN Nursing Visit by ID
 router.put("/prnnursingvisit/:id", updatePRNNursingVisit);
@@ -40,7 +42,7 @@ router.get("/prnnursingvisit/nurse/:nurseId", getPRNNursingVisitsByNurseId);
 router.delete("/prnnursingvisit/:id", deletePRNNursingVisit);
 
 // Create a new PT Visit
-router.post("/ptvisit", createPTVisit);
+router.post("/ptvisit",updateTaskStatus, createPTVisit);
 
 // Update an existing PT Visit by ID
 router.put("/ptvisit/:id", updatePTVisit);
@@ -58,7 +60,7 @@ router.get("/ptvisit/nurse/:nurseId", getPTVisitsByNurseId);
 router.delete("/ptvisit/:id", deletePTVisit);
 
 // Create a new PT Reassessment
-router.post("/ptreassessment", createPTReassessment);
+router.post("/ptreassessment",updateTaskStatus, createPTReassessment);
 
 // Update an existing PT Reassessment by ID
 router.put("/ptreassessment/:id", updatePTReassessment);
@@ -96,7 +98,7 @@ const {
     getPTWithINRByNurseId,
     deletePTWithINR,
   } = require("../controller/PsychNurseAssessmentController");
-  const updateTaskStatus = require("../middelware/updateTaskStatus");
+
   
   // Create a new Psych Nurse Assessment
   router.post("/psychnurseassessment", updateTaskStatus, createPsychNurseAssessment);

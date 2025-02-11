@@ -71,10 +71,18 @@ exports.updateFaceToFace = async (req, res) => {
   }
 };
 
-// Get all FaceToFace records
+// Get all FaceToFace records with pagination and sorting
 exports.getAllFaceToFace = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Default values: page 1, limit 10
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
     const faceToFaceRecords = await FaceToFace.find()
+      .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
+      .skip(skip) // Skip documents for pagination
+      .limit(Number(limit)) // Limit the number of documents returned
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -84,9 +92,14 @@ exports.getAllFaceToFace = async (req, res) => {
         select: "name email phone role",
       });
 
+    const totalRecords = await FaceToFace.countDocuments(); // Total number of records
+
     res.status(200).json({
       success: true,
       message: "All Face-to-Face records retrieved successfully",
+      totalRecords,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalRecords / limit),
       data: faceToFaceRecords,
     });
   } catch (error) {
@@ -98,6 +111,56 @@ exports.getAllFaceToFace = async (req, res) => {
     });
   }
 };
+
+// Get FaceToFace records by Physician ID with pagination and sorting
+exports.getFaceToFaceByPhysicianId = async (req, res) => {
+  try {
+    const { physicianId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Default values: page 1, limit 10
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
+    const faceToFaceRecords = await FaceToFace.find({ physicianId })
+      .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
+      .skip(skip) // Skip documents for pagination
+      .limit(Number(limit)) // Limit the number of documents returned
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "physicianId",
+        select: "name email phone role",
+      });
+
+    if (!faceToFaceRecords || faceToFaceRecords.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Face-to-Face records found for the specified Physician ID",
+      });
+    }
+
+    const totalRecords = await FaceToFace.countDocuments({ physicianId }); // Total records for the physician
+
+    res.status(200).json({
+      success: true,
+      message: "Face-to-Face records retrieved successfully",
+      totalRecords,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalRecords / limit),
+      data: faceToFaceRecords,
+    });
+  } catch (error) {
+    console.error("Error fetching Face-to-Face records by Physician ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Face-to-Face records by Physician ID",
+      error: error.message,
+    });
+  }
+};
+
 
 // Get a specific FaceToFace by ID
 exports.getFaceToFaceById = async (req, res) => {
@@ -137,43 +200,6 @@ exports.getFaceToFaceById = async (req, res) => {
   }
 };
 
-// Get FaceToFace records by Physician ID
-exports.getFaceToFaceByPhysicianId = async (req, res) => {
-  try {
-    const { physicianId } = req.params;
-
-    // Find FaceToFace records by Physician ID
-    const faceToFaceRecords = await FaceToFace.find({ physicianId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "physicianId",
-        select: "name email phone role",
-      });
-
-    if (!faceToFaceRecords || faceToFaceRecords.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No Face-to-Face records found for the specified Physician ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Face-to-Face records retrieved successfully",
-      data: faceToFaceRecords,
-    });
-  } catch (error) {
-    console.error("Error fetching Face-to-Face records by Physician ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Face-to-Face records by Physician ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a FaceToFace record by ID
 exports.deleteFaceToFace = async (req, res) => {
@@ -276,9 +302,18 @@ exports.updateHHAPlanOfCare = async (req, res) => {
 };
 
 // Get all HHA Plans of Care
+// Get all HHA Plans of Care with pagination and sorting
 exports.getAllHHAPlansOfCare = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
     const plans = await HHAPlanOfCare.find()
+      .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
+      .skip(skip) // Skip documents for pagination
+      .limit(Number(limit)) // Limit the number of documents returned
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -288,9 +323,14 @@ exports.getAllHHAPlansOfCare = async (req, res) => {
         select: "name email phone role",
       });
 
+    const totalRecords = await HHAPlanOfCare.countDocuments(); // Total number of records
+
     res.status(200).json({
       success: true,
       message: "All HHA Plans of Care retrieved successfully",
+      totalRecords,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalRecords / limit),
       data: plans,
     });
   } catch (error) {
@@ -302,6 +342,56 @@ exports.getAllHHAPlansOfCare = async (req, res) => {
     });
   }
 };
+
+// Get HHA Plans of Care by Physician ID with pagination and sorting
+exports.getHHAPlansOfCareByPhysicianId = async (req, res) => {
+  try {
+    const { physicianId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
+    const plans = await HHAPlanOfCare.find({ physicianId })
+      .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
+      .skip(skip) // Skip documents for pagination
+      .limit(Number(limit)) // Limit the number of documents returned
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "physicianId",
+        select: "name email phone role",
+      });
+
+    if (!plans || plans.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No HHA Plans of Care found for the specified Physician ID",
+      });
+    }
+
+    const totalRecords = await HHAPlanOfCare.countDocuments({ physicianId }); // Total records for the physician
+
+    res.status(200).json({
+      success: true,
+      message: "HHA Plans of Care retrieved successfully",
+      totalRecords,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalRecords / limit),
+      data: plans,
+    });
+  } catch (error) {
+    console.error("Error fetching HHA Plans of Care by Physician ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve HHA Plans of Care by Physician ID",
+      error: error.message,
+    });
+  }
+};
+
 
 // Get a specific HHA Plan of Care by ID
 exports.getHHAPlanOfCareById = async (req, res) => {
@@ -341,43 +431,6 @@ exports.getHHAPlanOfCareById = async (req, res) => {
   }
 };
 
-// Get HHA Plans of Care by Physician ID
-exports.getHHAPlansOfCareByPhysicianId = async (req, res) => {
-  try {
-    const { physicianId } = req.params;
-
-    // Find HHA Plans of Care by Physician ID
-    const plans = await HHAPlanOfCare.find({ physicianId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "physicianId",
-        select: "name email phone role",
-      });
-
-    if (!plans || plans.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No HHA Plans of Care found for the specified Physician ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "HHA Plans of Care retrieved successfully",
-      data: plans,
-    });
-  } catch (error) {
-    console.error("Error fetching HHA Plans of Care by Physician ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve HHA Plans of Care by Physician ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a HHA Plan of Care by ID
 exports.deleteHHAPlanOfCare = async (req, res) => {

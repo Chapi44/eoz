@@ -68,8 +68,13 @@ exports.updateSpeechTherapyVisit = async (req, res) => {
 };
 
 // Get all Speech Therapy Visits
+// Get all Speech Therapy Visits with pagination and sorting
 exports.getAllSpeechTherapyVisits = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Speech Therapy Visits with pagination and sorting
     const visits = await SpeechTherapyVisit.find()
       .populate({
         path: "patientId",
@@ -79,15 +84,22 @@ exports.getAllSpeechTherapyVisits = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Speech Therapy Visits
+    const totalVisits = await SpeechTherapyVisit.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All Speech Therapy Visits retrieved successfully",
       data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
     });
   } catch (error) {
     console.error("Error fetching Speech Therapy Visits:", error);
@@ -98,6 +110,58 @@ exports.getAllSpeechTherapyVisits = async (req, res) => {
     });
   }
 };
+
+// Get Speech Therapy Visits by Nurse ID with pagination and sorting
+exports.getSpeechTherapyVisitsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Speech Therapy Visits for the specified Nurse ID with pagination and sorting
+    const visits = await SpeechTherapyVisit.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Speech Therapy Visits for the specified Nurse ID
+    const totalVisits = await SpeechTherapyVisit.countDocuments({ nurseId });
+
+    if (!visits || visits.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Speech Therapy Visits found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Speech Therapy Visits retrieved successfully",
+      data: visits,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalVisits / limit),
+        totalItems: totalVisits,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Speech Therapy Visits by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Speech Therapy Visits by Nurse ID",
+      error: error.message,
+    });
+  }
+};
+
 
 // Get a specific Speech Therapy Visit by ID
 exports.getSpeechTherapyVisitById = async (req, res) => {
@@ -114,10 +178,7 @@ exports.getSpeechTherapyVisitById = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+
 
     if (!visit) {
       return res.status(404).json({
@@ -141,47 +202,7 @@ exports.getSpeechTherapyVisitById = async (req, res) => {
   }
 };
 
-// Get Speech Therapy Visits by Nurse ID
-exports.getSpeechTherapyVisitsByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
 
-    // Find Speech Therapy Visits by Nurse ID
-    const visits = await SpeechTherapyVisit.find({ nurseId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
-
-    if (!visits || visits.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No Speech Therapy Visits found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Speech Therapy Visits retrieved successfully",
-      data: visits,
-    });
-  } catch (error) {
-    console.error("Error fetching Speech Therapy Visits by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Speech Therapy Visits by Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a Speech Therapy Visit by ID
 exports.deleteSpeechTherapyVisit = async (req, res) => {
@@ -221,12 +242,12 @@ exports.createSTReEvaluation = async (req, res) => {
     const data = req.body;
 
     // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-      });
-    }
+    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
+    //   });
+    // }
 
     // Create and save the new ST Re-Evaluation
     const newReEvaluation = new STReEvaluation(data);
@@ -282,9 +303,13 @@ exports.updateSTReEvaluation = async (req, res) => {
   }
 };
 
-// Get all ST Re-Evaluations
+// Get all ST Re-Evaluations with pagination and sorting
 exports.getAllSTReEvaluations = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch ST Re-Evaluations with pagination and sorting
     const reEvaluations = await STReEvaluation.find()
       .populate({
         path: "patientId",
@@ -294,21 +319,79 @@ exports.getAllSTReEvaluations = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of ST Re-Evaluations
+    const totalReEvaluations = await STReEvaluation.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All ST Re-Evaluations retrieved successfully",
       data: reEvaluations,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalReEvaluations / limit),
+        totalItems: totalReEvaluations,
+      },
     });
   } catch (error) {
     console.error("Error fetching ST Re-Evaluations:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve ST Re-Evaluations",
+      error: error.message,
+    });
+  }
+};
+
+// Get ST Re-Evaluations by Nurse ID with pagination and sorting
+exports.getSTReEvaluationsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch ST Re-Evaluations by Nurse ID with pagination and sorting
+    const reEvaluations = await STReEvaluation.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of ST Re-Evaluations for the specified Nurse ID
+    const totalReEvaluations = await STReEvaluation.countDocuments({ nurseId });
+
+    if (!reEvaluations || reEvaluations.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No ST Re-Evaluations found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "ST Re-Evaluations retrieved successfully",
+      data: reEvaluations,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalReEvaluations / limit),
+        totalItems: totalReEvaluations,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching ST Re-Evaluations by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve ST Re-Evaluations by Nurse ID",
       error: error.message,
     });
   }
@@ -329,10 +412,7 @@ exports.getSTReEvaluationById = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+
 
     if (!reEvaluation) {
       return res.status(404).json({
@@ -356,47 +436,7 @@ exports.getSTReEvaluationById = async (req, res) => {
   }
 };
 
-// Get ST Re-Evaluations by Nurse ID
-exports.getSTReEvaluationsByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
 
-    // Find ST Re-Evaluations by Nurse ID
-    const reEvaluations = await STReEvaluation.find({ nurseId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
-
-    if (!reEvaluations || reEvaluations.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No ST Re-Evaluations found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "ST Re-Evaluations retrieved successfully",
-      data: reEvaluations,
-    });
-  } catch (error) {
-    console.error("Error fetching ST Re-Evaluations by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve ST Re-Evaluations by Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a ST Re-Evaluation by ID
 exports.deleteSTReEvaluation = async (req, res) => {

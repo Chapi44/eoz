@@ -34,7 +34,7 @@ router.get("/communicationnote/physician/:physicianId", getCommunicationNotesByP
 router.delete("/communicationnote/:id", deleteCommunicationNote);
 
 // Create a new Incident Report
-router.post("/incidentreport", createIncidentReport);
+router.post("/incidentreport", updateTaskStatus, createIncidentReport);
 
 // Update an existing Incident Report by ID
 router.put("/incidentreport/:id", updateIncidentReport);

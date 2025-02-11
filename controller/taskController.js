@@ -30,65 +30,65 @@ exports.createTask = async (req, res) => {
     }
     const location = patient.location || [];
 
-    // Validate taskType
-    const validTaskTypes = [
-      "Aide Visit",
-      "AideSupervisory",
-      "CommunicationNote",
-      "CoordinationOfCare",
-      "Doctor Order",
-      "FaceToFace",
-      "FoleyCathChange",
-      "HHA Plan of Care",
-      "Incident Report",
-      "Infection Report",
-      "INFUSION THERAPY",
-      "LPN Supervisory",
-      "LPN SupervisoryVisit",
-      "LVNHourly",
-      "LVNVisit",
-      "Midday Insulin Administration",
-      "OASIS E1 DISCHARGE",
-      "OASIS TRANSFER",
-      "OT Telehealth",
-      "OTReEval",
-      "OTVisit",
-      "PRN Nursing Visit",
-      "Psych Nurse Assessment",
-      "PT Visit",
-      "PTEval",
-      "PTReassessment",
-      "PTWithINR",
-      "Recertification E-1",
-      "Resumption Of Care",
-      "RNVisit",
-      "SkilledNurseVisit",
-      "SN BMP",
-      "SN CBC",
-      "SN Diabetic Daily",
-      "SN IV Insertion",
-      "SN_Psychiatric_Nurse_Visit",
-      "SNB12INJECTION",
-      "SNHaldolInj",
-      "SNInsulinAM",
-      "SNInsulinHS",
-      "SNInsulinPM",
-      "SNLabs",
-      "SNPediatric Hourly",
-      "SNPediatricVisit",
-      "SNWoundCare Visit",
-      "Speech Therapy Visit",
-      "ST ReEval",
-      "ST TelehealthVisit",
-      "Telehealth Notes",
-      "Telehealth PT"
-    ];
+    // // Validate taskType
+    // const validTaskTypes = [
+    //   "Aide Visit",
+    //   "AideSupervisory",
+    //   "CommunicationNote",
+    //   "CoordinationOfCare",
+    //   "Doctor Order",
+    //   "FaceToFace",
+    //   "FoleyCathChange",
+    //   "HHA Plan of Care",
+    //   "Incident Report",
+    //   "Infection Report",
+    //   "INFUSION THERAPY",
+    //   "LPN Supervisory",
+    //   "LPN SupervisoryVisit",
+    //   "LVNHourly",
+    //   "LVNVisit",
+    //   "Midday Insulin Administration",
+    //   "OASIS E1 DISCHARGE",
+    //   "OASIS TRANSFER",
+    //   "OT Telehealth",
+    //   "OTReEval",
+    //   "OTVisit",
+    //   "PRN Nursing Visit",
+    //   "Psych Nurse Assessment",
+    //   "PT Visit",
+    //   "PTEval",
+    //   "PTReassessment",
+    //   "PTWithINR",
+    //   "Recertification E-1",
+    //   "Resumption Of Care",
+    //   "RNVisit",
+    //   "SkilledNurseVisit",
+    //   "SN BMP",
+    //   "SN CBC",
+    //   "SN Diabetic Daily",
+    //   "SN IV Insertion",
+    //   "SN_Psychiatric_Nurse_Visit",
+    //   "SNB12INJECTION",
+    //   "SNHaldolInj",
+    //   "SNInsulinAM",
+    //   "SNInsulinHS",
+    //   "SNInsulinPM",
+    //   "SNLabs",
+    //   "SNPediatric Hourly",
+    //   "SNPediatricVisit",
+    //   "SNWoundCare Visit",
+    //   "Speech Therapy Visit",
+    //   "ST ReEval",
+    //   "ST TelehealthVisit",
+    //   "Telehealth Notes",
+    //   "Telehealth PT"
+    // ];
 
-    if (!validTaskTypes.includes(taskType)) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: `Invalid task type. Valid types are: ${validTaskTypes.join(", ")}`,
-      });
-    }
+    // if (!validTaskTypes.includes(taskType)) {
+    //   return res.status(StatusCodes.BAD_REQUEST).json({
+    //     message: `Invalid task type. Valid types are: ${validTaskTypes.join(", ")}`,
+    //   });
+    // }
 
     // Validate shiftDays if shift is true
     let days = shift ? parseInt(shiftDays, 10) || 7 : 1; // Default to 7 days if shiftDays is not provided
@@ -104,17 +104,17 @@ exports.createTask = async (req, res) => {
       appointmentDate: { $gte: startDate, $lte: endDate },
     });
 
-    if (overlappingTasks.length >= 1 * days) {
-      // Update nurse's availability status to "full" if overlapping tasks are found
-      await User.findOneAndUpdate(
-        { _id: nurseId },
-        { avaiableStatus: "full", fullStatusRevertDate: endDate }
-      );
+    // if (overlappingTasks.length >= 1 * days) {
+    //   // Update nurse's availability status to "full" if overlapping tasks are found
+    //   await User.findOneAndUpdate(
+    //     { _id: nurseId },
+    //     { avaiableStatus: "full", fullStatusRevertDate: endDate }
+    //   );
 
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: `Task assignment failed. The nurse has reached the maximum limit for consecutive tasks during the specified period (${startDate.toDateString()} to ${endDate.toDateString()}).`,
-      });
-    }
+    //   return res.status(StatusCodes.BAD_REQUEST).json({
+    //     message: `Task assignment failed. The nurse has reached the maximum limit for consecutive tasks during the specified period (${startDate.toDateString()} to ${endDate.toDateString()}).`,
+    //   });
+    // }
 
     let tasks = [];
 
@@ -205,8 +205,8 @@ exports.getTaskById = async (req, res) => {
 exports.getAllTasks = async (req, res) => {
   try {
     // Get pagination parameters from query, default to page 1 and limit 10
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
 
     // Extract filters from the query
     const { status, taskType, patientName } = req.query;
@@ -347,7 +347,7 @@ exports.getTasksByPatientId = async (req, res) => {
 exports.getTasksByNurseId = async (req, res) => {
   try {
     const { nurseId } = req.params;
-    const { currentDate, status, taskType, page = 1, limit = 10, pastdue } = req.query;
+    const { currentDate, status, taskType, page, limit, pastdue } = req.query;
 
     // Check if currentDate is provided
     if (!currentDate) {

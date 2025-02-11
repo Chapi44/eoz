@@ -339,8 +339,13 @@ exports.updateIncidentReport = async (req, res) => {
 };
 
 // Get all Incident Reports
+// Get all Incident Reports with pagination and sorting
 exports.getAllIncidentReports = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Incident Reports with pagination and sorting by createdAt in descending order
     const reports = await IncidentReport.find()
       .populate({
         path: "patientId",
@@ -349,18 +354,80 @@ exports.getAllIncidentReports = async (req, res) => {
       .populate({
         path: "attendingPhysician",
         select: "name email phone role",
-      });
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Incident Reports
+    const totalReports = await IncidentReport.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All Incident Reports retrieved successfully",
       data: reports,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalReports / limit),
+        totalItems: totalReports,
+      },
     });
   } catch (error) {
     console.error("Error fetching Incident Reports:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve Incident Reports",
+      error: error.message,
+    });
+  }
+};
+
+// Get Incident Reports by Physician ID with pagination and sorting
+exports.getIncidentReportsByPhysicianId = async (req, res) => {
+  try {
+    const { physicianId } = req.params; // Get Physician ID from route parameters
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Incident Reports for the specified Physician ID with pagination and sorting
+    const reports = await IncidentReport.find({ attendingPhysician: physicianId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "attendingPhysician",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Incident Reports for the specified Physician ID
+    const totalReports = await IncidentReport.countDocuments({ attendingPhysician: physicianId });
+
+    if (!reports || reports.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Incident Reports found for the specified Physician ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Incident Reports retrieved successfully",
+      data: reports,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalReports / limit),
+        totalItems: totalReports,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Incident Reports by Physician ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Incident Reports by Physician ID",
       error: error.message,
     });
   }
@@ -404,43 +471,7 @@ exports.getIncidentReportById = async (req, res) => {
   }
 };
 
-// Get Incident Reports by Physician ID
-exports.getIncidentReportsByPhysicianId = async (req, res) => {
-  try {
-    const { physicianId } = req.params;
 
-    // Find Incident Reports by Physician ID
-    const reports = await IncidentReport.find({ attendingPhysician: physicianId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "attendingPhysician",
-        select: "name email phone role",
-      });
-
-    if (!reports || reports.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No Incident Reports found for the specified Physician ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Incident Reports retrieved successfully",
-      data: reports,
-    });
-  } catch (error) {
-    console.error("Error fetching Incident Reports by Physician ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Incident Reports by Physician ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete an Incident Report by ID
 exports.deleteIncidentReport = async (req, res) => {

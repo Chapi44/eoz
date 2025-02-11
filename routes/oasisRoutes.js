@@ -33,4 +33,5 @@ router.get("/oasis-assessments/nurse/:nurseId", oasisAssessmentController.getOAS
 
 // Route to get OASIS assessments by patientId
 router.get("/oasis-assessments/patient/:patientId", oasisAssessmentController.getOASISAssessmentsByPatientId);
+
 module.exports = router;

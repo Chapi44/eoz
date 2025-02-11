@@ -5,13 +5,13 @@ exports.createPsychNurseAssessment = async (req, res) => {
   try {
     const data = req.body;
 
-    // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodeRange || !data.primaryDiagnosis) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Visit Date, Episode Range, and Primary Diagnosis are required",
-      });
-    }
+    // // Validate required fields
+    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodeRange || !data.primaryDiagnosis) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Visit Date, Episode Range, and Primary Diagnosis are required",
+    //   });
+    // }
 
     // Create and save the new Psych Nurse Assessment
     const newAssessment = new PsychNurseAssessment(data);
@@ -67,9 +67,13 @@ exports.updatePsychNurseAssessment = async (req, res) => {
   }
 };
 
-// Get all Psych Nurse Assessments
+// Get all Psych Nurse Assessments with pagination and sorting
 exports.getAllPsychNurseAssessments = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Psych Nurse Assessments with pagination and sorting
     const assessments = await PsychNurseAssessment.find()
       .populate({
         path: "patientId",
@@ -79,21 +83,79 @@ exports.getAllPsychNurseAssessments = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Psych Nurse Assessments
+    const totalAssessments = await PsychNurseAssessment.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All Psych Nurse Assessments retrieved successfully",
       data: assessments,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalAssessments / limit),
+        totalItems: totalAssessments,
+      },
     });
   } catch (error) {
     console.error("Error fetching Psych Nurse Assessments:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve Psych Nurse Assessments",
+      error: error.message,
+    });
+  }
+};
+
+// Get Psych Nurse Assessments by Nurse ID with pagination and sorting
+exports.getPsychNurseAssessmentsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Psych Nurse Assessments by Nurse ID with pagination and sorting
+    const assessments = await PsychNurseAssessment.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Psych Nurse Assessments for the specified Nurse ID
+    const totalAssessments = await PsychNurseAssessment.countDocuments({ nurseId });
+
+    if (!assessments || assessments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Psych Nurse Assessments found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Psych Nurse Assessments retrieved successfully",
+      data: assessments,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalAssessments / limit),
+        totalItems: totalAssessments,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Psych Nurse Assessments by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Psych Nurse Assessments by Nurse ID",
       error: error.message,
     });
   }
@@ -114,10 +176,7 @@ exports.getPsychNurseAssessmentById = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+
 
     if (!assessment) {
       return res.status(404).json({
@@ -141,47 +200,7 @@ exports.getPsychNurseAssessmentById = async (req, res) => {
   }
 };
 
-// Get Psych Nurse Assessments by Nurse ID
-exports.getPsychNurseAssessmentsByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
 
-    // Find Psych Nurse Assessments by Nurse ID
-    const assessments = await PsychNurseAssessment.find({ nurseId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
-
-    if (!assessments || assessments.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No Psych Nurse Assessments found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Psych Nurse Assessments retrieved successfully",
-      data: assessments,
-    });
-  } catch (error) {
-    console.error("Error fetching Psych Nurse Assessments by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Psych Nurse Assessments by Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a Psych Nurse Assessment by ID
 exports.deletePsychNurseAssessment = async (req, res) => {
@@ -220,12 +239,12 @@ exports.createPTEvaluation = async (req, res) => {
     const data = req.body;
 
     // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-      });
-    }
+    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
+    //   });
+    // }
 
     // Create and save the new PT Evaluation
     const newEvaluation = new PTEvaluation(data);
@@ -281,9 +300,13 @@ exports.updatePTEvaluation = async (req, res) => {
   }
 };
 
-// Get all PT Evaluations
+// Get all PT Evaluations with pagination and sorting
 exports.getAllPTEvaluations = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch PT Evaluations with pagination and sorting
     const evaluations = await PTEvaluation.find()
       .populate({
         path: "patientId",
@@ -293,21 +316,79 @@ exports.getAllPTEvaluations = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of PT Evaluations
+    const totalEvaluations = await PTEvaluation.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All PT Evaluations retrieved successfully",
       data: evaluations,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalEvaluations / limit),
+        totalItems: totalEvaluations,
+      },
     });
   } catch (error) {
     console.error("Error fetching PT Evaluations:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve PT Evaluations",
+      error: error.message,
+    });
+  }
+};
+
+// Get PT Evaluations by Nurse ID with pagination and sorting
+exports.getPTEvaluationsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch PT Evaluations by Nurse ID with pagination and sorting
+    const evaluations = await PTEvaluation.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of PT Evaluations for the specified Nurse ID
+    const totalEvaluations = await PTEvaluation.countDocuments({ nurseId });
+
+    if (!evaluations || evaluations.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No PT Evaluations found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "PT Evaluations retrieved successfully",
+      data: evaluations,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalEvaluations / limit),
+        totalItems: totalEvaluations,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching PT Evaluations by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve PT Evaluations by Nurse ID",
       error: error.message,
     });
   }
@@ -328,10 +409,7 @@ exports.getPTEvaluationById = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
+
 
     if (!evaluation) {
       return res.status(404).json({
@@ -355,47 +433,7 @@ exports.getPTEvaluationById = async (req, res) => {
   }
 };
 
-// Get PT Evaluations by Nurse ID
-exports.getPTEvaluationsByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
 
-    // Find PT Evaluations by Nurse ID
-    const evaluations = await PTEvaluation.find({ nurseId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      })
-      .populate({
-        path: "physician",
-        select: "name email phone role",
-      });
-
-    if (!evaluations || evaluations.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No PT Evaluations found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "PT Evaluations retrieved successfully",
-      data: evaluations,
-    });
-  } catch (error) {
-    console.error("Error fetching PT Evaluations by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve PT Evaluations by Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete a PT Evaluation by ID
 exports.deletePTEvaluation = async (req, res) => {

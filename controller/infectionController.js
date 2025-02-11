@@ -5,13 +5,13 @@ exports.createInfectionReport = async (req, res) => {
   try {
     const data = req.body;
 
-    // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.attendingPhysician || !data.dateOfInfection || !data.primaryDiagnosis) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Attending Physician, Date of Infection, and Primary Diagnosis are required",
-      });
-    }
+    // // Validate required fields
+    // if (!data.patientId || !data.nurseId || !data.attendingPhysician || !data.dateOfInfection || !data.primaryDiagnosis) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Attending Physician, Date of Infection, and Primary Diagnosis are required",
+    //   });
+    // }
 
     // Create and save the new Infection Report document
     const newReport = new InfectionReport(data);
@@ -67,9 +67,13 @@ exports.updateInfectionReport = async (req, res) => {
   }
 };
 
-// Get all Infection Reports
+// Get all Infection Reports with pagination and sorting
 exports.getAllInfectionReports = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Infection Reports with pagination and sorting by createdAt in descending order
     const reports = await InfectionReport.find()
       .populate({
         path: "patientId",
@@ -79,21 +83,79 @@ exports.getAllInfectionReports = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "attendingPhysician",
-        select: "name email phone role",
-      });
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Infection Reports
+    const totalReports = await InfectionReport.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All Infection Reports retrieved successfully",
       data: reports,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalReports / limit),
+        totalItems: totalReports,
+      },
     });
   } catch (error) {
     console.error("Error fetching Infection Reports:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve Infection Reports",
+      error: error.message,
+    });
+  }
+};
+
+// Get Infection Reports by Nurse ID with pagination and sorting
+exports.getInfectionReportsByNurseId = async (req, res) => {
+  try {
+    const { nurseId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch Infection Reports for the specified Nurse ID with pagination and sorting
+    const reports = await InfectionReport.find({ nurseId })
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of Infection Reports for the specified Nurse ID
+    const totalReports = await InfectionReport.countDocuments({ nurseId });
+
+    if (!reports || reports.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Infection Reports found for the specified Nurse ID",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Infection Reports retrieved successfully",
+      data: reports,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalReports / limit),
+        totalItems: totalReports,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching Infection Reports by Nurse ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve Infection Reports by Nurse ID",
       error: error.message,
     });
   }
@@ -114,10 +176,6 @@ exports.getInfectionReportById = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .populate({
-        path: "attendingPhysician",
-        select: "name email phone role",
-      });
 
     if (!report) {
       return res.status(404).json({
@@ -142,46 +200,7 @@ exports.getInfectionReportById = async (req, res) => {
 };
 
 // Get Infection Reports by Nurse ID
-exports.getInfectionReportsByNurseId = async (req, res) => {
-  try {
-    const { nurseId } = req.params;
 
-    // Find Infection Reports by Nurse ID
-    const reports = await InfectionReport.find({ nurseId })
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      })
-      .populate({
-        path: "attendingPhysician",
-        select: "name email phone role",
-      });
-
-    if (!reports || reports.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No Infection Reports found for the specified Nurse ID",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Infection Reports retrieved successfully",
-      data: reports,
-    });
-  } catch (error) {
-    console.error("Error fetching Infection Reports by Nurse ID:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve Infection Reports by Nurse ID",
-      error: error.message,
-    });
-  }
-};
 
 // Delete an Infection Report by ID
 exports.deleteInfectionReport = async (req, res) => {

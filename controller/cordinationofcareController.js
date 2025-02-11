@@ -70,6 +70,10 @@ exports.updateCoordinationOfCare = async (req, res) => {
 // Get all CoordinationOfCare documents
 exports.getAllCoordinationOfCare = async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch CoordinationOfCare with pagination
     const coordinations = await CoordinationOfCare.find()
       .populate({
         path: "patientId",
@@ -78,12 +82,23 @@ exports.getAllCoordinationOfCare = async (req, res) => {
       .populate({
         path: "physicianId",
         select: "name email phone role",
-      });
+      })
+      .skip(skip)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+
+    // Get the total count of CoordinationOfCare documents
+    const totalCoordinations = await CoordinationOfCare.countDocuments();
 
     res.status(200).json({
       success: true,
       message: "All Coordination of Care documents retrieved successfully",
       data: coordinations,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalCoordinations / limit),
+        totalItems: totalCoordinations,
+      },
     });
   } catch (error) {
     console.error("Error fetching Coordination of Care documents:", error);
@@ -98,8 +113,10 @@ exports.getAllCoordinationOfCare = async (req, res) => {
 exports.getAllCoordinationOfCareByPhysicianId = async (req, res) => {
   try {
     const { physicianId } = req.params;
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Find CoordinationOfCare documents by Physician ID
+    // Fetch CoordinationOfCare documents by Physician ID with pagination
     const coordinations = await CoordinationOfCare.find({ physicianId })
       .populate({
         path: "patientId",
@@ -108,7 +125,13 @@ exports.getAllCoordinationOfCareByPhysicianId = async (req, res) => {
       .populate({
         path: "physicianId",
         select: "name email phone role",
-      });
+      })
+      .skip(skip)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+
+    // Get the total count of CoordinationOfCare documents for the specified Physician ID
+    const totalCoordinations = await CoordinationOfCare.countDocuments({ physicianId });
 
     if (!coordinations || coordinations.length === 0) {
       return res.status(404).json({
@@ -121,6 +144,11 @@ exports.getAllCoordinationOfCareByPhysicianId = async (req, res) => {
       success: true,
       message: "Coordination of Care documents retrieved successfully",
       data: coordinations,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalCoordinations / limit),
+        totalItems: totalCoordinations,
+      },
     });
   } catch (error) {
     console.error("Error fetching Coordination of Care documents by Physician ID:", error);
@@ -131,6 +159,7 @@ exports.getAllCoordinationOfCareByPhysicianId = async (req, res) => {
     });
   }
 };
+
 
 // Get a specific CoordinationOfCare by ID
 exports.getCoordinationOfCareById = async (req, res) => {

@@ -14,9 +14,11 @@ const {
   getSTReEvaluationsByNurseId,
   deleteSTReEvaluation,
 } = require("../controller/speechtherapyController");
+const updateTaskStatus = require("../middelware/updateTaskStatus");
+
 
 // Create a new Speech Therapy Visit
-router.post("/speechtherapyvisit", createSpeechTherapyVisit);
+router.post("/speechtherapyvisit", updateTaskStatus, createSpeechTherapyVisit);
 
 // Update an existing Speech Therapy Visit by ID
 router.put("/speechtherapyvisit/:id", updateSpeechTherapyVisit);
@@ -34,7 +36,7 @@ router.get("/speechtherapyvisit/nurse/:nurseId", getSpeechTherapyVisitsByNurseId
 router.delete("/speechtherapyvisit/:id", deleteSpeechTherapyVisit);
 
 // Create a new ST Re-Evaluation
-router.post("/strevaluation", createSTReEvaluation);
+router.post("/strevaluation", updateTaskStatus, createSTReEvaluation);
 
 // Update an existing ST Re-Evaluation by ID
 router.put("/strevaluation/:id", updateSTReEvaluation);
