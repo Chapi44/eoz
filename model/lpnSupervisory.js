@@ -12,6 +12,11 @@ const lpnSupervisoryVisitSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User",  // References the "User" model
+      required: false,  // Optional, can be removed if you want it to be required
+    },
     visitDate: {
       type: Date,
       required: true,

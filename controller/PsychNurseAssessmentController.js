@@ -5,16 +5,22 @@ exports.createPsychNurseAssessment = async (req, res) => {
   try {
     const data = req.body;
 
-    // // Validate required fields
-    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodeRange || !data.primaryDiagnosis) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Patient ID, Nurse ID, Visit Date, Episode Range, and Primary Diagnosis are required",
-    //   });
-    // }
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
 
-    // Create and save the new Psych Nurse Assessment
-    const newAssessment = new PsychNurseAssessment(data);
+    // Attach adminId to the Psych Nurse Assessment record
+    const newAssessment = new PsychNurseAssessment({
+      ...data,
+      adminId, // Attach adminId
+    });
+
+    // Save the new Psych Nurse Assessment
     await newAssessment.save();
 
     res.status(201).json({
@@ -31,6 +37,7 @@ exports.createPsychNurseAssessment = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing Psych Nurse Assessment by ID
 exports.updatePsychNurseAssessment = async (req, res) => {
@@ -73,8 +80,20 @@ exports.getAllPsychNurseAssessments = async (req, res) => {
     const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Build the filter to include adminId
+    const filter = { adminId };
+
     // Fetch Psych Nurse Assessments with pagination and sorting
-    const assessments = await PsychNurseAssessment.find()
+    const assessments = await PsychNurseAssessment.find(filter)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -87,8 +106,8 @@ exports.getAllPsychNurseAssessments = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get the total count of Psych Nurse Assessments
-    const totalAssessments = await PsychNurseAssessment.countDocuments();
+    // Get the total count of Psych Nurse Assessments matching the filter
+    const totalAssessments = await PsychNurseAssessment.countDocuments(filter);
 
     res.status(200).json({
       success: true,
@@ -109,6 +128,7 @@ exports.getAllPsychNurseAssessments = async (req, res) => {
     });
   }
 };
+
 
 // Get Psych Nurse Assessments by Nurse ID with pagination and sorting
 exports.getPsychNurseAssessmentsByNurseId = async (req, res) => {
@@ -238,16 +258,22 @@ exports.createPTEvaluation = async (req, res) => {
   try {
     const data = req.body;
 
-    // Validate required fields
-    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-    //   });
-    // }
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
 
-    // Create and save the new PT Evaluation
-    const newEvaluation = new PTEvaluation(data);
+    // Attach adminId to the PT Evaluation record
+    const newEvaluation = new PTEvaluation({
+      ...data,
+      adminId, // Attach adminId
+    });
+
+    // Save the new PT Evaluation
     await newEvaluation.save();
 
     res.status(201).json({
@@ -264,6 +290,7 @@ exports.createPTEvaluation = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing PT Evaluation by ID
 exports.updatePTEvaluation = async (req, res) => {
@@ -306,8 +333,20 @@ exports.getAllPTEvaluations = async (req, res) => {
     const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Build the filter to include adminId
+    const filter = { adminId };
+
     // Fetch PT Evaluations with pagination and sorting
-    const evaluations = await PTEvaluation.find()
+    const evaluations = await PTEvaluation.find(filter)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -320,8 +359,8 @@ exports.getAllPTEvaluations = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get the total count of PT Evaluations
-    const totalEvaluations = await PTEvaluation.countDocuments();
+    // Get the total count of PT Evaluations matching the filter
+    const totalEvaluations = await PTEvaluation.countDocuments(filter);
 
     res.status(200).json({
       success: true,
@@ -342,6 +381,7 @@ exports.getAllPTEvaluations = async (req, res) => {
     });
   }
 };
+
 
 // Get PT Evaluations by Nurse ID with pagination and sorting
 exports.getPTEvaluationsByNurseId = async (req, res) => {

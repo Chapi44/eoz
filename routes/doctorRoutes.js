@@ -16,15 +16,17 @@ const {
 } = require("../controller/doctororderController");
 
 const updateTaskStatus = require("../middelware/updateTaskStatus");
+const { authMiddleware } = require("../middelware/authMiddleware");
+
 
 // Create a new Doctor Order
-router.post("/doctororder", updateTaskStatus, createDoctorOrder);
+router.post("/doctororder", authMiddleware, updateTaskStatus, createDoctorOrder);
 
 // Update an existing Doctor Order by ID
 router.put("/doctororder/:id", updateDoctorOrder);
 
 // Get all Doctor Orders
-router.get("/doctororder", getAllDoctorOrders);
+router.get("/doctororder", authMiddleware, getAllDoctorOrders);
 
 // Get a specific Doctor Order by ID
 router.get("/doctororder/:id", getDoctorOrderById);
@@ -37,13 +39,13 @@ router.delete("/doctororder/:id", deleteDoctorOrder);
 
 
 // Create a new Foley Cath Change record
-router.post("/foleycathchange",updateTaskStatus, createFoleyCathChange);
+router.post("/foleycathchange",authMiddleware,updateTaskStatus, createFoleyCathChange);
 
 // Update an existing Foley Cath Change record by ID
 router.put("/foleycathchange/:id", updateFoleyCathChange);
 
 // Get all Foley Cath Change records
-router.get("/foleycathchange", getAllFoleyCathChange);
+router.get("/foleycathchange", authMiddleware, getAllFoleyCathChange);
 
 // Get a specific Foley Cath Change record by ID
 router.get("/foleycathchange/:id", getFoleyCathChangeById);
@@ -71,13 +73,13 @@ const {
 } = require("../controller/facetofaceController");
 
 // Create a new FaceToFace record
-router.post("/facetoface", createFaceToFace);
+router.post("/facetoface", authMiddleware, updateTaskStatus, createFaceToFace);
 
 // Update an existing FaceToFace record by ID
 router.put("/facetoface/:id", updateFaceToFace);
 
 // Get all FaceToFace records
-router.get("/facetoface", getAllFaceToFace);
+router.get("/facetoface", authMiddleware, updateTaskStatus, getAllFaceToFace);
 
 // Get a specific FaceToFace record by ID
 router.get("/facetoface/:id", getFaceToFaceById);
@@ -90,13 +92,13 @@ router.delete("/facetoface/:id", deleteFaceToFace);
 
 
 // Create a new HHA Plan of Care
-router.post("/hhaplanofcare", createHHAPlanOfCare);
+router.post("/hhaplanofcare", authMiddleware, updateTaskStatus, createHHAPlanOfCare);
 
 // Update an existing HHA Plan of Care by ID
 router.put("/hhaplanofcare/:id", updateHHAPlanOfCare);
 
 // Get all HHA Plans of Care
-router.get("/hhaplanofcare", getAllHHAPlansOfCare);
+router.get("/hhaplanofcare", authMiddleware, getAllHHAPlansOfCare);
 
 // Get a specific HHA Plan of Care by ID
 router.get("/hhaplanofcare/:id", getHHAPlanOfCareById);

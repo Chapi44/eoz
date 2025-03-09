@@ -9,34 +9,75 @@ require("dotenv").config();
 
 const getAllUsers = async (req, res) => {
   try {
-    const { role, type, employeetype } = req.query; // Destructure employeetype from query parameters
+    const { role, type, employeetype, availableStatus, page , limit } = req.query;
+    const adminId = req.userId; // Get adminId from token
 
-    let query = {};
-    
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Convert page and limit to integers
+    const pageNumber = parseInt(page);
+    const pageSize = parseInt(limit);
+    const skip = (pageNumber - 1) * pageSize;
+
+    // Build query based on filters and adminId
+    let query = { adminId };
+
     if (role) {
       query.role = role;
     }
     if (type) {
       query.type = type;
     }
-    if (employeetype !== undefined) {  // Check for employeetype filter
-      query.employeetype = employeetype === 'true';  // Convert string to boolean
+    if (employeetype !== undefined) {
+      query.employeetype = employeetype === 'true'; // Convert string to boolean
+    }
+    if (availableStatus) {
+      query.availableStatus = availableStatus; // Add availableStatus to query
     }
 
-    // Find users based on the query, excluding the password field
-    const users = await User.find(query, { password: 0 }).sort({ createdAt: -1 });
+    // Find users with pagination and exclude password
+    const users = await User.find(query, { password: 0 })
+      .sort({ createdAt: -1 }) // Sort by creation date (latest first)
+      .skip(skip)              // Skip documents for pagination
+      .limit(pageSize);        // Limit the number of documents per page
 
-    // Count total number of nurses
-    const totalNurses = await User.countDocuments({ role: "nurse" });
+    // Count total number of users matching the query
+    const totalUsers = await User.countDocuments(query);
+
+    // Count total number of nurses for this admin
+    const totalNurses = await User.countDocuments({
+      adminId,
+      role: "nurse",
+    });
 
     res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
       users,
-      totalNurses, // Include the total number of nurses in the response
+      totalNurses, // Total nurses registered by this admin
+      pagination: {
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalUsers / pageSize),
+        totalItems: totalUsers,
+        pageSize,
+      },
     });
   } catch (error) {
-    res.status(500).json({ error: "Something went wrong" });
+    console.error("Error fetching users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
   }
 };
+
+
 
 
 

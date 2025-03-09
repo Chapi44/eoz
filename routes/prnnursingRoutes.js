@@ -21,16 +21,17 @@ const {
   deletePTReassessment,
 } = require("../controller/prnnursingController");
 const updateTaskStatus = require("../middelware/updateTaskStatus");
+const { authMiddleware } = require("../middelware/authMiddleware");
 
 
 // Create a new PRN Nursing Visit
-router.post("/prnnursingvisit", updateTaskStatus, createPRNNursingVisit);
+router.post("/prnnursingvisit", authMiddleware, updateTaskStatus, createPRNNursingVisit);
 
 // Update an existing PRN Nursing Visit by ID
 router.put("/prnnursingvisit/:id", updatePRNNursingVisit);
 
 // Get all PRN Nursing Visits
-router.get("/prnnursingvisit", getAllPRNNursingVisits);
+router.get("/prnnursingvisit",  authMiddleware, getAllPRNNursingVisits);
 
 // Get a specific PRN Nursing Visit by ID
 router.get("/prnnursingvisit/:id", getPRNNursingVisitById);
@@ -42,13 +43,13 @@ router.get("/prnnursingvisit/nurse/:nurseId", getPRNNursingVisitsByNurseId);
 router.delete("/prnnursingvisit/:id", deletePRNNursingVisit);
 
 // Create a new PT Visit
-router.post("/ptvisit",updateTaskStatus, createPTVisit);
+router.post("/ptvisit", authMiddleware,updateTaskStatus, createPTVisit);
 
 // Update an existing PT Visit by ID
 router.put("/ptvisit/:id", updatePTVisit);
 
 // Get all PT Visits
-router.get("/ptvisit", getAllPTVisits);
+router.get("/ptvisit", authMiddleware, getAllPTVisits);
 
 // Get a specific PT Visit by ID
 router.get("/ptvisit/:id", getPTVisitById);
@@ -60,7 +61,7 @@ router.get("/ptvisit/nurse/:nurseId", getPTVisitsByNurseId);
 router.delete("/ptvisit/:id", deletePTVisit);
 
 // Create a new PT Reassessment
-router.post("/ptreassessment",updateTaskStatus, createPTReassessment);
+router.post("/ptreassessment", authMiddleware, updateTaskStatus, createPTReassessment);
 
 // Update an existing PT Reassessment by ID
 router.put("/ptreassessment/:id", updatePTReassessment);
@@ -101,13 +102,13 @@ const {
 
   
   // Create a new Psych Nurse Assessment
-  router.post("/psychnurseassessment", updateTaskStatus, createPsychNurseAssessment);
+  router.post("/psychnurseassessment", authMiddleware, updateTaskStatus, createPsychNurseAssessment);
   
   // Update an existing Psych Nurse Assessment by ID
   router.put("/psychnurseassessment/:id", updatePsychNurseAssessment);
   
   // Get all Psych Nurse Assessments
-  router.get("/psychnurseassessment", getAllPsychNurseAssessments);
+  router.get("/psychnurseassessment", authMiddleware, getAllPsychNurseAssessments);
   
   // Get a specific Psych Nurse Assessment by ID
   router.get("/psychnurseassessment/:id", getPsychNurseAssessmentById);
@@ -119,13 +120,13 @@ const {
   router.delete("/psychnurseassessment/:id", deletePsychNurseAssessment);
 
   // Create a new PT Evaluation
-router.post("/ptevaluation", updateTaskStatus, createPTEvaluation);
+router.post("/ptevaluation", authMiddleware, updateTaskStatus, createPTEvaluation);
 
 // Update an existing PT Evaluation by ID
 router.put("/ptevaluation/:id", updatePTEvaluation);
 
 // Get all PT Evaluations
-router.get("/ptevaluation", getAllPTEvaluations);
+router.get("/ptevaluation", authMiddleware, getAllPTEvaluations);
 
 // Get a specific PT Evaluation by ID
 router.get("/ptevaluation/:id", getPTEvaluationById);
@@ -137,13 +138,13 @@ router.get("/ptevaluation/nurse/:nurseId", getPTEvaluationsByNurseId);
 router.delete("/ptevaluation/:id", deletePTEvaluation);
 
 // Create a new PT with INR
-router.post("/ptwithinr", updateTaskStatus, createPTWithINR);
+router.post("/ptwithinr", authMiddleware, updateTaskStatus, createPTWithINR);
 
 // Update an existing PT with INR by ID
 router.put("/ptwithinr/:id", updatePTWithINR);
 
 // Get all PT with INR records
-router.get("/ptwithinr", getAllPTWithINR);
+router.get("/ptwithinr", authMiddleware, getAllPTWithINR);
 
 // Get a specific PT with INR record by ID
 router.get("/ptwithinr/:id", getPTWithINRById);

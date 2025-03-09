@@ -13,8 +13,22 @@ exports.createLPNSupervisoryVisit = async (req, res) => {
       });
     }
 
-    // Create and save the new LPN Supervisory Visit document
-    const newVisit = new LPNSupervisoryVisit(data);
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Attach adminId to the LPN Supervisory Visit document
+    const newVisit = new LPNSupervisoryVisit({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save the new LPN Supervisory Visit
     await newVisit.save();
 
     res.status(201).json({
@@ -31,6 +45,7 @@ exports.createLPNSupervisoryVisit = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing LPN Supervisory Visit by ID
 exports.updateLPNSupervisoryVisit = async (req, res) => {
@@ -67,14 +82,26 @@ exports.updateLPNSupervisoryVisit = async (req, res) => {
   }
 };
 
-// Get all LPN Supervisory Visits with pagination and sorting
+// Get all LPN Supervisory Visits with pagination and sorting by adminId
 exports.getAllLPNSupervisoryVisits = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Get userId from token for filtering
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(403).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    // Query with userId filter
+    const query = { adminId: userId };
+
     // Fetch LPN Supervisory Visits with pagination and sorting
-    const visits = await LPNSupervisoryVisit.find()
+    const visits = await LPNSupervisoryVisit.find(query)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -88,7 +115,7 @@ exports.getAllLPNSupervisoryVisits = async (req, res) => {
       .limit(parseInt(limit));
 
     // Get the total count of LPN Supervisory Visits
-    const totalVisits = await LPNSupervisoryVisit.countDocuments();
+    const totalVisits = await LPNSupervisoryVisit.countDocuments(query);
 
     res.status(200).json({
       success: true,
@@ -109,6 +136,7 @@ exports.getAllLPNSupervisoryVisits = async (req, res) => {
     });
   }
 };
+
 
 // Get LPN Supervisory Visits by LPN ID with pagination and sorting
 exports.getLPNSupervisoryVisitsByLPNId = async (req, res) => {

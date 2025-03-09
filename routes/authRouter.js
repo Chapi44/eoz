@@ -9,7 +9,11 @@ logout,
 forgotPassword,
 ResetPassword,
 signinWithEmail,
-registercompanyowner
+registercompanyowner,
+createPaymentIntent,
+handleWebhook,
+createCheckoutSession,
+successUpdate
 } = require("../controller/authController");
 
 const storage = multer.diskStorage({
@@ -22,10 +26,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+const { authMiddleware } = require("../middelware/authMiddleware");
 
 
 
-router.post("/register", register);
+router.post("/register", authMiddleware, register);
+
 
 router.post("/login", signin);
 router.post("/signin", signinWithEmail);
@@ -35,5 +41,8 @@ router.post("/registerasacompanyowner", registercompanyowner);
 router.get("/logout", logout);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", ResetPassword);
-
+router.post("/create-payment-intent", authMiddleware, createPaymentIntent);
+router.get("/webhook", express.raw({ type: "application/json" }), handleWebhook);
+router.post("/create-checkout-session", authMiddleware, createCheckoutSession);
+router.get("/success-update", successUpdate);
 module.exports = router;

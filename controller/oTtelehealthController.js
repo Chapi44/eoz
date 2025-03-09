@@ -13,8 +13,22 @@ exports.createOTTelehealth = async (req, res) => {
       });
     }
 
-    // Create and save the new OT Telehealth record
-    const newVisit = new OTTelehealth(data);
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Attach adminId to the OT Telehealth Visit document
+    const newVisit = new OTTelehealth({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save the new OT Telehealth Visit
     await newVisit.save();
 
     res.status(201).json({
@@ -31,6 +45,7 @@ exports.createOTTelehealth = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing OT Telehealth Visit by ID
 exports.updateOTTelehealth = async (req, res) => {
@@ -72,10 +87,23 @@ exports.getAllOTTelehealth = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
 
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
     // Calculate skip value for pagination
     const skip = (page - 1) * limit;
 
-    const visits = await OTTelehealth.find()
+    // Query with adminId filter
+    const query = { adminId };
+
+    // Fetch OT Telehealth Visits with pagination and sorting
+    const visits = await OTTelehealth.find(query)
       .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
       .skip(skip) // Skip documents for pagination
       .limit(Number(limit)) // Limit the number of documents returned
@@ -88,7 +116,7 @@ exports.getAllOTTelehealth = async (req, res) => {
         select: "name email phone role",
       });
 
-    const totalRecords = await OTTelehealth.countDocuments(); // Total number of records
+    const totalRecords = await OTTelehealth.countDocuments(query); // Total number of records
 
     res.status(200).json({
       success: true,
@@ -107,6 +135,7 @@ exports.getAllOTTelehealth = async (req, res) => {
     });
   }
 };
+
 
 // Get OT Telehealth Visits by Nurse ID with pagination and sorting
 exports.getOTTelehealthByNurseId = async (req, res) => {
@@ -234,18 +263,31 @@ const OTReEval = require("../model/otReval");
 exports.createOTReEval = async (req, res) => {
   try {
     const data = req.body;
-    console.log(data);
 
     // Validate required fields
-    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.primaryDiagnosis) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Primary Diagnosis are required",
-    //   });
-    // }
+    if (!data.patientId || !data.nurseId || !data.evaluationDate || !data.reason) {
+      return res.status(400).json({
+        success: false,
+        message: "Patient ID, Nurse ID, Evaluation Date, and Reason are required",
+      });
+    }
 
-    // Create and save the new OT Re-Evaluation record
-    const newRecord = new OTReEval(data);
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Attach adminId to the OT Re-Evaluation document
+    const newRecord = new OTReEval({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save the new OT Re-Evaluation record
     await newRecord.save();
 
     res.status(201).json({
@@ -262,6 +304,7 @@ exports.createOTReEval = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing OT Re-Evaluation record by ID
 exports.updateOTReEval = async (req, res) => {
@@ -298,14 +341,26 @@ exports.updateOTReEval = async (req, res) => {
   }
 };
 
-// Get all OT Re-Evaluation records with pagination and sorting
+// Get all OT Re-Evaluation records with pagination and sorting by adminId
 exports.getAllOTReEvals = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Query with adminId filter
+    const query = { adminId };
+
     // Fetch OT Re-Evaluation records with pagination and sorting
-    const records = await OTReEval.find()
+    const records = await OTReEval.find(query)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -319,7 +374,7 @@ exports.getAllOTReEvals = async (req, res) => {
       .limit(parseInt(limit));
 
     // Get the total count of OT Re-Evaluation records
-    const totalRecords = await OTReEval.countDocuments();
+    const totalRecords = await OTReEval.countDocuments(query);
 
     res.status(200).json({
       success: true,
@@ -340,6 +395,7 @@ exports.getAllOTReEvals = async (req, res) => {
     });
   }
 };
+
 
 // Get OT Re-Evaluation records by Nurse ID with pagination and sorting
 exports.getOTReEvalsByNurseId = async (req, res) => {
@@ -470,16 +526,22 @@ exports.createOTVisit = async (req, res) => {
   try {
     const data = req.body;
 
-    // // Validate required fields
-    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-    //   });
-    // }
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
 
-    // Create and save the new OT Visit
-    const newVisit = new OTVisit(data);
+    // Attach adminId to the OT Visit record
+    const newVisit = new OTVisit({
+      ...data,
+      adminId, // Attach adminId
+    });
+
+    // Save the new OT Visit
     await newVisit.save();
 
     res.status(201).json({
@@ -538,8 +600,20 @@ exports.getAllOTVisits = async (req, res) => {
     const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Build the filter to include adminId
+    const filter = { adminId };
+
     // Fetch OT Visits with pagination and sorting
-    const visits = await OTVisit.find()
+    const visits = await OTVisit.find(filter)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -552,8 +626,8 @@ exports.getAllOTVisits = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get the total count of OT Visits
-    const totalVisits = await OTVisit.countDocuments();
+    // Get the total count of OT Visits matching the filter
+    const totalVisits = await OTVisit.countDocuments(filter);
 
     res.status(200).json({
       success: true,
@@ -574,6 +648,7 @@ exports.getAllOTVisits = async (req, res) => {
     });
   }
 };
+
 
 // Get OT Visits by Nurse ID with pagination and sorting
 exports.getOTVisitsByNurseId = async (req, res) => {

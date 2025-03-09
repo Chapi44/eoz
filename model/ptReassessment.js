@@ -7,6 +7,11 @@ const ptReassessmentSchema = mongoose.Schema(
       ref: "Patients",
       required: true,
     },
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User",  // References the "User" model
+      required: false,  // Optional, can be removed if you want it to be required
+    },
     nurseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

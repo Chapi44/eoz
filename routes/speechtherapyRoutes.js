@@ -15,16 +15,17 @@ const {
   deleteSTReEvaluation,
 } = require("../controller/speechtherapyController");
 const updateTaskStatus = require("../middelware/updateTaskStatus");
+const { authMiddleware } = require("../middelware/authMiddleware");
 
 
 // Create a new Speech Therapy Visit
-router.post("/speechtherapyvisit", updateTaskStatus, createSpeechTherapyVisit);
+router.post("/speechtherapyvisit", authMiddleware, updateTaskStatus, createSpeechTherapyVisit);
 
 // Update an existing Speech Therapy Visit by ID
 router.put("/speechtherapyvisit/:id", updateSpeechTherapyVisit);
 
 // Get all Speech Therapy Visits
-router.get("/speechtherapyvisit", getAllSpeechTherapyVisits);
+router.get("/speechtherapyvisit", authMiddleware, getAllSpeechTherapyVisits);
 
 // Get a specific Speech Therapy Visit by ID
 router.get("/speechtherapyvisit/:id", getSpeechTherapyVisitById);
@@ -36,13 +37,13 @@ router.get("/speechtherapyvisit/nurse/:nurseId", getSpeechTherapyVisitsByNurseId
 router.delete("/speechtherapyvisit/:id", deleteSpeechTherapyVisit);
 
 // Create a new ST Re-Evaluation
-router.post("/strevaluation", updateTaskStatus, createSTReEvaluation);
+router.post("/strevaluation", authMiddleware, updateTaskStatus, createSTReEvaluation);
 
 // Update an existing ST Re-Evaluation by ID
 router.put("/strevaluation/:id", updateSTReEvaluation);
 
 // Get all ST Re-Evaluations
-router.get("/strevaluation", getAllSTReEvaluations);
+router.get("/strevaluation", authMiddleware, getAllSTReEvaluations);
 
 // Get a specific ST Re-Evaluation by ID
 router.get("/strevaluation/:id", getSTReEvaluationById);

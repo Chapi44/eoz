@@ -5,7 +5,7 @@ exports.createAideCarePlan = async (req, res) => {
   try {
     const data = req.body;
 
-    // Validate required fields, especially for tasks and subfields
+    // Validate required fields
     if (!data.patientId || !data.nurseId || !data.visitDate) {
       return res.status(400).json({
         success: false,
@@ -13,8 +13,22 @@ exports.createAideCarePlan = async (req, res) => {
       });
     }
 
-    // Create and save the new AideCarePlan document
-    const newAideCarePlan = new AideCarePlan(data);
+    // Attach adminId from token to AideCarePlan
+    const adminId = req.user?.adminId; // Get from JWT token payload
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Include adminId in the document
+    const newAideCarePlan = new AideCarePlan({
+      ...data,
+      adminId: adminId, // Attach admin ID
+    });
+
+    // Save to database
     await newAideCarePlan.save();
 
     res.status(201).json({
@@ -31,6 +45,7 @@ exports.createAideCarePlan = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing AideCarePlan by ID
 exports.updateAideCarePlan = async (req, res) => {
@@ -70,11 +85,23 @@ exports.updateAideCarePlan = async (req, res) => {
 // Get all AideCarePlans with pagination and sorting
 exports.getAllAideCarePlans = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const { page = 1, limit = 10 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Fetch AideCarePlans with pagination and sorting by createdAt in descending order
-    const aideCarePlans = await AideCarePlan.find()
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is required",
+      });
+    }
+
+    // Build query with adminId filter
+    const query = { adminId };
+
+    // Fetch AideCarePlans with pagination and sorting
+    const aideCarePlans = await AideCarePlan.find(query)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -83,16 +110,16 @@ exports.getAllAideCarePlans = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get the total count of AideCarePlans
-    const totalAideCarePlans = await AideCarePlan.countDocuments();
+    // Get total count of AideCarePlans for the admin
+    const totalAideCarePlans = await AideCarePlan.countDocuments(query);
 
     res.status(200).json({
       success: true,
-      message: "All Aide Care Plans retrieved successfully",
+      message: "Aide Care Plans retrieved successfully",
       data: aideCarePlans,
       pagination: {
         currentPage: parseInt(page),
@@ -109,6 +136,7 @@ exports.getAllAideCarePlans = async (req, res) => {
     });
   }
 };
+
 
 // Get AideCarePlans by Nurse ID with pagination and sorting
 exports.getAideCarePlansByNurseId = async (req, res) => {

@@ -20,8 +20,11 @@ const multerMiddleware = require("../middelware/multerSetup");
 
 const router = express.Router();
 
+
+
 router.get(
   "/getallusers",
+  authMiddleware,
   getAllUsers
 );
 

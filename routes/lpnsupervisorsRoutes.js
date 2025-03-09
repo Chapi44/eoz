@@ -15,15 +15,16 @@ const {
   deleteLVNHourlyVisit
 } = require("../controller/lpnupervisoryvisitController");
 const updateTaskStatus = require("../middelware/updateTaskStatus");
+const { authMiddleware } = require("../middelware/authMiddleware");
 
 // Create a new LPN Supervisory Visit
-router.post("/lpnsupervisory", updateTaskStatus, createLPNSupervisoryVisit);
+router.post("/lpnsupervisory", authMiddleware, updateTaskStatus, createLPNSupervisoryVisit);
 
 // Update an existing LPN Supervisory Visit by ID
 router.put("/lpnsupervisory/:id", updateLPNSupervisoryVisit);
 
 // Get all LPN Supervisory Visits
-router.get("/lpnsupervisory", getAllLPNSupervisoryVisits);
+router.get("/lpnsupervisory", authMiddleware, getAllLPNSupervisoryVisits);
 
 // Get a specific LPN Supervisory Visit by ID
 router.get("/lpnsupervisory/:id", getLPNSupervisoryVisitById);
@@ -34,13 +35,13 @@ router.get("/lpnsupervisory/lpn/:lpnId", getLPNSupervisoryVisitsByLPNId);
 // Delete an LPN Supervisory Visit by ID
 router.delete("/lpnsupervisory/:id", deleteLPNSupervisoryVisit);
 
-router.post("/lvnhourly", updateTaskStatus, createLVNHourlyVisit);
+router.post("/lvnhourly", authMiddleware, updateTaskStatus, createLVNHourlyVisit);
 
 // Update an existing LVN Hourly Visit by ID
 router.put("/lvnhourly/:id", updateLVNHourlyVisit);
 
 // Get all LVN Hourly Visits
-router.get("/lvnhourly", getAllLVNHourlyVisits);
+router.get("/lvnhourly", authMiddleware, getAllLVNHourlyVisits);
 
 // Get a specific LVN Hourly Visit by ID
 router.get("/lvnhourly/:id", getLVNHourlyVisitById);
@@ -63,13 +64,13 @@ const {
 } = require("../controller/middayinsulinController");
 
 // Create a new Midday Insulin Administration record
-router.post("/middayinsulin", updateTaskStatus, createMiddayInsulinAdministration);
+router.post("/middayinsulin",authMiddleware,  updateTaskStatus, createMiddayInsulinAdministration);
 
 // Update an existing Midday Insulin Administration record by ID
 router.put("/middayinsulin/:id", updateMiddayInsulinAdministration);
 
 // Get all Midday Insulin Administration records
-router.get("/middayinsulin", getAllMiddayInsulinAdministrations);
+router.get("/middayinsulin", authMiddleware, getAllMiddayInsulinAdministrations);
 
 // Get a specific Midday Insulin Administration record by ID
 router.get("/middayinsulin/:id", getMiddayInsulinAdministrationById);

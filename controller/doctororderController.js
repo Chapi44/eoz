@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require("uuid");
 const DoctorOrder = require("../model/doctororder");
 
 // Create a new DoctorOrder
+// Create a new DoctorOrder
 exports.createDoctorOrder = async (req, res) => {
   try {
     const data = req.body;
@@ -14,11 +15,25 @@ exports.createDoctorOrder = async (req, res) => {
       });
     }
 
+    // Attach adminId from token
+    const adminId = req.user?.adminId; // Use req.user?.adminId
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
     // Generate a random order number using UUID
     data.orderNumber = uuidv4();
+    
+    // Include adminId in the document
+    const newDoctorOrder = new DoctorOrder({
+      ...data,
+      adminId, // Attach admin ID
+    });
 
-    // Create and save the new DoctorOrder document
-    const newDoctorOrder = new DoctorOrder(data);
+    // Save to database
     await newDoctorOrder.save();
 
     res.status(201).json({
@@ -35,6 +50,7 @@ exports.createDoctorOrder = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing DoctorOrder by ID
 exports.updateDoctorOrder = async (req, res) => {
@@ -74,11 +90,23 @@ exports.updateDoctorOrder = async (req, res) => {
 // Get all DoctorOrders
 exports.getAllDoctorOrders = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Get adminId from token for filtering
+    const adminId = req.userId; 
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is required",
+      });
+    }
+
+    // Query with adminId filter
+    const query = { adminId };
+
     // Fetch Doctor Orders with pagination
-    const orders = await DoctorOrder.find()
+    const orders = await DoctorOrder.find(query)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -92,7 +120,7 @@ exports.getAllDoctorOrders = async (req, res) => {
       .limit(parseInt(limit));
 
     // Get the total count of Doctor Orders
-    const totalOrders = await DoctorOrder.countDocuments();
+    const totalOrders = await DoctorOrder.countDocuments(query);
 
     res.status(200).json({
       success: true,
@@ -113,6 +141,7 @@ exports.getAllDoctorOrders = async (req, res) => {
     });
   }
 };
+
 
 exports.getDoctorOrdersByPhysicianId = async (req, res) => {
   try {

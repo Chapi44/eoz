@@ -13,8 +13,22 @@ exports.createCoordinationOfCare = async (req, res) => {
       });
     }
 
-    // Create and save the new CoordinationOfCare document
-    const newCoordination = new CoordinationOfCare(data);
+    // Attach adminId from token
+    const adminId = req.user?.adminId; // Use req.user?.adminId
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Include adminId in the document
+    const newCoordination = new CoordinationOfCare({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save to database
     await newCoordination.save();
 
     res.status(201).json({
@@ -31,6 +45,7 @@ exports.createCoordinationOfCare = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing CoordinationOfCare by ID
 exports.updateCoordinationOfCare = async (req, res) => {
@@ -70,11 +85,23 @@ exports.updateCoordinationOfCare = async (req, res) => {
 // Get all CoordinationOfCare documents
 exports.getAllCoordinationOfCare = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const { page = 1, limit = 10 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Fetch CoordinationOfCare with pagination
-    const coordinations = await CoordinationOfCare.find()
+    // Use req.userId for admin filter
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is required",
+      });
+    }
+
+    // Query with adminId filter
+    const query = { adminId };
+
+    // Fetch CoordinationOfCare documents with pagination
+    const coordinations = await CoordinationOfCare.find(query)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -87,8 +114,8 @@ exports.getAllCoordinationOfCare = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(parseInt(limit));
 
-    // Get the total count of CoordinationOfCare documents
-    const totalCoordinations = await CoordinationOfCare.countDocuments();
+    // Get total count
+    const totalCoordinations = await CoordinationOfCare.countDocuments(query);
 
     res.status(200).json({
       success: true,
@@ -109,6 +136,7 @@ exports.getAllCoordinationOfCare = async (req, res) => {
     });
   }
 };
+
 
 exports.getAllCoordinationOfCareByPhysicianId = async (req, res) => {
   try {

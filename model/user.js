@@ -31,8 +31,8 @@ const UserSchema = new Schema(
       type: String,
     },
     organazationnumber: {
-      type: Number,
-      unique: true,
+      type: Number
+      
     },
     avaiableStatus: {
       type: String,
@@ -52,17 +52,23 @@ const UserSchema = new Schema(
     },
     type: {
       type: String,
-      enum: ["HomeCare", "HomeHealth", "Hospice", "Palliative"],
+      enum: ["HomeCare", "HomeHealth", "Hospice", "Palliative", "All"],
     },
     role: {
       type: String,
       default: "user",
-      enum: ["superadmin", "admin", "nurses", "HR", "Therapy", "socialworker"],
+      enum: ["superadmin", "admin", "nurses", "HR", "Therapy", "socialworker", "doctors"],
       required: true,
     },
     employeetype: {
       type: Boolean, default: false,
       default: false, // Default value if not specified
+    },
+    isActive: { type: Boolean,  default: false },
+    adminId: {
+      type: Schema.Types.ObjectId, 
+      ref: "User", // References another user (admin)
+      required: false, // Optional, remove if you want it to be required
     },
   },
   { timestamps: true }

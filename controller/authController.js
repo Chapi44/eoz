@@ -7,8 +7,10 @@ const baseURL = process.env.BASE_URL;
 const emailUser = process.env.EMAIL_USER;
 const emailPassword = process.env.EMAIL_PASSWORD;
 const baseURL1 = process.env.BASE_URL1;
-
-
+const Stripe = require("stripe");
+const TransactionHistory = require('../model/transactionHistory');
+const Payment = require("../model/amount");
+const cron = require("node-cron");
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -16,9 +18,24 @@ const transporter = nodemailer.createTransport({
     pass: emailPassword,
   },
 });
+
+
 const register = async (req, res) => {
   try {
-    let { name, email, password, username, bio, pictures, profession, phoneNumber,role, type, organazationnumber,employeetype } = req.body;
+    let {
+      name,
+      email,
+      password,
+      username,
+      bio,
+      pictures,
+      profession,
+      phoneNumber,
+      role,
+      type,
+      organazationnumber,
+      employeetype
+    } = req.body;
 
     const emailAlreadyExists = await User.findOne({ email });
     if (emailAlreadyExists) {
@@ -30,15 +47,17 @@ const register = async (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).json({ error: "Organization number already exists" });
     }
 
-    // const isFirstAccount = (await User.countDocuments({})) === 0;
-    // const role = isFirstAccount ? "admin" : "nurses";
-
-    // Check if username and bio are provided, otherwise assign default values
-    if (!username) username = null; // Set username to null if empty
+    if (!username) username = null;
     if (!bio) bio = "";
-    if (!profession) profession = ""; // Set profession to empty string if not provided
+    if (!profession) profession = "";
 
-    // Create the user directly without checking username
+    // Determine if adminId should be attached
+    let adminId = null;
+    if (req.user && req.user.role === 'admin') {
+      adminId = req.adminId; // Attach the admin ID if the registering user is an admin
+    }
+
+    // Create the user with adminId attached if applicable
     const user = await User.create({
       name,
       email,
@@ -47,33 +66,31 @@ const register = async (req, res) => {
       username,
       bio,
       pictures,
-      profession, // Include profession field
+      profession,
       phoneNumber,
       organazationnumber,
-      type,employeetype
+      type,
+      employeetype,
+      adminId
     });
 
     const secretKey = process.env.JWT_SECRET;
     const tokenExpiration = process.env.JWT_LIFETIME;
 
-    if (!secretKey) {
-      throw new CustomError.InternalServerError("JWT secret key is not configured.");
+    if (!secretKey || !tokenExpiration) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        error: "JWT secret key or expiration is not configured.",
+      });
     }
 
-    if (!tokenExpiration) {
-      throw new CustomError.InternalServerError("Token expiration is not configured.");
-    }
-
-    // Generate JWT token with specific user fields
+    // Generate JWT token
     const token = jwt.sign(
-      { 
+      {
         userId: user._id,
         email: user.email,
         role: user.role,
         username: user.username,
-        bio: user.bio,
-        pictures: user.pictures,
-        profession: user.profession // Include profession field in the token payload
+        adminId: req.adminId || null, // Pass adminId into token if available
       },
       secretKey,
       { expiresIn: tokenExpiration }
@@ -87,9 +104,12 @@ const register = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      error: "Internal server error",
+    });
   }
 };
+
 
 
 
@@ -106,14 +126,11 @@ const signin = async (req, res) => {
     return res.status(400).json({ message: "Invalid Credentials" });
   }
 
-  // Compare provided password with the hashed password in the database
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
   if (!isPasswordCorrect) {
     return res.status(400).json({ message: "Invalid Credentials" });
   }
 
-  // Use the secret key and token expiration from environment variables
   const secretKey = process.env.JWT_SECRET;
   const tokenExpiration = process.env.JWT_LIFETIME;
 
@@ -121,7 +138,7 @@ const signin = async (req, res) => {
     return res.status(500).json({ message: "JWT secret key or token expiration not configured" });
   }
 
-  // Generate a JSON Web Token (JWT) with specific user fields
+  // Generate JWT with user.adminId from the database
   const token = jwt.sign(
     { 
       userId: user._id,
@@ -130,8 +147,9 @@ const signin = async (req, res) => {
       username: user.username,
       bio: user.bio,
       pictures: user.pictures,
-      profession: user.profession, // Include profession field
-      type: user.type // Include the type field in the token
+      profession: user.profession,
+      type: user.type,
+      adminId: user.adminId || null, // Use user.adminId from database
     },
     secretKey,
     { expiresIn: tokenExpiration }
@@ -142,6 +160,8 @@ const signin = async (req, res) => {
     user
   });
 };
+
+
 
 
 
@@ -416,6 +436,260 @@ const registercompanyowner = async (req, res) => {
   }
 };
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const createPaymentIntent = async (req, res) => {
+  try {
+    const userId = req.userId
+    console.log(userId)
+    const {  amount, currency } = req.body;
+
+    if (!userId || !amount) {
+      return res.status(400).json({ message: "User ID and amount are required" });
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100, // Convert amount to cents
+      currency: currency || "usd",
+      payment_method_types: ["card"],
+      metadata: { userId },
+    });
+
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error("Error creating payment intent:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// const handleWebhook = async (req, res) => {
+//   const sig = req.headers["stripe-signature"];
+//   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET; // Set this in Stripe Dashboard
+
+//   let event;
+
+//   try {
+//     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+//   } catch (err) {
+//     console.error("Webhook signature verification failed:", err.message);
+//     return res.status(400).send(`Webhook Error: ${err.message}`);
+//   }
+
+//   if (event.type === "payment_intent.succeeded") {
+//     const paymentIntent = event.data.object;
+//     const userId = paymentIntent.metadata.userId;
+
+//     if (userId) {
+//       await User.findByIdAndUpdate(userId, { isActive: true });
+//     }
+
+//     console.log(`Payment succeeded for user ${userId}`);
+//   }
+
+//   res.json({ received: true });
+// };
+
+
+const handleWebhook = async (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  let event;
+  try {
+    // ✅ Stripe needs RAW body to verify signature
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    console.log(req.body)
+  } catch (err) {
+    console.error("❌ Webhook signature verification failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // ✅ Handle successful payments
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    
+    // 🛠 Ensure metadata contains userId
+    if (!session.metadata || !session.metadata.userId) {
+      console.error("❌ Metadata userId is missing!");
+      return res.status(400).json({ message: "Missing userId in metadata" });
+    }
+
+    const userId = session.metadata.userId;
+
+    try {
+      await User.findByIdAndUpdate(userId, { isActive: true });
+      console.log(`✅ User ${userId} activated.`);
+    } catch (error) {
+      console.error("❌ Failed to update user:", error);
+    }
+  }
+
+  res.json({ received: true });
+};
+
+
+
+const createCheckoutSession = async (req, res) => {
+  try {
+    const { amountId, currency } = req.body;
+    const userId = req.userId; // Ensure this is correctly set from authentication middleware
+
+    if (!userId || !amountId) {
+      return res.status(400).json({ message: "User ID and amount ID are required" });
+    }
+
+    // Retrieve the amount from the database
+    const paymentRecord = await Payment.findById(amountId);
+    if (!paymentRecord) {
+      return res.status(404).json({ message: "Invalid amount ID" });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: currency || "usd",
+            product_data: {
+              name: paymentRecord.title, // Use title from the Payment schema
+            },
+            unit_amount: paymentRecord.amount * 100, // Convert to cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `http://localhost:4500/api/v1/auth/success-update?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:3000/payment-failed`,
+      metadata: {
+        userId,
+        amountId, // Store the amount ID in metadata to use in successUpdate
+      },
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error("❌ Error creating checkout session:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
+  
+const successUpdate = async (req, res) => {
+  console.log("✅ Payment Success Callback Triggered");
+  try {
+    const { session_id } = req.query;
+
+    if (!session_id) {
+      return res.status(400).json({ message: "Session ID is required" });
+    }
+
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    if (!session || !session.metadata.userId) {
+      return res.status(400).json({ message: "Invalid session or missing userId" });
+    }
+
+    const userId = session.metadata.userId;
+    const amount = session.amount_total / 100; // Convert cents to dollars
+    const subscriptionType = session.metadata.subscriptionType || "monthly"; // Ensure it exists
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Set payment and expiry dates
+    const currentDate = new Date();
+    let expiryDate;
+
+    if (subscriptionType === "monthly") {
+      expiryDate = new Date();
+      expiryDate.setMonth(expiryDate.getMonth() + 1);
+    } else if (subscriptionType === "yearly") {
+      expiryDate = new Date();
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    } else {
+      return res.status(400).json({ message: "Invalid subscription type" });
+    }
+
+    // Activate user & update payment details
+    user.isActive = true;
+    user.paymentDate = currentDate;
+    user.expiryDate = expiryDate;
+
+    await user.save();
+
+    // ✅ Create a new transaction record
+    const newPayment = new Payment({
+      title: `${subscriptionType.charAt(0).toUpperCase() + subscriptionType.slice(1)} Subscription`,
+      amount: amount,
+      amountType: "subscription",
+      description: `Subscription for ${subscriptionType} plan`,
+      userId: userId, // Assuming Payment model has userId field
+    });
+
+    await newPayment.save();
+
+    console.log(`✅ User ${userId} activated until ${expiryDate} & Transaction recorded.`);
+
+    // Redirect to frontend
+    res.redirect("https://eaz.letsgotnt.com/");
+  } catch (error) {
+    console.error("❌ Error updating user & recording transaction:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// ✅ Cron job to check expired users every midnight
+cron.schedule("0 0 * * *", async () => {
+  console.log("🔄 Running subscription expiration check...");
+  const currentDate = new Date();
+
+  try {
+    const expiredUsers = await User.find({ expiryDate: { $lt: currentDate }, isActive: true });
+
+    for (const user of expiredUsers) {
+      user.isActive = false;
+      await user.save();
+      console.log(`❌ User ${user._id} subscription expired.`);
+    }
+  } catch (error) {
+    console.error("❌ Error checking expired users:", error);
+  }
+});
+
+// Cron job to check expired users every midnight
+cron.schedule("*/1 0 * * *", async () => {
+  console.log("🔄 Running subscription expiration check...");
+  const currentDate = new Date();
+
+  try {
+    const expiredUsers = await User.find({ expiryDate: { $lt: currentDate }, isActive: true });
+
+    for (const user of expiredUsers) {
+      user.isActive = false;
+      await user.save();
+      console.log(`❌ User ${user._id} subscription expired.`);
+    }
+  } catch (error) {
+    console.error("❌ Error checking expired users:", error);
+  }
+});
+
+
+// Function to generate a random transaction ID
+const generateTransactionId = () => {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < 10; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
+
 
 module.exports = {
   register,
@@ -424,5 +698,10 @@ module.exports = {
   forgotPassword,
   ResetPassword,
   signinWithEmail,
-  registercompanyowner
+  registercompanyowner,
+  handleWebhook,
+  createPaymentIntent,
+  createCheckoutSession,
+  successUpdate
+  
 };

@@ -12,6 +12,11 @@ const aideSupervisoryVisitSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+        adminId: {
+          type: mongoose.Schema.Types.ObjectId, 
+          ref: "User", // References another user (admin)
+          required: false, // Optional, remove if you want it to be required
+        },
     homeHealthAide: { type: String, required: true }, // Name of the home health aide
     aidePresent: { type: Boolean, default: false, default: false }, // Whether the aide was present
     visitDate: { type: Date, required: true },
@@ -32,6 +37,7 @@ const aideSupervisoryVisitSchema = mongoose.Schema(
     signature: { type: String }, // Signature of the supervisor
     signatureDate: { type: Date },
   },
+  
   { timestamps: true }
 );
 

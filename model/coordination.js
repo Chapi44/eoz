@@ -11,7 +11,12 @@ const coordinationOfCareSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    },
+    }, 
+      adminId: {
+                  type: mongoose.Schema.Types.ObjectId, 
+                  ref: "User", // References another user (admin)
+                  required: false, // Optional, remove if you want it to be required
+                },
     visitDate: { type: Date, required: true },
     episodePeriod: {
       start: { type: Date, required: true },

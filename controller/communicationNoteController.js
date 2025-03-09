@@ -13,8 +13,22 @@ exports.createCommunicationNote = async (req, res) => {
       });
     }
 
-    // Create and save the new CommunicationNote document
-    const newCommunicationNote = new CommunicationNote(data);
+    // Attach adminId from token
+    const adminId = req.user?.adminId; // Use req.user?.adminId like you requested
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Include adminId in the document
+    const newCommunicationNote = new CommunicationNote({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save to database
     await newCommunicationNote.save();
 
     res.status(201).json({
@@ -31,6 +45,7 @@ exports.createCommunicationNote = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing CommunicationNote by ID
 exports.updateCommunicationNote = async (req, res) => {
@@ -70,11 +85,23 @@ exports.updateCommunicationNote = async (req, res) => {
 // Get all CommunicationNotes
 exports.getAllCommunicationNotes = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const { page = 1, limit = 10 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Fetch Communication Notes with pagination
-    const notes = await CommunicationNote.find()
+    // Use req.userId for admin filter as requested
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is required",
+      });
+    }
+
+    // Query with adminId filter
+    const query = { adminId };
+
+    // Fetch Communication Notes
+    const notes = await CommunicationNote.find(query)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -83,12 +110,12 @@ exports.getAllCommunicationNotes = async (req, res) => {
         path: "physicianId",
         select: "name email phone role",
       })
-      .sort({ createdAt: -1 }) // Sort by creation date (newest first)
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get the total count of Communication Notes
-    const totalNotes = await CommunicationNote.countDocuments();
+    // Total count for pagination
+    const totalNotes = await CommunicationNote.countDocuments(query);
 
     res.status(200).json({
       success: true,
@@ -109,6 +136,7 @@ exports.getAllCommunicationNotes = async (req, res) => {
     });
   }
 };
+
 
 exports.getCommunicationNotesByPhysicianId = async (req, res) => {
   try {
@@ -284,8 +312,22 @@ exports.createIncidentReport = async (req, res) => {
       });
     }
 
-    // Create and save the new Incident Report document
-    const newReport = new IncidentReport(data);
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Attach adminId to the incident report
+    const newReport = new IncidentReport({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save the new incident report
     await newReport.save();
 
     res.status(201).json({
@@ -338,15 +380,26 @@ exports.updateIncidentReport = async (req, res) => {
   }
 };
 
-// Get all Incident Reports
-// Get all Incident Reports with pagination and sorting
+// Get all Incident Reports with pagination and sorting by adminId
 exports.getAllIncidentReports = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Fetch Incident Reports with pagination and sorting by createdAt in descending order
-    const reports = await IncidentReport.find()
+    // Get userId from token for filtering
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(403).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    // Query with userId filter
+    const query = { adminId: userId };
+
+    // Fetch Incident Reports with pagination and sorting
+    const reports = await IncidentReport.find(query)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -360,7 +413,7 @@ exports.getAllIncidentReports = async (req, res) => {
       .limit(parseInt(limit));
 
     // Get the total count of Incident Reports
-    const totalReports = await IncidentReport.countDocuments();
+    const totalReports = await IncidentReport.countDocuments(query);
 
     res.status(200).json({
       success: true,
@@ -381,6 +434,7 @@ exports.getAllIncidentReports = async (req, res) => {
     });
   }
 };
+
 
 // Get Incident Reports by Physician ID with pagination and sorting
 exports.getIncidentReportsByPhysicianId = async (req, res) => {

@@ -13,8 +13,22 @@ exports.createAideSupervisoryVisit = async (req, res) => {
       });
     }
 
-    // Create and save the new AideSupervisoryVisit document
-    const newSupervisoryVisit = new AideSupervisoryVisit(data);
+    // Attach adminId from token
+    const adminId = req.user?.adminId; // Get from JWT token payload
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Include adminId in the document
+    const newSupervisoryVisit = new AideSupervisoryVisit({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save to database
     await newSupervisoryVisit.save();
 
     res.status(201).json({
@@ -31,6 +45,7 @@ exports.createAideSupervisoryVisit = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing AideSupervisoryVisit by ID
 exports.updateAideSupervisoryVisit = async (req, res) => {
@@ -70,11 +85,23 @@ exports.updateAideSupervisoryVisit = async (req, res) => {
 // Get all AideSupervisoryVisits
 exports.getAllAideSupervisoryVisits = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const { page = 1, limit = 10 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Fetch AideSupervisoryVisits with pagination
-    const visits = await AideSupervisoryVisit.find()
+    // Attach adminId from req.userId
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is required",
+      });
+    }
+
+    // Build query with adminId filter
+    const query = { adminId };
+
+    // Fetch visits with pagination and sorting
+    const visits = await AideSupervisoryVisit.find(query)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -83,16 +110,16 @@ exports.getAllAideSupervisoryVisits = async (req, res) => {
         path: "nurseId",
         select: "name email phone role",
       })
-      .sort({ createdAt: -1 }) // Sort by createdAt (newest first)
+      .sort({ createdAt: -1 }) // Sort by creation date (latest first)
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get the total count of AideSupervisoryVisits
-    const totalVisits = await AideSupervisoryVisit.countDocuments();
+    // Get the total count of visits
+    const totalVisits = await AideSupervisoryVisit.countDocuments(query);
 
     res.status(200).json({
       success: true,
-      message: "All Aide Supervisory Visits retrieved successfully",
+      message: "Aide Supervisory Visits retrieved successfully",
       data: visits,
       pagination: {
         currentPage: parseInt(page),
@@ -109,6 +136,7 @@ exports.getAllAideSupervisoryVisits = async (req, res) => {
     });
   }
 };
+
 
 exports.getAideSupervisoryVisitsByNurseId = async (req, res) => {
   try {

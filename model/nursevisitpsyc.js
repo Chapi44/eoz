@@ -7,6 +7,11 @@ const nurseVisitSchema = mongoose.Schema(
       enum: ["SN_Psychiatric_Nurse_Visit", "SNPediatricHourly", "SNPediatricVisit"],
       required: true,
     },
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User",  // References the "User" model
+      required: false,  // Optional, can be removed if you want it to be required
+    },
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Patients",

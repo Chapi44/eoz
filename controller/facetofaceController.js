@@ -1,7 +1,9 @@
 const { v4: uuidv4 } = require("uuid");
 const FaceToFace = require("../model/facetoface");
 
-// Create a new FaceToFace
+
+
+// Create a new FaceToFace record
 exports.createFaceToFace = async (req, res) => {
   try {
     const data = req.body;
@@ -14,11 +16,25 @@ exports.createFaceToFace = async (req, res) => {
       });
     }
 
+    // Get adminId from token
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
     // Generate a unique order number
     data.orderNumber = uuidv4();
 
-    // Create and save the new FaceToFace document
-    const newFaceToFace = new FaceToFace(data);
+    // Include adminId in the document
+    const newFaceToFace = new FaceToFace({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save to database
     await newFaceToFace.save();
 
     res.status(201).json({
@@ -35,6 +51,7 @@ exports.createFaceToFace = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing FaceToFace by ID
 exports.updateFaceToFace = async (req, res) => {
@@ -74,15 +91,23 @@ exports.updateFaceToFace = async (req, res) => {
 // Get all FaceToFace records with pagination and sorting
 exports.getAllFaceToFace = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Default values: page 1, limit 10
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Calculate skip value for pagination
-    const skip = (page - 1) * limit;
+    // Get adminId from token for filtering
+    const adminId = req.userId; 
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is required",
+      });
+    }
 
-    const faceToFaceRecords = await FaceToFace.find()
-      .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
-      .skip(skip) // Skip documents for pagination
-      .limit(Number(limit)) // Limit the number of documents returned
+    // Query with adminId filter
+    const query = { adminId };
+
+    // Fetch FaceToFace records with pagination
+    const faceToFaceRecords = await FaceToFace.find(query)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -90,17 +115,23 @@ exports.getAllFaceToFace = async (req, res) => {
       .populate({
         path: "physicianId",
         select: "name email phone role",
-      });
+      })
+      .skip(skip)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
 
-    const totalRecords = await FaceToFace.countDocuments(); // Total number of records
+    // Get the total count of FaceToFace records
+    const totalRecords = await FaceToFace.countDocuments(query);
 
     res.status(200).json({
       success: true,
       message: "All Face-to-Face records retrieved successfully",
-      totalRecords,
-      currentPage: Number(page),
-      totalPages: Math.ceil(totalRecords / limit),
       data: faceToFaceRecords,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalRecords / limit),
+        totalItems: totalRecords,
+      },
     });
   } catch (error) {
     console.error("Error fetching Face-to-Face records:", error);
@@ -111,6 +142,7 @@ exports.getAllFaceToFace = async (req, res) => {
     });
   }
 };
+
 
 // Get FaceToFace records by Physician ID with pagination and sorting
 exports.getFaceToFaceByPhysicianId = async (req, res) => {
@@ -247,8 +279,22 @@ exports.createHHAPlanOfCare = async (req, res) => {
       });
     }
 
-    // Create and save the new HHA Plan of Care document
-    const newPlan = new HHAPlanOfCare(data);
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId; // Use adminId from req.user
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Include adminId in the document
+    const newPlan = new HHAPlanOfCare({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save to database
     await newPlan.save();
 
     res.status(201).json({
@@ -301,19 +347,31 @@ exports.updateHHAPlanOfCare = async (req, res) => {
   }
 };
 
-// Get all HHA Plans of Care
+
+// Get all HHA Plans of Care with pagination and sorting
 // Get all HHA Plans of Care with pagination and sorting
 exports.getAllHHAPlansOfCare = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Calculate skip value for pagination
-    const skip = (page - 1) * limit;
+    // Get adminId from userId for filtering (use req.userId for this)
+    const adminId = req.userId; 
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is required",
+      });
+    }
 
-    const plans = await HHAPlanOfCare.find()
+    // Query with adminId filter
+    const query = { adminId };
+
+    // Fetch HHA Plan of Care records with pagination
+    const plans = await HHAPlanOfCare.find(query)
       .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
       .skip(skip) // Skip documents for pagination
-      .limit(Number(limit)) // Limit the number of documents returned
+      .limit(parseInt(limit)) // Limit the number of documents returned
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -323,13 +381,13 @@ exports.getAllHHAPlansOfCare = async (req, res) => {
         select: "name email phone role",
       });
 
-    const totalRecords = await HHAPlanOfCare.countDocuments(); // Total number of records
+    const totalRecords = await HHAPlanOfCare.countDocuments(query); // Total number of records
 
     res.status(200).json({
       success: true,
       message: "All HHA Plans of Care retrieved successfully",
       totalRecords,
-      currentPage: Number(page),
+      currentPage: parseInt(page),
       totalPages: Math.ceil(totalRecords / limit),
       data: plans,
     });
@@ -342,6 +400,7 @@ exports.getAllHHAPlansOfCare = async (req, res) => {
     });
   }
 };
+
 
 // Get HHA Plans of Care by Physician ID with pagination and sorting
 exports.getHHAPlansOfCareByPhysicianId = async (req, res) => {

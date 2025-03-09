@@ -12,6 +12,11 @@ const doctorOrderSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+       adminId: {
+                  type: mongoose.Schema.Types.ObjectId, 
+                  ref: "User", // References another user (admin)
+                  required: false, // Optional, remove if you want it to be required
+                },
     orderNumber: { type: String, required: true },
     orderDate: { type: Date, required: true },
     effectiveDate: { type: Date, required: true },

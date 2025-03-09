@@ -26,36 +26,31 @@ const authAuthorization = (role) => {
 // Authentication middleware function
 
 const authMiddleware = async (req, res, next) => {
-    try {
-      // Get the bearer token from the request headers
-      const token = req.headers.authorization;
-  
-      if (!token || !token.startsWith('Bearer ')) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Unauthorized' });
-      }
-  
-      // Extract the token from the 'Bearer ' string
-      const authToken = token.split(' ')[1];
-  
-      // Verify the token
-      const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
-  
-      // Fetch the user from the database using the decoded user ID
-      const user = await User.findById(decoded.userId);
-  
-      if (!user) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Unauthorized' });
-      }
-  
-      // Attach the user object to the request for further processing
-      req.user = user;
-      req.userId = decoded.userId; // Assign userId to req.userId
-  
-      // Call next to proceed with the request handling
-      next();
-    } catch (error) {
-      console.error(error);
+  try {
+    const token = req.headers.authorization;
+
+    if (!token || !token.startsWith('Bearer ')) {
       return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Unauthorized' });
     }
+
+    const authToken = token.split(' ')[1];
+    const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Unauthorized' });
+    }
+
+    req.user = user;
+    req.userId = decoded.userId;
+    req.adminId = user.role === 'admin' ? decoded.userId : null; // Attach adminId if role is admin
+
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Unauthorized' });
+  }
 };
+
   module.exports = { authMiddleware, authAuthorization };

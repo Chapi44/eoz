@@ -58,6 +58,7 @@ const nursepschatristRoutes = require("./routes/nursepsychatristRoutes.js")
 // Middleware
 const notFoundMiddleware = require("./middelware/not-found.js");
 const errorHandlerMiddleware = require("./middelware/error-handler.js");
+const amountRoutes = require("./routes/amountRoutes")
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -94,7 +95,7 @@ app.use("/api/v1/messages", messageRoutes);
 app.use('/api/v1/patients', patientRoutes);
 app.use('/api/v1/tasks', taskRoutes);
 app.use('/api/v1/oasis', oasisAssessment);
-app.use('/api/v1/nurseshift', nurseshiftRoutes)
+// app.use('/api/v1/nurseshift', nurseshiftRoutes)
 app.use('/api/v1/therapy',therapistsRoutes)
 app.use('/api/v1/msw', mswRoutes)
 app.use('/api/v1/health', healthMetricRoutes)
@@ -113,6 +114,7 @@ app.use('/api/v1/ottele', ottelehealthAssessmentRoutes)
 app.use('/api/v1/prn', prnnursingRoutes)
 app.use('/api/v1/speech', speechtherapyvisitorRoutes)
 app.use('/api/v1/nursepsy', nursepschatristRoutes)
+app.use("/api/v1/amount", amountRoutes)
 
 
 

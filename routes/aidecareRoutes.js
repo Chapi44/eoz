@@ -9,14 +9,16 @@ const {
   deleteAideCarePlan
 } = require("../controller/aidecareController");
 const updateTaskStatus = require("../middelware/updateTaskStatus");
+const { authMiddleware } = require("../middelware/authMiddleware");
+
 // Create a new AideCarePlan
-router.post("/createaid", updateTaskStatus, createAideCarePlan);
+router.post("/createaid", authMiddleware, updateTaskStatus, createAideCarePlan);
 
 // Update an existing AideCarePlan by ID
 router.put("/getaid/:id", updateAideCarePlan);
 
 // Get all AideCarePlans
-router.get("/aid", getAllAideCarePlans);
+router.get("/aid", authMiddleware, getAllAideCarePlans);
 
 // Get a specific AideCarePlan by ID
 router.get("/aid/:id", getAideCarePlanById);
@@ -38,16 +40,16 @@ const {
 } = require("../controller/aidesupervisoryController");
 
 // Create a new AideSupervisoryVisit
-router.post("/aidesupervisory", updateTaskStatus, createAideSupervisoryVisit);
+router.post("/aidesupervisory", authMiddleware, updateTaskStatus, createAideSupervisoryVisit);
 
 // Update an existing AideSupervisoryVisit by ID
 router.put("/aidesupervisory/:id", updateAideSupervisoryVisit);
 
 // Get all AideSupervisoryVisits
-router.get("/aidesupervisory", getAllAideSupervisoryVisits);
+router.get("/aidesupervisory", authMiddleware, getAllAideSupervisoryVisits);
 
 // Get a specific AideSupervisoryVisit by ID
-router.get("/aidesupervisory/:id", getAideSupervisoryVisitById);
+router.get("/aidesupervisory/:id",  getAideSupervisoryVisitById);
 
 // Delete an AideSupervisoryVisit by ID
 router.delete("/aidesupervisory/:id", deleteAideSupervisoryVisit);

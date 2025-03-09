@@ -21,15 +21,16 @@ const {
   deleteOTVisit,
 } = require("../controller/oTtelehealthController");
 const updateTaskStatus = require("../middelware/updateTaskStatus");
+const { authMiddleware } = require("../middelware/authMiddleware");
 
 // Create a new OT Telehealth Visit
-router.post("/ottelehealth", updateTaskStatus, createOTTelehealth);
+router.post("/ottelehealth", authMiddleware, updateTaskStatus, createOTTelehealth);
 
 // Update an existing OT Telehealth Visit by ID
 router.put("/ottelehealth/:id", updateOTTelehealth);
 
 // Get all OT Telehealth Visits
-router.get("/ottelehealth", getAllOTTelehealth);
+router.get("/ottelehealth", authMiddleware, getAllOTTelehealth);
 
 // Get a specific OT Telehealth Visit by ID
 router.get("/ottelehealth/:id", getOTTelehealthById);
@@ -41,13 +42,13 @@ router.get("/ottelehealth/nurse/:nurseId", getOTTelehealthByNurseId);
 router.delete("/ottelehealth/:id", deleteOTTelehealth);
 
 // Create a new OT Re-Evaluation record
-router.post("/otreeval", updateTaskStatus, createOTReEval);
+router.post("/otreeval", authMiddleware, updateTaskStatus, createOTReEval);
 
 // Update an existing OT Re-Evaluation record by ID
 router.put("/otreeval/:id", updateOTReEval);
 
 // Get all OT Re-Evaluation records
-router.get("/otreeval", getAllOTReEvals);
+router.get("/otreeval", authMiddleware, getAllOTReEvals);
 
 // Get a specific OT Re-Evaluation record by ID
 router.get("/otreeval/:id", getOTReEvalById);
@@ -60,13 +61,13 @@ router.delete("/otreeval/:id", deleteOTReEval);
 
 
 // Create a new OT Visit
-router.post("/otvisit", updateTaskStatus, createOTVisit);
+router.post("/otvisit", authMiddleware,  updateTaskStatus, createOTVisit);
 
 // Update an existing OT Visit by ID
 router.put("/otvisit/:id", updateOTVisit);
 
 // Get all OT Visits
-router.get("/otvisit", getAllOTVisits);
+router.get("/otvisit", authMiddleware, getAllOTVisits);
 
 // Get a specific OT Visit by ID
 router.get("/otvisit/:id", getOTVisitById);

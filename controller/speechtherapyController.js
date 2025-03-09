@@ -13,8 +13,22 @@ exports.createSpeechTherapyVisit = async (req, res) => {
       });
     }
 
-    // Create and save the new Speech Therapy Visit
-    const newVisit = new SpeechTherapyVisit(data);
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Attach adminId to the Speech Therapy Visit document
+    const newVisit = new SpeechTherapyVisit({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save the new Speech Therapy Visit
     await newVisit.save();
 
     res.status(201).json({
@@ -31,6 +45,7 @@ exports.createSpeechTherapyVisit = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing Speech Therapy Visit by ID
 exports.updateSpeechTherapyVisit = async (req, res) => {
@@ -67,15 +82,31 @@ exports.updateSpeechTherapyVisit = async (req, res) => {
   }
 };
 
-// Get all Speech Therapy Visits
 // Get all Speech Therapy Visits with pagination and sorting
 exports.getAllSpeechTherapyVisits = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const { page = 1, limit = 10 } = req.query; // Default: page 1, limit 10
+
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
+    // Query with adminId filter
+    const query = { adminId };
 
     // Fetch Speech Therapy Visits with pagination and sorting
-    const visits = await SpeechTherapyVisit.find()
+    const visits = await SpeechTherapyVisit.find(query)
+      .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
+      .skip(skip) // Skip documents for pagination
+      .limit(Number(limit)) // Limit the number of documents returned
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -83,23 +114,17 @@ exports.getAllSpeechTherapyVisits = async (req, res) => {
       .populate({
         path: "nurseId",
         select: "name email phone role",
-      })
-      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
-      .skip(skip)
-      .limit(parseInt(limit));
+      });
 
-    // Get the total count of Speech Therapy Visits
-    const totalVisits = await SpeechTherapyVisit.countDocuments();
+    const totalRecords = await SpeechTherapyVisit.countDocuments(query); // Total number of records
 
     res.status(200).json({
       success: true,
       message: "All Speech Therapy Visits retrieved successfully",
+      totalRecords,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalRecords / limit),
       data: visits,
-      pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(totalVisits / limit),
-        totalItems: totalVisits,
-      },
     });
   } catch (error) {
     console.error("Error fetching Speech Therapy Visits:", error);
@@ -110,6 +135,7 @@ exports.getAllSpeechTherapyVisits = async (req, res) => {
     });
   }
 };
+
 
 // Get Speech Therapy Visits by Nurse ID with pagination and sorting
 exports.getSpeechTherapyVisitsByNurseId = async (req, res) => {
@@ -241,16 +267,22 @@ exports.createSTReEvaluation = async (req, res) => {
   try {
     const data = req.body;
 
-    // Validate required fields
-    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-    //   });
-    // }
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
 
-    // Create and save the new ST Re-Evaluation
-    const newReEvaluation = new STReEvaluation(data);
+    // Attach adminId to the ST Re-Evaluation record
+    const newReEvaluation = new STReEvaluation({
+      ...data,
+      adminId, // Attach adminId
+    });
+
+    // Save the new ST Re-Evaluation
     await newReEvaluation.save();
 
     res.status(201).json({
@@ -267,6 +299,7 @@ exports.createSTReEvaluation = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing ST Re-Evaluation by ID
 exports.updateSTReEvaluation = async (req, res) => {
@@ -309,8 +342,20 @@ exports.getAllSTReEvaluations = async (req, res) => {
     const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Build the filter to include adminId
+    const filter = { adminId };
+
     // Fetch ST Re-Evaluations with pagination and sorting
-    const reEvaluations = await STReEvaluation.find()
+    const reEvaluations = await STReEvaluation.find(filter)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -323,8 +368,8 @@ exports.getAllSTReEvaluations = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get the total count of ST Re-Evaluations
-    const totalReEvaluations = await STReEvaluation.countDocuments();
+    // Get the total count of ST Re-Evaluations matching the filter
+    const totalReEvaluations = await STReEvaluation.countDocuments(filter);
 
     res.status(200).json({
       success: true,

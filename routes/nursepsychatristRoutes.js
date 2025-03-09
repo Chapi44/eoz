@@ -21,15 +21,17 @@ const {
   deleteNurseVisitAdvanced,
 } = require("../controller/nursevisitpsychatristController");
 const updateTaskStatus = require("../middelware/updateTaskStatus");
+const { authMiddleware } = require("../middelware/authMiddleware");
+
 
 // Create a new Nurse Visit
-router.post("/nursevisit", updateTaskStatus, createNurseVisit);
+router.post("/nursevisit", authMiddleware, updateTaskStatus, createNurseVisit);
 
 // Update an existing Nurse Visit by ID
 router.put("/nursevisit/:id", updateNurseVisit);
 
 // Get all Nurse Visits
-router.get("/nursevisit", getAllNurseVisits);
+router.get("/nursevisit", authMiddleware, getAllNurseVisits);
 
 // Get a specific Nurse Visit by ID
 router.get("/nursevisit/:id", getNurseVisitById);
@@ -41,13 +43,13 @@ router.get("/nursevisit/nurse/:nurseId", getNurseVisitsByTypeAndNurseId);
 router.delete("/nursevisit/:id", deleteNurseVisit);
 
 // Create a new Nursing Visit
-router.post("/nursingvisit/special", updateTaskStatus, createNursingVisitSpecial);
+router.post("/nursingvisit/special", authMiddleware, updateTaskStatus, createNursingVisitSpecial);
 
 // Update an existing Nursing Visit by ID
 router.put("/nursingvisit/special/:id", updateNursingVisitSpecial);
 
 // Get all Nursing Visits
-router.get("/nursingvisit/special", getAllNursingVisitsSpecial);
+router.get("/nursingvisit/special", authMiddleware, getAllNursingVisitsSpecial);
 
 // Get a specific Nursing Visit by ID
 router.get("/nursingvisit/special/:id", getNursingVisitByIdSpecial);
@@ -59,13 +61,13 @@ router.get("/nursingvisit/special/nurse/:nurseId", getNursingVisitsByTypeAndNurs
 router.delete("/nursingvisit/special/:id", deleteNursingVisitSpecial);
 
 // Create a new Nurse Visit Advanced
-router.post("/nursevisitadvanced",  updateTaskStatus, createNurseVisitAdvanced);
+router.post("/nursevisitadvanced", authMiddleware, updateTaskStatus, createNurseVisitAdvanced);
 
 // Update an existing Nurse Visit Advanced by ID
 router.put("/nursevisitadvanced/:id", updateNurseVisitAdvanced);
 
 // Get all Nurse Visit Advanced
-router.get("/nursevisitadvanced", getAllNurseVisitsAdvanced);
+router.get("/nursevisitadvanced", authMiddleware, getAllNurseVisitsAdvanced);
 
 // Get a specific Nurse Visit Advanced by ID
 router.get("/nursevisitadvanced/:id", getNurseVisitAdvancedById);

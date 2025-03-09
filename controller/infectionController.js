@@ -5,16 +5,30 @@ exports.createInfectionReport = async (req, res) => {
   try {
     const data = req.body;
 
-    // // Validate required fields
-    // if (!data.patientId || !data.nurseId || !data.attendingPhysician || !data.dateOfInfection || !data.primaryDiagnosis) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Patient ID, Nurse ID, Attending Physician, Date of Infection, and Primary Diagnosis are required",
-    //   });
-    // }
+    // Validate required fields
+    if (!data.patientId || !data.nurseId || !data.attendingPhysician || !data.dateOfInfection || !data.primaryDiagnosis) {
+      return res.status(400).json({
+        success: false,
+        message: "Patient ID, Nurse ID, Attending Physician, Date of Infection, and Primary Diagnosis are required",
+      });
+    }
 
-    // Create and save the new Infection Report document
-    const newReport = new InfectionReport(data);
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Attach adminId to the infection report
+    const newReport = new InfectionReport({
+      ...data,
+      adminId, // Attach admin ID
+    });
+
+    // Save the new infection report
     await newReport.save();
 
     res.status(201).json({
@@ -31,6 +45,7 @@ exports.createInfectionReport = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing Infection Report by ID
 exports.updateInfectionReport = async (req, res) => {
@@ -67,14 +82,26 @@ exports.updateInfectionReport = async (req, res) => {
   }
 };
 
-// Get all Infection Reports with pagination and sorting
+// Get all Infection Reports with pagination and sorting by adminId
 exports.getAllInfectionReports = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Fetch Infection Reports with pagination and sorting by createdAt in descending order
-    const reports = await InfectionReport.find()
+    // Get userId from token for filtering
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(403).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    // Query with userId filter
+    const query = { adminId: userId };
+
+    // Fetch Infection Reports with pagination and sorting
+    const reports = await InfectionReport.find(query)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -88,7 +115,7 @@ exports.getAllInfectionReports = async (req, res) => {
       .limit(parseInt(limit));
 
     // Get the total count of Infection Reports
-    const totalReports = await InfectionReport.countDocuments();
+    const totalReports = await InfectionReport.countDocuments(query);
 
     res.status(200).json({
       success: true,
@@ -109,6 +136,7 @@ exports.getAllInfectionReports = async (req, res) => {
     });
   }
 };
+
 
 // Get Infection Reports by Nurse ID with pagination and sorting
 exports.getInfectionReportsByNurseId = async (req, res) => {

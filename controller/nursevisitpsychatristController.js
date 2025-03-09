@@ -13,8 +13,22 @@ exports.createNurseVisit = async (req, res) => {
       });
     }
 
-    // Create and save the new Nurse Visit
-    const newVisit = new NurseVisit(data);
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Attach adminId to the Nurse Visit document
+    const newVisit = new NurseVisit({
+      ...data,
+      adminId, // Attach adminId
+    });
+
+    // Save the new Nurse Visit
     await newVisit.save();
 
     res.status(201).json({
@@ -31,6 +45,7 @@ exports.createNurseVisit = async (req, res) => {
     });
   }
 };
+
 
 // Update an existing Nurse Visit by ID
 exports.updateNurseVisit = async (req, res) => {
@@ -73,7 +88,19 @@ exports.getAllNurseVisits = async (req, res) => {
     const { type, page = 1, limit = 10 } = req.query; // Extract type, page, and limit from query
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const filter = type ? { type } : {};
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    const filter = {
+      adminId, // Filter by adminId
+      ...(type ? { type } : {}), // Filter by type if provided
+    };
 
     // Fetch Nurse Visits with pagination and sorting
     const visits = await NurseVisit.find(filter)
@@ -111,6 +138,7 @@ exports.getAllNurseVisits = async (req, res) => {
     });
   }
 };
+
 
 // Get a specific Nurse Visit by ID
 exports.getNurseVisitById = async (req, res) => {
@@ -234,6 +262,15 @@ exports.createNursingVisitSpecial = async (req, res) => {
   try {
     const data = req.body;
 
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
     // Validate required fields
     if (!data.patientId || !data.nurseId || !data.visitDate || !data.type) {
       return res.status(400).json({
@@ -242,8 +279,13 @@ exports.createNursingVisitSpecial = async (req, res) => {
       });
     }
 
-    // Create and save the new Nursing Visit
-    const newVisit = new NursingVisitSpecialist(data);
+    // Attach adminId to the Nursing Visit record
+    const newVisit = new NursingVisitSpecialist({
+      ...data,
+      adminId,
+    });
+
+    // Save the new Nursing Visit
     await newVisit.save();
 
     res.status(201).json({
@@ -260,7 +302,6 @@ exports.createNursingVisitSpecial = async (req, res) => {
     });
   }
 };
-
 // Update an existing Nursing Visit by ID
 exports.updateNursingVisitSpecial = async (req, res) => {
   try {
@@ -302,7 +343,20 @@ exports.getAllNursingVisitsSpecial = async (req, res) => {
     const { page = 1, limit = 10, type } = req.query; // Extract page, limit, and type from query
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const filter = type ? { type } : {};
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Build the filter with adminId and optional type
+    const filter = { adminId };
+    if (type) {
+      filter.type = type;
+    }
 
     // Fetch Nursing Visits with pagination and sorting
     const visits = await NursingVisitSpecialist.find(filter)
@@ -318,7 +372,7 @@ exports.getAllNursingVisitsSpecial = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get the total count of Nursing Visits
+    // Get the total count of Nursing Visits matching the filter
     const totalVisits = await NursingVisitSpecialist.countDocuments(filter);
 
     res.status(200).json({
@@ -482,8 +536,22 @@ exports.createNurseVisitAdvanced = async (req, res) => {
       });
     }
 
-    // Create and save the new Nurse Visit Advanced
-    const newVisit = new NurseVisitAdvanced(data);
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Attach adminId to the Nurse Visit Advanced document
+    const newVisit = new NurseVisitAdvanced({
+      ...data,
+      adminId, // Attach adminId
+    });
+
+    // Save the new Nurse Visit Advanced
     await newVisit.save();
 
     res.status(201).json({
@@ -542,7 +610,20 @@ exports.getAllNurseVisitsAdvanced = async (req, res) => {
     const { type, page = 1, limit = 10 } = req.query; // Extract type, page, and limit from query
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const filter = type ? { type } : {};
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Build the filter for the query
+    const filter = {
+      adminId, // Filter by adminId
+      ...(type ? { type } : {}), // Filter by type if provided
+    };
 
     // Fetch Nurse Visit Advanced with pagination and sorting
     const visits = await NurseVisitAdvanced.find(filter)
@@ -580,6 +661,7 @@ exports.getAllNurseVisitsAdvanced = async (req, res) => {
     });
   }
 };
+
 
 // Get Nurse Visits Advanced by Type and Nurse ID with pagination and sorting
 exports.getNurseVisitsAdvancedByTypeAndNurseId = async (req, res) => {

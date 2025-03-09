@@ -208,16 +208,22 @@ exports.createPTVisit = async (req, res) => {
   try {
     const data = req.body;
 
-    // // Validate required fields
-    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-    //   });
-    // }
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
 
-    // Create and save the new PT Visit
-    const newVisit = new PTVisit(data);
+    // Attach adminId to the PT Visit record
+    const newVisit = new PTVisit({
+      ...data,
+      adminId, // Attach adminId
+    });
+
+    // Save the new PT Visit
     await newVisit.save();
 
     res.status(201).json({
@@ -234,6 +240,8 @@ exports.createPTVisit = async (req, res) => {
     });
   }
 };
+
+
 
 // Update an existing PT Visit by ID
 exports.updatePTVisit = async (req, res) => {
@@ -276,8 +284,20 @@ exports.getAllPTVisits = async (req, res) => {
     const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Build the filter to include adminId
+    const filter = { adminId };
+
     // Fetch PT Visits with pagination and sorting
-    const visits = await PTVisit.find()
+    const visits = await PTVisit.find(filter)
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -290,8 +310,8 @@ exports.getAllPTVisits = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get the total count of PT Visits
-    const totalVisits = await PTVisit.countDocuments();
+    // Get the total count of PT Visits matching the filter
+    const totalVisits = await PTVisit.countDocuments(filter);
 
     res.status(200).json({
       success: true,
@@ -312,6 +332,7 @@ exports.getAllPTVisits = async (req, res) => {
     });
   }
 };
+
 
 // Get PT Visits by Nurse ID with pagination and sorting
 exports.getPTVisitsByNurseId = async (req, res) => {
@@ -442,16 +463,22 @@ exports.createPTReassessment = async (req, res) => {
   try {
     const data = req.body;
 
-    // Validate required fields
-    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-    //   });
-    // }
+    // Get adminId from token for filtering
+    const adminId = req.user?.adminId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
 
-    // Create and save the new PT Reassessment
-    const newReassessment = new PTReassessment(data);
+    // Attach adminId to the PT Reassessment record
+    const newReassessment = new PTReassessment({
+      ...data,
+      adminId, // Attach adminId
+    });
+
+    // Save the new PT Reassessment
     await newReassessment.save();
 
     res.status(201).json({
@@ -468,6 +495,63 @@ exports.createPTReassessment = async (req, res) => {
     });
   }
 };
+
+
+// Get all PT Reassessments with pagination and sorting
+exports.getAllPTReassessments = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Get adminId from token for filtering
+    const adminId = req.userId;
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
+
+    // Build the filter to include adminId
+    const filter = { adminId };
+
+    // Fetch PT Reassessments with pagination and sorting
+    const reassessments = await PTReassessment.find(filter)
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email phone role",
+      })
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count of PT Reassessments matching the filter
+    const totalReassessments = await PTReassessment.countDocuments(filter);
+
+    res.status(200).json({
+      success: true,
+      message: "All PT Reassessments retrieved successfully",
+      data: reassessments,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalReassessments / limit),
+        totalItems: totalReassessments,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching PT Reassessments:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve PT Reassessments",
+      error: error.message,
+    });
+  }
+};
+
 
 // Update an existing PT Reassessment by ID
 exports.updatePTReassessment = async (req, res) => {
@@ -504,48 +588,7 @@ exports.updatePTReassessment = async (req, res) => {
   }
 };
 
-// Get all PT Reassessments with pagination and sorting
-exports.getAllPTReassessments = async (req, res) => {
-  try {
-    const { page = 1, limit = 10 } = req.query; // Extract page and limit from query, default to page 1 and limit 10
-    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Fetch PT Reassessments with pagination and sorting
-    const reassessments = await PTReassessment.find()
-      .populate({
-        path: "patientId",
-        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
-      })
-      .populate({
-        path: "nurseId",
-        select: "name email phone role",
-      })
-      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    // Get the total count of PT Reassessments
-    const totalReassessments = await PTReassessment.countDocuments();
-
-    res.status(200).json({
-      success: true,
-      message: "All PT Reassessments retrieved successfully",
-      data: reassessments,
-      pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(totalReassessments / limit),
-        totalItems: totalReassessments,
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching PT Reassessments:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve PT Reassessments",
-      error: error.message,
-    });
-  }
-};
 
 // Get PT Reassessments by Nurse ID with pagination and sorting
 exports.getPTReassessmentsByNurseId = async (req, res) => {

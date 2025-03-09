@@ -12,6 +12,11 @@ const infectionReportSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User",  // References the "User" model
+      required: false,  // Optional, can be removed if you want it to be required
+    },
     episode: {
       start: { type: Date, required: true },
       end: { type: Date, required: true },

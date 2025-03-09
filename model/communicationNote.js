@@ -12,6 +12,11 @@ const communicationNoteSchema = mongoose.Schema(
       ref: "User", // Reference to the User model for the physician
       required: true,
     },
+   adminId: {
+              type: mongoose.Schema.Types.ObjectId, 
+              ref: "User", // References another user (admin)
+              required: false, // Optional, remove if you want it to be required
+            },
     date: { type: Date, required: true }, // Date of the communication note
     clinicianSignature: { type: String }, // Signature of the clinician
     additionalDetails: {
