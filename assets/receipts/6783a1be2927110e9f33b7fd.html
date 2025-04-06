@@ -1,0 +1,478 @@
+
+     <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Plan of Care</title>
+            <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-size: 12px;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                background-color: #f4f4f4;
+                color: #333;
+                margin: 0;
+                padding: 20px;
+            }
+            .container {
+                background: #fff;
+                padding: 20px;
+                margin: 20px auto;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+                max-width: 800px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            .agency-info,
+            .section-header {
+                font-size: 14px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+            .small-text {
+                font-size: 9px;
+            }
+            .logo {
+                width: 100px;
+                height: auto;
+            }
+            /* Print-specific styles */
+            @media print {
+                body {
+                background: #fff;
+                margin: 0;
+                }
+                .container {
+                box-shadow: none;
+                margin: 0;
+                padding: 20mm;
+                }
+                .page-break {
+                page-break-before: always;
+                }
+            .page {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+            }
+            .page:last-child {
+                page-break-after: auto;
+            }
+            }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+            <table>
+                <tr>
+                <th style="width: 20%">
+                    <img src="./logo.png" alt="logo" />
+                </th>
+                <th style="text-align: left; width: 30%">
+                    <b>Agency Information:</b>
+                    <p style="font-size: 9px"> ibling Home Health Care LLC 5330 East Main Street Suite 109 Columbus OH 43213-2571 6146263108 (Office), 6146263138 (Fax)</p>
+                </th>
+                <th style="text-align: right; width: 50%" colspan="3">
+                    <div> <p>Order #: 58508397</p> <p>HOME HEALTH CERTIFICATION AND PLAN OF CARE</p></div>
+                </th>
+                </tr>
+                <tr>
+                <td>
+                    <b>Patient HI Claim No.</b>
+                    <p>106600033099</p>
+                </td>
+                <td>
+                    <b>Start of Care Date</b>
+                    <p>8/1/2024</p>
+                </td>
+                <td>
+                    <b>Certification Period </b>
+                    <p>8/1/2024 - 09/29/2024</p>
+                </td>
+                <td>
+                    <b>Medical Record No. </b>
+                    <p>GB9954</p>
+                </td>
+                <td>
+                    <b>Provider No. </b>
+                    <p>369122</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Patient Name, Address, and Phone Number Greene, Brenda 10/11/1949 Female</b>
+                    <p style="font-size: 9px">278 Sturbridge Rd</p>
+                    <p style="font-size: 9px">COLUMBUS,OH 43228</p>
+                    <p style="font-size: 9px">Mobile: 7403453111</p>
+                </td>
+                <td colspan="3">
+                    <b> Attending Physician or Allowed Practitioner Name and Address</b>
+                    <p style="font-size: 9px">PATHMANATHAN, SUBA MD NPI: 1205191871</p>
+                    <p style="font-size: 9px">1272 W Main St Ste 204</p>
+                    <p style="font-size: 9px">Newark OH 43055</p>
+                    <p style="font-size: 9px"> (220) 564-4805 (Office) , (220) 564-4811 (Fax)</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Prognosis </b>
+                    <p style="font-size: 9px">Fair</p>
+                </td>
+                <td colspan="3">
+                    <b> Allergies </b>
+                    <p style="font-size: 9px">NKA (Food/Drugs/Latex/Environment)</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Mental/Cognitive Status </b>
+                    <p style="font-size: 9px">Oriented X 3, Agitated</p>
+                </td>
+                <td colspan="3">
+                    <b> Nutritional Requirements </b>
+                    <p style="font-size: 9px"> Sodium Restriction (2mg daily), No Added Salt, Fluid Restriction</p>
+                    <p style="font-size: 9px">(48oz daily)</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Functional Limitations </b>
+                    <p style="font-size: 9px"> None identified</p>
+                </td>
+                <td colspan="3">
+                    <b> Activities Permitted/Restricted </b>
+                    <p style="font-size: 9px"> Up as tolerated, Walker, Human assistance required, Wheelchair</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Safety </b>
+                    <p style="font-size: 9px"> Aspiration Precautions, DME and Electrical Safety, Elevate Head of Bed, Emergency/Disaster Plan Development, Fall Precautions, Keep Pathways Clear, 02 Precautions, Neutropenic Precautions, Prone to Skin Breakdown Precaution, Proper Positioning During Meals, Proper Handling of Biohazard Waste, Safety in ADLs, Side Rails Up, Slow Position Changes, Support During Transfer and Ambulation, Standard Precautions/Infection Control, Use of Assistive Devices</p>
+                </td>
+                <td colspan="3">
+                    <b> DME and Supplies </b>
+                    <p style="font-size: 9px"> DME: Bedside commode, Elevated toilet seat, Grab bars, Hospital bed, Nebulizer, Oxygen, Tub/Shower Bench, Wheelchair, Walker, Other (Hoyer lift, trapeze bar) Durable Medical Equipment Provider: Name: Phone: DME/Supplies Provided:</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Advance Directives </b>
+                    <p style="font-size: 9px"> No Advanced Directives (Had Advance Care Plan discussion, but did not wish to provide Advance Care Plan or name a surrogate decision maker)</p>
+                </td>
+                <td colspan="3">
+                    <b> Caregiver Status </b>
+                    <p style="font-size: 9px">Occasional nighttime</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> Psychosocial Status </b>
+                    <p style="font-size: 9px"> Barriers To Health Status (Discouraged, Multiple co-morbidities)</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> Emergency Preparedness </b>
+                    <p style="font-size: 9px"> Emergency Triage: 1. Life threatening (or potential) and requires ongoing medical treatment. When necessary, appropriate arrangements for evacuation to an acute care facility will be made. Additional Emergency Preparedness Information: ( Need assistance during an emergency</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> Medications </b>
+                    <p style="font-size: 9px"> ATORVASTATIN 40 MG ORAL TABLET 1 tab DAILY PO U ELIQUIS 5 MG ORAL TABLET 1 TAB TWICE DAILY By mouth (PO) C LORATADINE 10 MG ORAL TABLET 1 TAB DAILY By mouth (PO) C METOPROLOL SUCCINATE 100 MG ORAL CAPSULE, EXTENDED RELEASE if you were real 1 TAB TWICE DAILY By mouth (PO) C SPIRONOLACTONE One daily PO N ADVAIR DISKUS 500 MCG-50 MCG INHALATION POWDER 1 1DEEP BREATH inhalation twice daily Inhaled (INH) C ALBUTEROL 2.5MG 1 VIAL EVERY 4 HRS Inhaled (INH) C ALBUTEROL 2.5MG 1 VIAL EVERY 4 HRS Inhaled (INH) C POTASSIUM CHLORIDE 20 MEQ ORAL GRANULE, EXTENDED RELEASE Once Daily By mouth (PO) U</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Nurse/Therapist Signature And Date Of Verbal SOC Where Applicable</b>
+                    <p style="font-size: 9px"> Electronically Signed by: Mary Thomas RN 8/1/2024</p>
+                </td>
+                <td colspan="3">
+                    <b> Date HHA Received Signed </b>
+                    <p style="font-size: 9px">Occasional nighttime</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> Certifying Physician or Allowed Practitioner Name and Address</b>
+                    <p style="font-size: 9px"> Dr. Jane Smith, 123 Medical Way, Springfield, IL 62704</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> Physician or Allowed Practitioner Statement </b>
+                    <p style="font-size: 9px">I certify/recertify that this patient is confined to his/her home (as outlined in section 30.1.1 in Chapter 7 of the Medicare Benefit Policy Manual) and needs intermittent skilled nursing care, physical therapy and/or speech therapy or continues to need occupational therapy. The patient is under my care, and I have authorized services on this plan of care and will periodically review the plan. The patient had a face-to-face encounter with an allowed provider type on 2025-01-12 and the encounter was related to the primary reason for home health care.</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Physician Signature or Allowed Practitioner (Applies to total pages)</b>
+                    <p style="font-size: 9px">X</p>
+                </td>
+                <td colspan="3">
+                    <b> Signature Date</b>
+                </td>
+                </tr>
+            </table>
+            <div>
+                <p>Greene, Brenda 10/11/1949 Female</p>
+                <p>EAZ Source | Page 1 of 6</p>
+            </div>
+        <div class="page-break"></div>
+            <table border="1">
+                <tr>
+                <th style="width: 20%">
+                    <img src="./logo.png" alt="logo" />
+                </th>
+                <th style="text-align: left; width: 30%">
+                    <b>Agency Information:</b>
+                    <p style="font-size: 9px"> ibling Home Health Care LLC 5330 East Main Street Suite 109 Columbus OH 43213-2571 6146263108 (Office), 6146263138 (Fax)</p>
+                </th>
+                <th style="text-align: right; width: 50%" colspan="3">
+                    <div> <p>Order #: 58508397</p> <p>HOME HEALTH CERTIFICATION AND PLAN OF CARE</p>
+                    </div>
+                </th>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <p style="font-size: 9px"> FENOFIBRATE 54 MG ORAL TABLET Once Daily By mouth (PO) C MAGNESIUM OXIDE 400 MG ORAL TABLET Once Daily By mouth (PO) U FIBERCON 625 MG ORAL TABLET Twice Daily By mouth (PO) U SINGULAIR 10 MG ORAL TABLET Once Daily By mouth (PO) U PROAIR HFA 108 INHALATION Two Puffs Four Times Daily/PRN Inhaled (INH) U NASONEX 50 MCG/INH NASAL SPRAY Two Sprays Each Nostril Daily Inhaled (INH) U VOLTAREN 1% TOPICAL GEL Apply 4grams To affected joints Four Times a Day. (appx size of 2 pennies) Topical (TOP) U VITAMIN C 500MG 1 DAILY By mouth (PO) U ACETAMINOPHEN 650 MG ORAL TABLET 2 TAB EVERY 6 HOURS PRN By mouth (PO) U VITAMIN D3 50 MCG (2000 INTL UNITS) ORAL CAPSULE 1 CAPSULE Daily By mouth (PO) U SYMBICORT 80 MCG-4.5 MCG/INH INHALATION AEROSOL 2 INHALED BREATHS Inhale x 2 Twice Daily PRN if Advair unavailable Inhaled (INH) C PANTOPRAZOLE 40 MG ORAL GRANULE, DELAYED RELEASE 1 TAB DAILY By mouth (PO) U DILTIAZEM (EQV-CARDIZEM CD) 360 MG/24 HOURS ORAL CAPSUL EXTENDED RELEASE 1 TAB DAILY By mouth (PO) C OXYGEN 2-4 lpm Via nasal cannula continuously nasal (N.S) C</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> ICD-10 CM Principal Diagnosis </b>
+                    <p style="font-size: 9px"> J96.11 Chronic respiratory failure with hypoxia</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> ICD-10 CM Other Diagnosis </b>
+                    <p style="font-size: 9px"> 148.91 Unspecified atrial fibrillation J44.9 Chronic obstructive pulmonary disease, unspecified I50.31 Acute diastolic (congestive) heart failure N17.9 Acute kidney failure, unspecified E78.5 Hyperlipidemia, unspecified G47.33 Obstructive sleep apnea (adult) (pediatric) J45.909 Unspecified asthma, uncomplicated E66.2 Morbid (severe) obesity with alveolar hypoventilation M62.81 Muscle weakness (generalized) R26.2 Difficulty in walking, not elsewhere classified R26.81 Unsteadiness on feet J98.4 Other disorders of lung R22.43 Localized swelling, mass and lump, lower limb, bilateral I10 Essential (primary) hypertension K21.9 Gastro-esophageal reflux disease without esophagitis F32.A Depression, unspecified E55.9 Vitamin D deficiency, unspecified</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> Orders For Discipline and Treatment </b>
+                    <p style="font-size: 9px"> Notify Physician of vital sign parameters out of range: Heart Rate: Greater Than(>) 150 Less Than (<) 50 Temp: Greater Than (>) 101.2 Less Than (<) 96 Respirations: Greater Than (>) 32 Less Than (<) 12 Pain Level: Greater Than (>) 8 O2 Saturation: Less Than (<) 90 Systolic BP: Greater Than (>) 160 Less Than (<) 90 Diastolic BP: Greater Than (>) 120 Less Than (<) 50 Frequency: SN Frequency: 2d60 Up to 2 SN visits daily PT Frequency: Evaluation OT Frequency: Evaluation</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Physician Signature or Allowed Practitioner (Applies to total pages)</b>
+                    <p style="font-size: 9px">X</p>
+                </td>
+                <td colspan="3">
+                    <b> Signature Date</b>
+                </td>
+                </tr>
+            </table>
+            <div>
+                <p>Greene, Brenda 10/11/1949 Female</p>
+                <p>EAZ Source | Page 2 of 6</p>
+            </div>
+        <div class="page-break"></div>
+            <table border="1">
+                <tr>
+                <th style="width: 20%">
+                    <img src="./logo.png" alt="logo" />
+                </th>
+                <th style="text-align: left; width: 30%">
+                    <b>Agency Information:</b>
+                    <p style="font-size: 9px"> ibling Home Health Care LLC 5330 East Main Street Suite 109 Columbus OH 43213-2571 6146263108 (Office), 6146263138 (Fax)</p>
+                </th>
+                <th style="text-align: right; width: 50%" colspan="3">
+                    <div> <p>Order #: 58508397</p> <p>HOME HEALTH CERTIFICATION AND PLAN OF CARE</p>
+                    </div>
+                </th>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <p style="font-size: 9px"> HHA Frequency: up.to.66hrs.daily Up to 66 hours daily. May be in divided shifts. Patient allowed to have two aids at a time for up to two hours a.m. and p.m . Skilled nurse developed patient plan of care with patient/caregiver involvement to be countersigned by physician. SN to perform complete physical assessment each visit with emphasis on mobility, weight, pain, depression, medication regimen and compliance. SN to assess other co-morbidities including CHF, COPD, morbid obesity, immobility, Renal failure, chronic pain, depression, osteoarthritis, cardiovascular, and respiratory status and other conditions that present themselves during this episode of care. SN to recognize and i ntervene to minimize complications; notify physician immediately of any potential problems that impede completion of patient recovery and desired goals. Nursing SN to assess integumentary status, identify any signs and symptoms of impaired skin integrity, report significant changes to physician. SN to instruct patient on disease process, including who to contact if signs and symptoms persist or worsen as well as dietary, hydration measures and medication management where indicated. Skilled nurse to wrap, patient bilateral lower extremities daily with ace bandages to promote decrease of edema related to excessive fluid retention. Skilled nurse to remove bandages daily in evening. Assess skin for any integrity compromise. Apply moisturizing lotion or medicated l otion to bilateral extremities in the evening. Patient identified to be at risk for pressure ulcer development. SN to provide skilled assessment, identify and mitigate risk factors, provide instruction and reinforcement of teaching to prevent pressure ulcer development. SN to instruct patient/caregiver on pressure ulcer prevention as well as treatment modalities where indicated to prevent pressure ulcer development. SN to perform wound care to skin tears with soap and water to cleanse. May apply skin barrier cream if available using aseptic technique. SN may teach caregiver to perform wound care. SN to perform pressure ulcer care to coccyx Cleanse/irrigate wound with soap and water, cover and secure with foam dressing, using aseptic technique. May apply skin barrier cream if available. SN to assess respiratory status, identify any signs and symptoms of impaired respiratory function. SN to instruct patient on disease process, including who to contact if signs and symptoms persist or worsen as well as dietary measures, medication management, activities permitted. May obtain O2 saturation as needed and for shortness of breath or s/s of complications. SN to instruct patient/caregiver regarding self- management program for Chronic Obstructive Pulmonary Disease SN to instruct patient/caregiver regarding self- management of oxygen therapy, perform risk assessment and administer O2 at 4 Lpm via nasal cannula continuously SN to assess cardiovascular status, identify any signs and symptoms of impaired cardiovascular function. SN to instruct patient on disease process, including who to contact if signs and symptoms persist or worsen as well as dietary measures, medication management, activities permitted. May obtain O2 saturation as needed for shortness of breath or s/s of complications. SN to instruct patient/caregiver regarding self-management of Peripheral Vascular Disease. SN to instruct patient/caregiver regarding heart failure status and self-management program. SN to assess genitourinary status, identify any signs and symptoms of impaired genitourinary function. SN to instruct patient on disease process, including who to contact if signs and symptoms persist or worsen as well as dietary, hydration measures and medication management where indicated. Skilled nurse performed teaching regarding incontinence and proper skin care. SN to assess gastrointestinal status, identify any signs and symptoms of impaired gastrointestinal function, report significant changes to physician. SN to instruct patient on disease process, including who to contact if signs and symptoms persist or worsen as well as dietary, hydration measures and medication management where indicated. SN to instruct patient/caregiver on establishment of bowel retraining program. SN to assess musculoskeletal status, identify any signs and symptoms of impaired functional status. SN to instruct patient on disease process, including who to contact if signs and symptoms persist or worsen as well as dietary measures, medication management and activities permitted. Assess joint pain/swelling and s/s of complications related to decreased mobility. SN to instruct patient/caregiver regarding self-management of Osteoarthritis. Home Health Aide to provide assistance with personal care and ADLs as indicated by limitations on functional and physical status i mpeding self-care.</p>
+                </td>
+                </tr>
+
+                <tr>
+                <td colspan="2">
+                    <b> Physician Signature or Allowed Practitioner (Applies to total pages)</b>
+                    <p style="font-size: 9px">X</p>
+                </td>
+                <td colspan="3">
+                    <b> Signature Date</b>
+                </td>
+                </tr>
+            </table>
+            <div>
+                <p>Greene, Brenda 10/11/1949 Female</p>
+                <p>EAZ Source | Page 3 of 6</p>
+            </div>
+        <div class="page-break"></div>
+            <table border="1">
+                <tr>
+                <th style="width: 20%">
+                    <img src="./logo.png" alt="logo" />
+                </th>
+                <th style="text-align: left; width: 30%">
+                    <b>Agency Information:</b>
+                    <p style="font-size: 9px"> ibling Home Health Care LLC 5330 East Main Street Suite 109 Columbus OH 43213-2571 6146263108 (Office), 6146263138 (Fax)</p>
+                </th>
+                <th style="text-align: right; width: 50%" colspan="3">
+                    <div> <p>Order #: 58508397</p> <p>HOME HEALTH CERTIFICATION AND PLAN OF CARE</p>
+                    </div>
+                </th>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <p style="font-size: 9px"> SN to instruct patient/caregiver on new and/or changed medications and any other identified knowledge deficits as it relates to management of medication regimen. SN may pre-fill pill box per medication profile and instruct patient/caregiver on pill box management. SN to assess efficacy/complications of anticoagulation therapy. SN to instruct patient/care giver on anticoagulation monitoring and intervene to prevent complications. SN to perform medication review each skilled nursing visit and reconcile medications as indicated. SN to instruct on all new and changed medications and reinforce teaching related to use of medications as part of disease process or demonstration of knowledge deficit. Patient identified to be at high risk for falls. SN to provide skilled assessment, identify and mitigate risk factors, provide instruction and reinforcement of teaching to prevent falls/injury. SN to instruct patient/caregiver on fall prevention as well as assess need for therapy services. Physical Therapy to assess functional status, home environment to eliminate structural barriers and improve safety and functional independence. PT to assess rehabilitation potential and determine need for gait training, safety precautions, pain management, strengthening/conditioning exercise, balance/ coordination and transfers. PT to establish a home exercise program and plan of care as approved by physician. May obtain 02 saturation as needed for s/s of possible respiratory distress. Occupational Therapy to assess functional status, home environment to eliminate structural barriers and improve safety, need for home modifications to promote functional independence. OT to assess rehabilitation potential and determine need for ADL training, safety precautions, pain management, strengthening/conditioning exercise. OT to establish a home exercise program and plan of care as approved by physician. May obtain 02 saturation as needed for s/s of possible respiratory distress. Home Health Aide to provide Caregiver respite, assist with ADL's & IADL's per HHA care plan. Maintain safety, infection control and fall precautions. Homemaker to provide housekeeping, perform errands</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b>Goals</b>
+                    <p style="font-size: 9px"> Patient's personal healthcare goal(s): To remain in home without hospitalization. Maintain respiratory status to be weaned off of oxygen. To improve health status to be able to return to personal home. No falls or injuries. Nursing Patient/Caregiver will verbalize and demonstrate safe management of oxygen by end of certification Period. Patient/Caregiver will be able to verbalize signs and symptoms of cardiac complications, when to call physician, nurse or 911 by end of certification Period. Physical Therapy evaluation will be performed and a plan of care to increase functional independence will be established and countersigned by physician. Patient will demonstrate proper use of assistive devices by end of certification Period. Patient and caregiver will be able to identify fall risk factors by end of certification Period. Patient will be free of falls/injury during this episode of care. Patient will demonstrate return to stable respiratory status regarding COPD and verbalize improvement to symptoms with improved pulse oxygenation by end of certification Period. You talking to me me Patient will have adequate personal care and assistance with ADLs as well as assistance to therapeutic activities Adequate Respite will be provided for caregiver Patient will have adequate assistance to maintain a safe, clean environment Patient will be free of injury during this episode of care Patient will receive safe and effective personal care during this episode of care Patient will demonstrate return to stable genitourinary status regarding renal failure, and incontinence and verbalize improvement to</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Physician Signature or Allowed Practitioner (Applies to total pages)</b>
+                    <p style="font-size: 9px">X</p>
+                </td>
+                <td colspan="3">
+                    <b> Signature Date</b>
+                </td>
+                </tr>
+            </table>
+            <div>
+                <p>Greene, Brenda 10/11/1949 Female</p>
+                <p>EAZ Source | Page 4 of 6</p>
+            </div>
+        <div class="page-break"></div>
+            <table border="1">
+                <tr>
+                <th style="width: 20%">
+                    <img src="./logo.png" alt="logo" />
+                </th>
+                <th style="text-align: left; width: 30%">
+                    <b>Agency Information:</b>
+                    <p style="font-size: 9px"> ibling Home Health Care LLC 5330 East Main Street Suite 109 Columbus OH 43213-2571 6146263108 (Office), 6146263138 (Fax)</p>
+                </th>
+                <th style="text-align: right; width: 50%" colspan="3">
+                    <div> <p>Order #: 58508397</p> <p>HOME HEALTH CERTIFICATION AND PLAN OF CARE</p>
+                    </div>
+                </th>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <p style="font-size: 9px"> symptoms by end of certification Period. Patient will demonstrate return to stable gastrointestinal status regarding incontinence and verbalize improvement to ability to be positioned on bedside commode or bed pan. Patient will have decreased episodes of bowel incontinence Patient will have optimal bowel evacuation in bedside commode throughout this episode of care. Patient demonstrate ability to effectively manage medication regimen by end of certification Period. Patient will demonstrate compliance with medication regimen as evidenced by correct administration, reporting side effects or adverse reactions by end of certification Period. Occupational Therapy evaluation will be performed and a plan of care to increase functional independence with ADLs and IADLs will be established and countersigned by physician. Patient will be free of skin breakdown during this episode of care. Patient will be free of injury during this episode of care. Patient will receive safe and effective personal care during this episode of care. Patient will achieve optimal level of health and functional improvement regarding osteoarthritis as evidenced by restoration and improvement of musculoskeletal status by end of certification Period. Patient will be free from falls/injury during this episode of care. Patient will demonstrate return to stable musculoskeletal status related to osteoarthritis with improvement to a minimal level of functioning by end of certification Period. Patient will demonstrate Adherence to Rehab program for osteoarthritis, morbid obesity, immobility to include use of assistive devices and home modifications. By end of certification Period. Patient's wound bed will develop 100% by end of certification Period. Patient will have promotion of healing and restoration of skin integrity without complications by end of certification Period. Patient bilateral extremities will decrease in size from fluid retention. Patient will achieve optimal wound healing without further s/s of infection or complications by end of certification Period.</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> Rehabilitation Potential and Discharge Plan </b>
+                    <p style="font-size: 9px"> Nursing Rehabilitation Potential: Rehabilitation potential fair for treatment plan implementation Discharge To Care Of: Self Discharge When: Patient demonstrate necessary skills to self-manage disease process including medication management, when to notify physician, s/s necessitating emergent care, nutrition and activity.</p>
+                </td>
+                </tr>
+
+                <tr>
+                <td colspan="5">
+                    <b> Homebound Narrative </b>
+                    <p style="font-size: 9px">There is no data for this section</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> Medical Necessity </b>
+                    <p style="font-size: 9px"> Patient with unstable cardiac status: prescribed changes to current plan of care due to need for CHF, excessive fluid retention, extreme shortness of breath with minimal activity. management as evidenced by stable cardio pulmonary function requiring skilled assessment, instruction and evaluation; assessment of efficacy or complications of prescribed changes to the plan of care. Patient requires skilled intervention of physical therapy for exercises to increase strength and endurance, implementation of safety measures and evaluation for assistive devices due to impaired function or declining functional ability as demonstrated by increase mobility. Patient with unstable respiratory status: prescribed changes to current plan of care due to need for oxygen, elevated bed, CPAP machine during day and night. requiring skilled assessment, instruction and evaluation; assessment of efficacy or complications of prescribed changes to the plan of care. Patient requires services of a Home Health Aide under the supervision of a skilled professional to provide or assist patient/caregiver with personal care and ADLs due to immobility, muscle weakness , morbid obesity, congestive heart failure, renal failure, incontinence both urine and stool. Patient requires assistance of two people to turn and perform personal care. Patient is bedbound, unable to</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Physician Signature or Allowed Practitioner (Applies to total pages)</b>
+                    <p style="font-size: 9px">X</p>
+                </td>
+                <td colspan="3">
+                    <b> Signature Date</b>
+                </td>
+                </tr>
+            </table>
+            <div>
+                <p>Greene, Brenda 10/11/1949 Female</p>
+                <p>EAZ Source | Page 5 of 6</p>
+            </div>
+        <div class="page-break"></div>
+            <table border="1">
+                <tr>
+                <th style="width: 20%">
+                    <img src="./logo.png" alt="logo" />
+                </th>
+                <th style="text-align: left; width: 30%">
+                    <b>Agency Information:</b>
+                    <p style="font-size: 9px"> ibling Home Health Care LLC 5330 East Main Street Suite 109 Columbus OH 43213-2571 6146263108 (Office), 6146263138 (Fax)</p>
+                </th>
+                <th style="text-align: right; width: 50%" colspan="3">
+                    <div> <p>Order #: 58508397</p> <p>HOME HEALTH CERTIFICATION AND PLAN OF CARE</p></div>
+                </th>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <p style="font-size: 9px"> transfer from bed to chair. Can stand for less than two minutes. With assistance getting up and Walker. Patient receiving OT PT nursing services. For strengthening and return to functional mobility. Patient is morbidly obese and Due to exacerbation of excessive fluid retention related to CHF, altered mobility, osteoarthritis, and pain patient is immobile. Unable to get out of bed or turn self independently. Patient requires assistance of two people to turn and to stand. Patient is unable to walk. Cannot lift feet, is unable to pivot weight on feet/legs. Patient with acute exacerbation of osteoarthritis, morbid obesity, and mobility with prescribed changes to plan of care requiring skilled observation and assessment to evaluate efficacy/complications of prescribed changes and report to physician; skilled teaching for disease process self-management. Therapy services required for increased functional disability problems.</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> F2F Addendum (Admission Narrative) </b>
+                    <p style="font-size: 9px">There is no data for this section</p>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="5">
+                    <b> Other Physicians On The Case </b>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Optional Name/Signature of Nurse/Therapist </b>
+                </td>
+                <td colspan="3">
+                    <b> Signature Date and Time</b>
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                    <b> Physician Signature or Allowed Practitioner (Applies to total pages)</b>
+                    <p style="font-size: 9px">X</p>
+                </td>
+                <td colspan="3">
+                    <b> Signature Date</b>
+                </td>
+                </tr>
+            </table>
+            <div>
+                <p>Greene, Brenda 10/11/1949 Female</p>
+                <p>EAZ Source | Page 6 of 6</p>
+            </div>
+            </div>
+        </body>
+        </html> 
+  

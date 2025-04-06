@@ -224,36 +224,31 @@ const getTransactionAmounts  = async (req, res) => {
 
 const getAllTransactions = async (req, res) => {
   try {
-    // Extract query parameters
     const { page = 1, limit = 10, txnType } = req.query;
-
-    // Pagination parameters
     const pageNumber = parseInt(page);
     const pageSize = parseInt(limit);
 
-    // Build the query object
     const query = {};
     if (txnType) {
       query.txnType = txnType;
     }
 
-    // Fetch filtered and paginated transactions
     const transactions = await TransactionHistory.find(query)
-      .sort({ createdAt: -1 }) // Sort by createdAt descending
-      .skip((pageNumber - 1) * pageSize) // Pagination: Skip records
-      .limit(pageSize) // Pagination: Limit records
+      .sort({ createdAt: -1 })
+      .skip((pageNumber - 1) * pageSize)
+      .limit(pageSize)
       .populate({
-        path: "userId", // Populate the userId field
-        select: "username pictures", // Select only the username and pictures fields from the User schema
+        path: "userId",
+        select: "username pictures",
+      })
+      .populate({
+        path: "amountId", // Populate amountId from Payment model
       });
-      
 
-    // Calculate total count
     const totalCount = await TransactionHistory.countDocuments(query);
 
-    // Calculate overall totals (total amount and total commission)
     const overallTotals = await TransactionHistory.aggregate([
-      { $match: query }, // Filter by query (txnType if provided)
+      { $match: query },
       {
         $group: {
           _id: null,
@@ -266,30 +261,27 @@ const getAllTransactions = async (req, res) => {
     const totalAmount = overallTotals.length > 0 ? overallTotals[0].totalAmount : 0;
     const totalCommission = overallTotals.length > 0 ? overallTotals[0].totalCommission : 0;
 
-    // Calculate amounts grouped by transaction type
     const amountsByType = await TransactionHistory.aggregate([
-      { $match: query }, // Filter by query (txnType if provided)
+      { $match: query },
       {
         $group: {
-          _id: "$txnType", // Group by txnType
+          _id: "$txnType",
           totalAmount: { $sum: "$amount" },
         },
       },
     ]);
 
-    // Format grouped totals into an object
     const amountsByTxnType = {};
     amountsByType.forEach((type) => {
       amountsByTxnType[type._id] = type.totalAmount;
     });
 
-    // Prepare the response
     const response = {
       totalCount,
       transactions,
       totalAmount,
       totalCommission,
-      amountsByTxnType, // Object with txnType-specific totals
+      amountsByTxnType,
     };
 
     return res.status(200).json(response);

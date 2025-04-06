@@ -679,3 +679,32 @@ exports.updateAppointmentDate = async (req, res) => {
     });
   }
 };
+
+// Update billing status to true
+exports.updateBillingStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      id,
+      { billing: true },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: "Task not found",
+      });
+    }
+
+    res.status(StatusCodes.OK).json({
+      message: "Billing status updated to true",
+      data: updatedTask,
+    });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "An error occurred while updating billing status",
+      error: error.message,
+    });
+  }
+};

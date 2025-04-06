@@ -116,6 +116,10 @@ const taskSchema = mongoose.Schema(
       ],
       // required: true,
     },
+    billing: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

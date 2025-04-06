@@ -14,5 +14,7 @@ router.get("/:id", taskController.getTaskById);
 router.delete('/:id', taskController.deleteTaskById);
 router.get("/tasks/nurse/:nurseId/status", taskController.getTasksstatusByNurseId);
 router.patch("/tasks/:id/appointment-date",authMiddleware,  taskController.updateAppointmentDate);
+router.patch("/billing/:id", taskController.updateBillingStatus);
+
 
 module.exports = router;

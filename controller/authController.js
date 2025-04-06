@@ -531,11 +531,11 @@ const handleWebhook = async (req, res) => {
 
 const createCheckoutSession = async (req, res) => {
   try {
-    const { amountId, currency } = req.body;
+    const { amountId, currency, redirectUrl } = req.body; // Get redirectUrl from body
     const userId = req.userId; // Ensure this is correctly set from authentication middleware
 
-    if (!userId || !amountId) {
-      return res.status(400).json({ message: "User ID and amount ID are required" });
+    if (!userId || !amountId || !redirectUrl) {
+      return res.status(400).json({ message: "User ID, amount ID, and redirect URL are required" });
     }
 
     // Retrieve the amount from the database
@@ -559,11 +559,12 @@ const createCheckoutSession = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:4500/api/v1/auth/success-update?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `http://localhost:4500/api/v1/auth/success-update?session_id={CHECKOUT_SESSION_ID}`, // Keep it fixed for backend processing
       cancel_url: `http://localhost:3000/payment-failed`,
       metadata: {
         userId,
         amountId, // Store the amount ID in metadata to use in successUpdate
+        redirectUrl, // Store redirect URL in metadata
       },
     });
 
@@ -573,6 +574,7 @@ const createCheckoutSession = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 
@@ -588,60 +590,51 @@ const successUpdate = async (req, res) => {
 
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
-    if (!session || !session.metadata.userId) {
-      return res.status(400).json({ message: "Invalid session or missing userId" });
+    if (!session || !session.metadata.userId || !session.metadata.amountId || !session.metadata.redirectUrl) {
+      return res.status(400).json({ message: "Invalid session or missing required metadata" });
     }
 
     const userId = session.metadata.userId;
+    const amountId = session.metadata.amountId;
+    const redirectUrl = session.metadata.redirectUrl; // Retrieve redirect URL
     const amount = session.amount_total / 100; // Convert cents to dollars
-    const subscriptionType = session.metadata.subscriptionType || "monthly"; // Ensure it exists
 
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Set payment and expiry dates
-    const currentDate = new Date();
-    let expiryDate;
-
-    if (subscriptionType === "monthly") {
-      expiryDate = new Date();
-      expiryDate.setMonth(expiryDate.getMonth() + 1);
-    } else if (subscriptionType === "yearly") {
-      expiryDate = new Date();
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-    } else {
-      return res.status(400).json({ message: "Invalid subscription type" });
-    }
-
     // Activate user & update payment details
     user.isActive = true;
-    user.paymentDate = currentDate;
-    user.expiryDate = expiryDate;
-
+    user.paymentDate = new Date();
+    user.expiryDate = new Date();
+    user.expiryDate.setMonth(user.expiryDate.getMonth() + 1);
     await user.save();
 
-    // ✅ Create a new transaction record
-    const newPayment = new Payment({
-      title: `${subscriptionType.charAt(0).toUpperCase() + subscriptionType.slice(1)} Subscription`,
+    // ✅ Save the transaction record
+    const newTransaction = new TransactionHistory({
+      txnId: generateTransactionId(),
+      txnType: "user_registration",
+      userId: userId,
+      amountId: amountId,
       amount: amount,
-      amountType: "subscription",
-      description: `Subscription for ${subscriptionType} plan`,
-      userId: userId, // Assuming Payment model has userId field
+      status: "completed",
+      txnMadeThrough: "Stripe",
     });
 
-    await newPayment.save();
+    await newTransaction.save();
 
-    console.log(`✅ User ${userId} activated until ${expiryDate} & Transaction recorded.`);
+    console.log(`✅ User ${userId} activated & Transaction recorded. Redirecting to: ${redirectUrl}`);
 
-    // Redirect to frontend
-    res.redirect("https://eaz.letsgotnt.com/");
+    // Redirect to the dynamic URL provided during checkout
+    res.redirect(redirectUrl);
   } catch (error) {
     console.error("❌ Error updating user & recording transaction:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 // ✅ Cron job to check expired users every midnight
 cron.schedule("0 0 * * *", async () => {
@@ -661,23 +654,7 @@ cron.schedule("0 0 * * *", async () => {
   }
 });
 
-// Cron job to check expired users every midnight
-cron.schedule("*/1 0 * * *", async () => {
-  console.log("🔄 Running subscription expiration check...");
-  const currentDate = new Date();
 
-  try {
-    const expiredUsers = await User.find({ expiryDate: { $lt: currentDate }, isActive: true });
-
-    for (const user of expiredUsers) {
-      user.isActive = false;
-      await user.save();
-      console.log(`❌ User ${user._id} subscription expired.`);
-    }
-  } catch (error) {
-    console.error("❌ Error checking expired users:", error);
-  }
-});
 
 
 // Function to generate a random transaction ID

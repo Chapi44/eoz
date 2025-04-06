@@ -1,7 +1,6 @@
 const { v4: uuidv4 } = require('uuid'); // Import UUID library
 const Patient = require('../model/patients');
 
-// Register a new patient
 const registerPatient = async (req, res) => {
   try {
     const {
@@ -24,16 +23,17 @@ const registerPatient = async (req, res) => {
       location
     } = req.body;
 
-    const baseURL = process.env.BASE_URL; // Replace with your actual base URL
+    const baseURL = process.env.BASE_URL || "http://localhost:5000";
 
-    const pictures = req.files.map(
-      (file) => baseURL + "/uploads/profilepic/" + file.filename
-    );
+    // Safely handle file upload
+    const pictures = Array.isArray(req.files) && req.files.length > 0
+      ? req.files.map(file => baseURL + "/uploads/profilepic/" + file.filename)
+      : [];
 
     // Generate a unique MRN using UUID
     const mrn = uuidv4();
 
-    // Create a new patient
+    // Create new Patient instance
     const newPatient = new Patient({
       firstName,
       lastName,
@@ -53,23 +53,26 @@ const registerPatient = async (req, res) => {
       appointment,
       appointmentTimes,
       location,
-      mrn // Assign the generated MRN
+      mrn // Unique patient Medical Record Number
     });
 
-    // Save the patient to the database
+    // Save to DB
     const savedPatient = await newPatient.save();
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Patient registered successfully",
       data: savedPatient
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("Error registering patient:", error);
+    return res.status(500).json({
       message: "An error occurred while registering the patient",
       error: error.message
     });
   }
 };
+
+
 
 
 // Get all patients
