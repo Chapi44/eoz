@@ -110,6 +110,95 @@ const register = async (req, res) => {
   }
 };
 
+const registertenant = async (req, res) => {
+  try {
+    let {
+      name,
+      email,
+      password,
+      username,
+      bio,
+      pictures,
+      profession,
+      phoneNumber,
+      role,
+      type,
+      organazationnumber,
+      employeetype
+    } = req.body;
+
+    const emailAlreadyExists = await User.findOne({ email });
+    if (emailAlreadyExists) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: "Email already exists" });
+    }
+
+    const organizationNumberExists = await User.findOne({ organazationnumber });
+    if (organizationNumberExists) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: "Organization number already exists" });
+    }
+
+    if (!username) username = null;
+    if (!bio) bio = "";
+    if (!profession) profession = "";
+
+    // Determine if adminId should be attached
+    // let adminId = null;
+    // if (req.user && req.user.role === 'admin') {
+    //   adminId = req.adminId; // Attach the admin ID if the registering user is an admin
+    // }
+
+    // Create the user with adminId attached if applicable
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      username,
+      bio,
+      pictures,
+      profession,
+      phoneNumber,
+      organazationnumber,
+      type,
+      employeetype,
+      // adminId
+    });
+
+    const secretKey = process.env.JWT_SECRET;
+    const tokenExpiration = process.env.JWT_LIFETIME;
+
+    if (!secretKey || !tokenExpiration) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        error: "JWT secret key or expiration is not configured.",
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+        username: user.username,
+        adminId: req.adminId || null, // Pass adminId into token if available
+      },
+      secretKey,
+      { expiresIn: tokenExpiration }
+    );
+
+    return res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: "Successfully registered",
+      token,
+      user
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      error: "Internal server error",
+    });
+  }
+};
 
 
 
@@ -532,11 +621,11 @@ const handleWebhook = async (req, res) => {
 const createCheckoutSession = async (req, res) => {
   try {
     const { amountId, currency, redirectUrl } = req.body; // Get redirectUrl from body
-    const userId = req.userId; // Ensure this is correctly set from authentication middleware
+    // const userId = req.userId; // Ensure this is correctly set from authentication middleware
 
-    if (!userId || !amountId || !redirectUrl) {
-      return res.status(400).json({ message: "User ID, amount ID, and redirect URL are required" });
-    }
+    // if (!userId || !amountId || !redirectUrl) {
+    //   return res.status(400).json({ message: "User ID, amount ID, and redirect URL are required" });
+    // }
 
     // Retrieve the amount from the database
     const paymentRecord = await Payment.findById(amountId);
@@ -562,7 +651,7 @@ const createCheckoutSession = async (req, res) => {
       success_url: `http://localhost:4500/api/v1/auth/success-update?session_id={CHECKOUT_SESSION_ID}`, // Keep it fixed for backend processing
       cancel_url: `http://localhost:3000/payment-failed`,
       metadata: {
-        userId,
+        // userId,
         amountId, // Store the amount ID in metadata to use in successUpdate
         redirectUrl, // Store redirect URL in metadata
       },
@@ -679,6 +768,7 @@ module.exports = {
   handleWebhook,
   createPaymentIntent,
   createCheckoutSession,
-  successUpdate
+  successUpdate,
+  registertenant
   
 };

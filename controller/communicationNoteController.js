@@ -444,7 +444,7 @@ exports.getIncidentReportsByPhysicianId = async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     // Fetch Incident Reports for the specified Physician ID with pagination and sorting
-    const reports = await IncidentReport.find({ attendingPhysician: physicianId })
+    const reports = await IncidentReport.find({ physicianId })
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",

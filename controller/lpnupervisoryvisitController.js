@@ -90,6 +90,7 @@ exports.getAllLPNSupervisoryVisits = async (req, res) => {
 
     // Get userId from token for filtering
     const userId = req.userId;
+    console.log("userId:", userId); // Log the userId value
     if (!userId) {
       return res.status(403).json({
         success: false,
@@ -99,9 +100,10 @@ exports.getAllLPNSupervisoryVisits = async (req, res) => {
 
     // Query with userId filter
     const query = { adminId: userId };
+    console.log("Query:", query); // Log the query object
 
     // Fetch LPN Supervisory Visits with pagination and sorting
-    const visits = await LPNSupervisoryVisit.find(query)
+    const visits = await LPNSupervisoryVisit.find()
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
@@ -116,6 +118,7 @@ exports.getAllLPNSupervisoryVisits = async (req, res) => {
 
     // Get the total count of LPN Supervisory Visits
     const totalVisits = await LPNSupervisoryVisit.countDocuments(query);
+    console.log("Total LPN Supervisory Visits:", totalVisits); // Log the totalVisits value
 
     res.status(200).json({
       success: true,

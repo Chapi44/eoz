@@ -57,9 +57,19 @@ const UserSchema = new Schema(
     role: {
       type: String,
       default: "user",
-      enum: ["superadmin", "admin", "nurses", "HR", "Therapy", "socialworker", "doctors"],
+      enum: [
+        "superadmin",
+        "admin",
+        "nurses",
+        "HR",
+        "Therapy",
+        "socialworker",
+        "doctors",
+        "billmanager" // <-- added here
+      ],
       required: true,
     },
+    
     employeetype: {
       type: Boolean, default: false,
       default: false, // Default value if not specified

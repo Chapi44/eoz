@@ -55,6 +55,7 @@ const ottelehealthAssessmentRoutes = require("./routes/ottelehealthRoutes.js")
 const prnnursingRoutes = require("./routes/prnnursingRoutes.js")
 const speechtherapyvisitorRoutes = require("./routes/speechtherapyRoutes.js")
 const nursepschatristRoutes = require("./routes/nursepsychatristRoutes.js")
+const BillingClaim = require("./routes/billingClaimRoutes.js")
 // Middleware
 const notFoundMiddleware = require("./middelware/not-found.js");
 const errorHandlerMiddleware = require("./middelware/error-handler.js");
@@ -115,6 +116,7 @@ app.use('/api/v1/prn', prnnursingRoutes)
 app.use('/api/v1/speech', speechtherapyvisitorRoutes)
 app.use('/api/v1/nursepsy', nursepschatristRoutes)
 app.use("/api/v1/amount", amountRoutes)
+app.use("/api/v1/billing", BillingClaim)
 
 
 

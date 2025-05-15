@@ -6,12 +6,12 @@ exports.createInfectionReport = async (req, res) => {
     const data = req.body;
 
     // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.attendingPhysician || !data.dateOfInfection || !data.primaryDiagnosis) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Attending Physician, Date of Infection, and Primary Diagnosis are required",
-      });
-    }
+    // if (!data.patientId || !data.nurseId || !data.attendingPhysician || !data.dateOfInfection || !data.primaryDiagnosis) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Attending Physician, Date of Infection, and Primary Diagnosis are required",
+    //   });
+    // }
 
     // Get adminId from token for filtering
     const adminId = req.user?.adminId;

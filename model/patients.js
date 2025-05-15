@@ -4,10 +4,10 @@ const patientSchema = mongoose.Schema(
   {
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    gender: { type: String, enum: ["Male", "Female", "Other"] },
+    gender: { type: String },
     dob: { type: Date, required: true },
     socialSecurityNumber: { type: String },
-    maritalStatus: { type: String, enum: ["Single", "Married", "Widowed", "Divorced"] },
+    maritalStatus: { type: String},
     alternatePhone: { type: String },
     mobilePhone: { type: String },
     emailAddress: { type: String },

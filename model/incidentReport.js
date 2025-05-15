@@ -7,6 +7,11 @@ const incidentReportSchema = mongoose.Schema(
       ref: "Patients",
       required: true,
     },
+    physicianId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    }, 
     adminId: {
       type: mongoose.Schema.Types.ObjectId, 
       ref: "User",  // References the "User" model

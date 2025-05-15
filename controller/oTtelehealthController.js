@@ -265,12 +265,12 @@ exports.createOTReEval = async (req, res) => {
     const data = req.body;
 
     // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.evaluationDate || !data.reason) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Evaluation Date, and Reason are required",
-      });
-    }
+    // if (!data.patientId || !data.nurseId || !data.evaluationDate || !data.reason) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Evaluation Date, and Reason are required",
+    //   });
+    // }
 
     // Get adminId from token for filtering
     const adminId = req.user?.adminId;

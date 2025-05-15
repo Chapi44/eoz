@@ -13,7 +13,8 @@ registercompanyowner,
 createPaymentIntent,
 handleWebhook,
 createCheckoutSession,
-successUpdate
+successUpdate,
+registertenant
 } = require("../controller/authController");
 
 const storage = multer.diskStorage({
@@ -31,6 +32,7 @@ const { authMiddleware } = require("../middelware/authMiddleware");
 
 
 router.post("/register", authMiddleware, register);
+router.post("/registertenant", registertenant);
 
 
 router.post("/login", signin);

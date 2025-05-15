@@ -151,6 +151,7 @@ exports.getDoctorOrdersByPhysicianId = async (req, res) => {
 
     // Fetch Doctor Orders by Physician ID with pagination
     const orders = await DoctorOrder.find({ physicianId })
+    
       .populate({
         path: "patientId",
         select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
