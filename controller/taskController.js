@@ -377,7 +377,7 @@ exports.getTasksByNurseId = async (req, res) => {
     // Fetch tasks with filtering and pagination
     const tasks = await Task.find(query)
       .populate("patientId nurseId")
-      .sort({ appointmentDate: 1 }) // Sort by appointmentDate (earliest first)
+      .sort({ createdAt: -1 }) // Sort by appointmentDate (earliest first)
       .skip(skip)
       .limit(parseInt(limit));
 

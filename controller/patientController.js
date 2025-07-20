@@ -78,20 +78,40 @@ const registerPatient = async (req, res) => {
 // Get all patients
 const getAllPatients = async (req, res) => {
   try {
-    const patients = await Patient.find();
-    const totalPatients = await Patient.countDocuments(); // Get the total count of patients
+    let { page = 1, limit = 10 } = req.query;
+    page = Math.max(parseInt(page), 1);
+    limit = Math.max(parseInt(limit), 1);
+    const skip = (page - 1) * limit;
+
+    // Fetch patients with pagination and sorting by createdAt descending
+    const patients = await Patient.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Get the total count of patients
+    const totalPatients = await Patient.countDocuments();
 
     res.status(200).json({
-      totalPatients, // Add total count of patients to the response
-      patients // The list of patients
+      success: true,
+      message: "All patients retrieved successfully",
+      data: patients,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalPatients / limit),
+        totalItems: totalPatients,
+      },
     });
   } catch (error) {
     res.status(500).json({
+      success: false,
       message: "An error occurred while retrieving patients",
-      error: error.message
+      error: error.message,
     });
   }
 };
+
+
 
 
 // Get a patient by ID

@@ -6,12 +6,12 @@ exports.createSpeechTherapyVisit = async (req, res) => {
     const data = req.body;
 
     // Validate required fields
-    if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
-      return res.status(400).json({
-        success: false,
-        message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
-      });
-    }
+    // if (!data.patientId || !data.nurseId || !data.visitDate || !data.episodePeriod || !data.physician) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Patient ID, Nurse ID, Visit Date, Episode Period, and Physician are required",
+    //   });
+    // }
 
     // Get adminId from token for filtering
     const adminId = req.user?.adminId;

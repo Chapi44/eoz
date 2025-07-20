@@ -45,6 +45,7 @@ const authMiddleware = async (req, res, next) => {
     req.user = user;
     req.userId = decoded.userId;
     req.adminId = user.role === 'admin' ? decoded.userId : null; // Attach adminId if role is admin
+    req.hrID =  decoded.adminId; // Attach hrID if role is hr
 
     next();
   } catch (error) {

@@ -33,6 +33,23 @@ const humanResourcesSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  documents: {
+  socialSecurity: { type: String },
+  driversLicense: { type: String },
+  greenCard: { type: String },
+  workPermit: { type: String },
+  citizenship: { type: String },
+  cprFirstAid: { type: String },
+  professionalLicenses: { type: String }
+},
+evv: [{
+  date: { type: Date },
+  location: { type: String },
+  checkInTime: { type: String },
+  checkOutTime: { type: String },
+  notes: { type: String }
+}],
+
   performanceEvaluations: [{
     date: { type: Date },
     rating: { type: Number, min: 1, max: 5 },  // 1-5 scale rating for performance

@@ -77,7 +77,115 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+const getAllUsershr = async (req, res) => {
+  try {
+    const { role, type, employeetype, availableStatus, page , limit } = req.query;
+    const adminId = req.hrID; // Get adminId from token
+    console.log("Admin ID:", adminId);
+    if (!adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin ID is missing in token",
+      });
+    }
 
+    // Convert page and limit to integers
+    const pageNumber = parseInt(page);
+    const pageSize = parseInt(limit);
+    const skip = (pageNumber - 1) * pageSize;
+
+    // Build query based on filters and adminId
+    let query = { adminId };
+
+    if (role) {
+      query.role = role;
+    }
+    if (type) {
+      query.type = type;
+    }
+    if (employeetype !== undefined) {
+      query.employeetype = employeetype === 'true'; // Convert string to boolean
+    }
+    if (availableStatus) {
+      query.availableStatus = availableStatus; // Add availableStatus to query
+    }
+
+    // Find users with pagination and exclude password
+    const users = await User.find(query, { password: 0 })
+      .sort({ createdAt: -1 }) // Sort by creation date (latest first)
+      .skip(skip)              // Skip documents for pagination
+      .limit(pageSize);        // Limit the number of documents per page
+
+    // Count total number of users matching the query
+    const totalUsers = await User.countDocuments(query);
+
+    // Count total number of nurses for this admin
+    const totalNurses = await User.countDocuments({
+      adminId,
+      role: "nurse",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      users,
+      totalNurses, // Total nurses registered by this admin
+      pagination: {
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalUsers / pageSize),
+        totalItems: totalUsers,
+        pageSize,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+
+const getAllUserswithoutuserid = async (req, res) => {
+  try {
+    const { page, limit } = req.query;
+
+    // Convert page and limit to integers or default values
+    const pageNumber = parseInt(page) || 1;
+    const pageSize = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * pageSize;
+
+    // Fetch users with pagination, excluding passwords
+    const users = await User.find({}, { password: 0 })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(pageSize);
+
+    // Total count of all users
+    const totalUsers = await User.countDocuments();
+
+    res.status(200).json({
+      success: true,
+      message: "All users retrieved successfully",
+      users,
+      pagination: {
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalUsers / pageSize),
+        totalItems: totalUsers,
+        pageSize,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
 
 
 
@@ -405,5 +513,7 @@ module.exports = {
   updateUserPassword,
   followUnFollowUser, 
   showCurrentUser,
-  getProfileByToken
+  getProfileByToken,
+  getAllUserswithoutuserid,
+  getAllUsershr
 };

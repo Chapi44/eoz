@@ -1,10 +1,53 @@
 const HumanResources = require("../model/humanResources");
+const baseURL = process.env.BASE_URL || "http://localhost:5000";
 
-// Add a new employee record
 const addEmployeeRecord = async (req, res) => {
   try {
-    const { employeeId, jobTitle, department, dateOfHire, salary, payrollDetails } = req.body;
-    const hrId = req.userId
+    const {
+      employeeId,
+      jobTitle,
+      department,
+      dateOfHire,
+      salary,
+      payrollDetails,
+      evv
+    } = req.body;
+
+    const hrId = req.userId;
+
+    // Safely parse payrollDetails
+    let parsedPayroll = {};
+    if (payrollDetails) {
+      try {
+        parsedPayroll = JSON.parse(payrollDetails);
+      } catch (err) {
+        return res.status(400).json({ message: "Invalid payrollDetails format. Must be valid JSON." });
+      }
+    }
+
+    // Safely parse evv
+    let parsedEVV = [];
+    if (evv) {
+      try {
+        parsedEVV = JSON.parse(evv);
+        if (!Array.isArray(parsedEVV)) {
+          return res.status(400).json({ message: "EVV must be a JSON array." });
+        }
+      } catch (err) {
+        return res.status(400).json({ message: "Invalid EVV format. Must be a JSON array." });
+      }
+    }
+
+    // Handle document uploads
+    const documentPaths = {
+      socialSecurity: req.files['socialSecurity'] ? baseURL + "/uploads/documents/" + req.files['socialSecurity'][0].filename : null,
+      driversLicense: req.files['driversLicense'] ? baseURL + "/uploads/documents/" + req.files['driversLicense'][0].filename : null,
+      greenCard: req.files['greenCard'] ? baseURL + "/uploads/documents/" + req.files['greenCard'][0].filename : null,
+      workPermit: req.files['workPermit'] ? baseURL + "/uploads/documents/" + req.files['workPermit'][0].filename : null,
+      citizenship: req.files['citizenship'] ? baseURL + "/uploads/documents/" + req.files['citizenship'][0].filename : null,
+      cprFirstAid: req.files['cprFirstAid'] ? baseURL + "/uploads/documents/" + req.files['cprFirstAid'][0].filename : null,
+      professionalLicenses: req.files['professionalLicenses'] ? baseURL + "/uploads/documents/" + req.files['professionalLicenses'][0].filename : null,
+    };
 
     const newRecord = new HumanResources({
       employeeId,
@@ -12,8 +55,10 @@ const addEmployeeRecord = async (req, res) => {
       department,
       dateOfHire,
       salary,
-      payrollDetails,
-      hrId
+      payrollDetails: parsedPayroll,
+      hrId,
+      documents: documentPaths,
+      evv: parsedEVV
     });
 
     const savedRecord = await newRecord.save();
@@ -29,14 +74,33 @@ const updateEmployeeInfo = async (req, res) => {
     const { id } = req.params;
     const updatedData = req.body;
 
+    // Fetch existing record to preserve current document paths
+    const existingRecord = await HumanResources.findById(id);
+    if (!existingRecord) {
+      return res.status(404).json({ message: "Employee record not found" });
+    }
+
+    const documentPaths = {
+      socialSecurity: req.files['socialSecurity'] ? baseURL + "/uploads/documents/" + req.files['socialSecurity'][0].filename : existingRecord.documents?.socialSecurity,
+      driversLicense: req.files['driversLicense'] ? baseURL + "/uploads/documents/" + req.files['driversLicense'][0].filename : existingRecord.documents?.driversLicense,
+      greenCard: req.files['greenCard'] ? baseURL + "/uploads/documents/" + req.files['greenCard'][0].filename : existingRecord.documents?.greenCard,
+      workPermit: req.files['workPermit'] ? baseURL + "/uploads/documents/" + req.files['workPermit'][0].filename : existingRecord.documents?.workPermit,
+      citizenship: req.files['citizenship'] ? baseURL + "/uploads/documents/" + req.files['citizenship'][0].filename : existingRecord.documents?.citizenship,
+      cprFirstAid: req.files['cprFirstAid'] ? baseURL + "/uploads/documents/" + req.files['cprFirstAid'][0].filename : existingRecord.documents?.cprFirstAid,
+      professionalLicenses: req.files['professionalLicenses'] ? baseURL + "/uploads/documents/" + req.files['professionalLicenses'][0].filename : existingRecord.documents?.professionalLicenses,
+    };
+
+    // Parse EVV if provided
+    if (updatedData.evv && typeof updatedData.evv === 'string') {
+      updatedData.evv = JSON.parse(updatedData.evv);
+    }
+
+    updatedData.documents = documentPaths;
+
     const updatedRecord = await HumanResources.findByIdAndUpdate(id, updatedData, {
       new: true,
       runValidators: true,
     });
-
-    if (!updatedRecord) {
-      return res.status(404).json({ message: "Employee record not found" });
-    }
 
     res.status(200).json({ message: "Employee information updated successfully", data: updatedRecord });
   } catch (error) {

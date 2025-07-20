@@ -10,7 +10,9 @@ const {
   getFollowing,
   searchUserByUsername,
   showCurrentUser,
-  getProfileByToken
+  getProfileByToken,
+  getAllUserswithoutuserid,
+  getAllUsershr
 } = require("../controller/usercontroller");
 const {
   authMiddleware,
@@ -28,6 +30,16 @@ router.get(
   getAllUsers
 );
 
+router.get(
+  "/getallusershr",
+  authMiddleware,
+  getAllUsershr
+);
+router.get(
+  "/all",
+  
+  getAllUserswithoutuserid
+);
 router.get(
   "/getuserById/:id",
   getUserById

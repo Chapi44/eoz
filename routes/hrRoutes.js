@@ -1,4 +1,6 @@
 const express = require("express");
+const multer = require("multer");
+const path = require("path");
 const {
   addEmployeeRecord,
   updateEmployeeInfo,
@@ -16,11 +18,57 @@ const {
 
 const router = express.Router();
 
-// Add a new employee record
-router.post("/hr/addEmployee", authMiddleware, addEmployeeRecord);
+// Multer storage configuration
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    if (file.fieldname === "pictures") {
+      cb(null, 'uploads/profilepic/');
+    } else if (
+      [
+        "socialSecurity",
+        "driversLicense",
+        "greenCard",
+        "workPermit",
+        "citizenship",
+        "cprFirstAid",
+        "professionalLicenses"
+      ].includes(file.fieldname)
+    ) {
+      cb(null, 'uploads/documents/');
+    } else if (file.fieldname === "shopImage") {
+      cb(null, 'uploads/shopImage/');
+    } else if (file.fieldname === "brochureImage") {
+      cb(null, 'uploads/brochureImage/');
+    } else {
+      cb(null, 'uploads/');
+    }
+  },
+  filename: function (req, file, cb) {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);   // ✅ Safe extension
+    const baseName = file.fieldname;               // use field name as prefix
+    cb(null, `${baseName}-${timestamp}${ext}`);    // final format
+  }
+});
 
-// Update employee information
-router.put("/hr/updateEmployee/:id",authMiddleware, updateEmployeeInfo);
+
+const upload = multer({ storage });
+
+// Fields expected in upload
+const uploadFields = upload.fields([
+  { name: 'socialSecurity', maxCount: 1 },
+  { name: 'driversLicense', maxCount: 1 },
+  { name: 'greenCard', maxCount: 1 },
+  { name: 'workPermit', maxCount: 1 },
+  { name: 'citizenship', maxCount: 1 },
+  { name: 'cprFirstAid', maxCount: 1 },
+  { name: 'professionalLicenses', maxCount: 1 }
+]);
+
+
+// HR routes
+router.post("/hr/addEmployee", authMiddleware, uploadFields, addEmployeeRecord);
+router.put("/hr/updateEmployee/:id", authMiddleware, uploadFields, updateEmployeeInfo);
 
 // Add a performance evaluation for an employee
 router.post("/hr/addEvaluation/:id", authMiddleware, addPerformanceEvaluation);

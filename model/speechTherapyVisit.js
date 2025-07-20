@@ -28,11 +28,11 @@ const speechTherapyVisitSchema = mongoose.Schema(
       start: { type: Date, required: true },
       end: { type: Date, required: true },
     },
-    physician: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    // physician: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
     treatmentDiagnosis: { type: String },
     subjective: { type: String },
     homeboundReason: {
