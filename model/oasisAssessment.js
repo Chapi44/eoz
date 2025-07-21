@@ -21,7 +21,6 @@ const oasisAssessmentSchema = mongoose.Schema(
       type: Date,
     },
     // Demographics Section
-
     demographics: {
       firstName: { type: String },
       lastName: { type: String },
@@ -42,16 +41,42 @@ const oasisAssessmentSchema = mongoose.Schema(
       language: { type: String },
       interpreterRequired: { type: Boolean, default: false },
       paymentSource: { type: String },
+
+      // Visit Information section starts here
+      visitInformation: {
+        visitDate: { type: Date },
+        visitStartTime: { type: String }, // Store as string in "HH:mm" format, e.g. "08:30"
+        visitEndTime: { type: String }, // Store as string in "HH:mm" format
+        travelStartTime: { type: String }, // Store as string in "HH:mm" format
+        travelEndTime: { type: String }, // Store as string in "HH:mm" format
+        associatedMileage: { type: Number }, // e.g., miles or kilometers
+        surcharge: { type: Number }, // If applicable, else can be 0 or omitted
+      },
+      clinicalRecords: {
+        // Assessment Information
+        disciplineOfPersonCompletingAssessment: { type: String }, // e.g., "RN", "PT", "SLP/ST", "OT"
+        dateAssessmentCompleted: { type: Date },
+
+        // Reason for Assessment (radio)
+        reasonForAssessment: { type: String }, // e.g., "01 - Start of care - further visits planned", etc.
+
+        // Dates/Timing
+        physicianOrderedStartOfCareDate: { type: Date },
+        noSpecificSOCDOrdered: { type: Boolean, default: false }, // N/A checkbox
+
+        // Episode Timing (radio)
+        episodeTiming: { type: String }, // e.g., "1 - Early", "2 - Later", "UK - Unknown", "N/A"
+      },
     },
     patientHistoryAndDiagnoses: {
       vitalSigns: {
-        temperature: { type: Number }, // Example: Temperature in Fahrenheit
-        respirations: { type: Number }, // Respirations per minute
+        temperature: { type: Number },
+        respirations: { type: Number },
         oxygenSaturation: {
-          percentage: { type: Number }, // O2 Saturation in percentage
-          method: { type: String }, // Example: "Pulse Oximeter"
+          percentage: { type: Number },
+          method: { type: String },
         },
-        pulseRate: { type: Number }, // Pulse in bpm
+        pulseRate: { type: Number },
         bloodPressure: {
           lying: { systolic: { type: Number }, diastolic: { type: Number } },
           sitting: { systolic: { type: Number }, diastolic: { type: Number } },
@@ -62,7 +87,34 @@ const oasisAssessmentSchema = mongoose.Schema(
           height: { type: Number }, // Height in inches
           bmi: { type: Number }, // Calculated BMI
         },
+
+        // Additional measurements unavailable (checkbox)
         additionalMeasurementsUnavailable: { type: Boolean, default: false },
+
+        // Additional Vital Signs
+        additionalVitalSigns: {
+          fastingBloodGlucose: { type: Number }, // mg/dl
+          randomBloodSugar: { type: Number }, // mg/dl
+          abdGirth: {
+            value: { type: Number }, // e.g., 102
+            unit: { type: String, enum: ["in", "cm"], default: "cm" },
+          },
+          hemoglobinA1C: { type: Number }, // %
+          date: { type: Date }, // Date of measurement
+          inrLevel: { type: Number }, // INR Level
+          proThrombinTime: { type: Number }, // Seconds
+
+          ankleCircumference: {
+            left: { type: Number },
+            right: { type: Number },
+            unit: { type: String, enum: ["in", "cm"], default: "cm" },
+          },
+          calfCircumference: {
+            left: { type: Number },
+            right: { type: Number },
+            unit: { type: String, enum: ["in", "cm"], default: "cm" },
+          },
+        },
       },
       vitalSignParameters: {
         pulseRate: {
@@ -191,12 +243,42 @@ const oasisAssessmentSchema = mongoose.Schema(
     // Risk Assessment Section
     riskAssessment: {
       shinglesVaccination: {
-        received: { type: Boolean, default: false },
+        // At start of care, does patient report EVER receiving the shingles vaccine?
+        received: { type: Boolean, default: false }, // If true, you could add a field for immunization log if needed
+
+        // If "No"
+        notReceived: {
+          offeredToPatient: {
+            type: String,
+            enum: ["yes", "no", ""],
+            default: "",
+          }, // Did you offer to administer? "yes", "no"
+          patientDeclined: {
+            declined: { type: Boolean, default: false }, // Patient declined the vaccine?
+            declineReason: { type: String }, // Reason for declining, from dropdown/select
+          },
+        },
       },
-      immunizationLog: {
-        activeImmunizations: [{ type: String }],
-        declinedImmunizations: [{ type: String }],
-      },
+immunizationLog: {
+  activeImmunizations: [
+    {
+      typeOfImmunization: String,
+      administeredBy: String,
+      dateAdministered: Date,
+      additionalNotes: String,
+    },
+  ],
+
+  declinedImmunizations: [
+    {
+      typeOfImmunization: String,
+      declineStatus: String,        // "Declined" or "Contraindicated"
+      dateDocumented: Date,
+      declineReason: String,        // Dropdown value for reason
+      notes: String,                // Free-text notes
+    },
+  ],
+},
       potentialRiskForInfection: {
         performed: { type: Boolean, default: false },
         predictors: {
@@ -736,9 +818,13 @@ const oasisAssessmentSchema = mongoose.Schema(
     },
 
     supportiveAssistance: {
-      culturalPreferences: {
-        spiritualOrCulturalPractice: { type: Boolean, default: false },
-      },
+culturalPreferences: {
+  spiritualOrCulturalPractice: {
+    checked: { type: Boolean, default: false },   // Checkbox for spiritual/cultural practice
+    value: { type: String },                      // Free text input (description of practice)
+  },
+  none: { type: Boolean, default: false },        // Checkbox for "None"
+},
       transportation: {
         lackOfTransportation: [{ type: String }], // Example: "Yes, It Has Kept Me From Medical Appointments"
       },
@@ -747,12 +833,15 @@ const oasisAssessmentSchema = mongoose.Schema(
       },
       planOfCare_psychosocialAssessment: {
         noProblemsIdentified: { type: Boolean, default: false },
-        homeEnvironmentAltered: { type: String }, // store selected sub-option as a string, e.g. "Low/no income"
-        suspectedAbuseNeglect: { type: String }, // store description or details as a string
-        barriersToHealthStatus: { type: String }, // store description or details as a string
-        communityResourcesNeeded: { type: String }, // store description or details as a string
+        homeEnvironmentAltered: [{ type: String }], // store selected sub-option as a string, e.g. "Low/no income"
+        suspectedAbuseNeglect: [{ type: String }], // store description or details as a string
+        barriersToHealthStatus: [{ type: String }], // store description or details as a string
+        communityResourcesNeeded: [{ type: String }], // store description or details as a string
         communityResourcesProvidingAssistance: { type: String }, // store description or details as a string
         comments: { type: String }, // free-text comments field
+      },
+      PlanofCareCaregiverStatus:{
+       type: String, // Example: "Patient lives alone", "Patient lives with others"
       },
       psychosocialAssessment: {
         noProblemsIdentified: { type: Boolean, default: false },
@@ -786,7 +875,7 @@ const oasisAssessmentSchema = mongoose.Schema(
           proneToSkinBreakdown: { type: Boolean, default: false },
           properBiohazardWasteHandling: { type: Boolean, default: false },
           sharpsSafety: { type: Boolean, default: false },
-          infectionControl: { type: Boolean, default: false },
+          infectionControl: [{ type: String }],
           aspirationPrecautions: { type: Boolean, default: false },
           dmeAndElectricalSafety: { type: Boolean, default: false },
           bleedingPrecautions: { type: Boolean, default: false },
@@ -802,7 +891,7 @@ const oasisAssessmentSchema = mongoose.Schema(
           supportDuringTransferAndAmbulation: { type: Boolean, default: false },
           useOfAssistiveDevices: { type: Boolean, default: false },
           keepPathwaysClear: { type: Boolean, default: false },
-          presenceOfAnimals: { type: Boolean, default: false },
+          presenceOfAnimals: { type: String},
           other: { type: String }, // Free-text for additional safety measures
         },
       },
@@ -849,17 +938,45 @@ const oasisAssessmentSchema = mongoose.Schema(
     },
 
     sensoryStatus: {
-      sensoryAssessment: {
-        noProblemsIdentified: { type: Boolean, default: false },
-        ringingInEars: { type: Boolean, default: false },
-        hearingImpaired: { type: Boolean, default: false },
-        earDrainage: { type: Boolean, default: false },
-        slurredSpeech: { type: Boolean, default: false },
-        aphasia: { type: Boolean, default: false },
-        painInEars: { type: Boolean, default: false },
-        abnormalPupilsOrVision: { type: Boolean, default: false },
-        comments: { type: String },
+ sensoryAssessment: {
+    noProblemsIdentified: { type: Boolean, default: false },
+    ringingInEars: { type: Boolean, default: false },
+    hearingImpaired: {
+      checked: { type: Boolean, default: false },
+      details: {
+        deaf: { type: Boolean, default: false },
+        hearingImpairedBilateral: { type: Boolean, default: false },
+        hearingImpairedLeft: { type: Boolean, default: false },
+        hearingImpairedRight: { type: Boolean, default: false },
+        hearingAidBilateral: { type: Boolean, default: false },
+        hearingAidLeft: { type: Boolean, default: false },
+        hearingAidRight: { type: Boolean, default: false },
       },
+    },
+    earDrainage: { type: Boolean, default: false },
+    painInEars: { type: Boolean, default: false },
+    slurredSpeech: { type: Boolean, default: false },
+    aphasia: {
+      checked: { type: Boolean, default: false },
+      type: { type: String }, // Dropdown value for Aphasia type
+    },
+    abnormalPupilsOrVision: {
+      checked: { type: Boolean, default: false },
+      details: {
+        blind: { type: Boolean, default: false },
+        blurredVision: { type: Boolean, default: false },
+        cataract: { type: Boolean, default: false },
+        glaucoma: { type: Boolean, default: false },
+        legallyBlind: { type: Boolean, default: false },
+        lowVision: { type: Boolean, default: false }, // partially blind
+        macularDegeneration: { type: Boolean, default: false },
+        pupilsNonReactive: { type: Boolean, default: false },
+        pupilsSluggish: { type: Boolean, default: false },
+        wearsCorrectiveLenses: { type: Boolean, default: false },
+      },
+    },
+    comments: { type: String },
+  },
       hearing: {
         abilityToHear: {
           type: String, // Options: "Adequate", "Minimal difficulty", "Moderate difficulty", "Highly impaired", "No information available"
@@ -872,10 +989,40 @@ const oasisAssessmentSchema = mongoose.Schema(
       },
     },
     painStatus: {
-      painAssessment: {
-        interferesWithActivity: { type: String }, // Example: "Yes", "No", "Unknown"
-        comments: { type: String },
-      },
+painAssessment: {
+  hadAnyPain: { type: String }, // e.g., "Yes", "No", "Unable to communicate"
+  primarySite: { type: String }, // e.g., "Lower back", only required if Yes
+  currentPainIntensity: { type: String }, // e.g., "0", "2", "4", "6", "8", "10"
+  pastWeekLeastPainIntensity: { type: String }, // e.g., "0", "2", "4", etc.
+  pastWeekMostPainIntensity: { type: String }, // e.g., "0", "2", "4", etc.
+  interferesWithActivity: { type: String }, // e.g., "Not at all", "A little", "Moderately", "Extremely"
+  painDescription: [{ type: String }], // e.g., ["Aching", "Sharp", "Other: ..."]
+  nonverbalPainCues: [{ type: String }], // e.g., ["Grimacing", "Crying", "Other: ..."]
+  painReliefMeasures: [{ type: String }], // e.g., ["Medication", "Rest", "Other: ..."]
+  painManagementEffectiveness: [{ type: String }], // e.g., ["Improvement in mood", "Decline in sleep pattern"]
+  potentialAberrantBehavior: [{ type: String }], // e.g., ["Appears intoxicated", "Hoarding prescriptions"]
+  comments: { type: String }, // Free text for general comments
+
+  // Nonverbal Pain Assessment Method (if unable to communicate)
+  nonverbalPainAssessment: {
+    method: { type: String }, // e.g., "Wong-Baker", "PAINAD", null if not used
+    wongBakerLevel: { type: String }, // e.g., "0", "2", "4", etc.
+    // PAINAD specific
+    painad: {
+      breathing: { type: String }, // e.g., "Normal", "Occasional labored breathing", ...
+      negativeVocalization: { type: String }, // e.g., "None", "Occasional moan/groan", ...
+      facialExpression: { type: String }, // e.g., "Smiling or inexpressive", ...
+      bodyLanguage: { type: String }, // e.g., "Relaxed", "Tense", ...
+      consolability: { type: String }, // e.g., "No need to console", ...
+      totalScore: { type: Number }, // Calculated PAINAD total
+    },
+  },
+
+  // Additional questions if unable to communicate
+  unableToCommunicate: { type: Boolean, default: false }, // True if this is the scenario
+  impactOnDailyLiving: { type: String }, // "How does pain interfere or impact..."
+  painReliefEffectiveness: { type: String }, // "Current pain relief measures/effectiveness?"
+},
       painEffectOnSleep: {
         type: String, // Example: "Does not apply", "Rarely or not at all", "Occasionally", "Frequently", "Almost constantly", "Unable to answer"
       },
@@ -948,7 +1095,7 @@ const oasisAssessmentSchema = mongoose.Schema(
         jaundice: { type: Boolean, default: false },
         pallor: { type: Boolean, default: false },
         rash: { type: Boolean, default: false },
-        wounds: { type: Boolean, default: false },
+        wounds: [{ type: String}],
         poorTurgor: { type: Boolean, default: false },
         pruritus: { type: Boolean, default: false },
         incision: { type: Boolean, default: false },
@@ -963,30 +1110,84 @@ const oasisAssessmentSchema = mongoose.Schema(
         incontinence: { type: String }, // Values: None, Occasional, Usually Urinary, Urinary and Fecal
         totalscore: { type: String },
       },
-      pressureUlcer: {
-        hasUnhealedPressureUlcer: { type: Boolean, default: false }, // Yes or No
-        ulcerCount: { type: Number, default: 0 }, // Example: 0, 1, 2, etc.
-        ulcerStages: {
-          stage1: { type: Boolean, default: false },
-          stage2: { type: Boolean, default: false },
-          stage3: { type: Boolean, default: false },
-          stage4: { type: Boolean, default: false },
-        },
-      },
-      stasisUlcer: {
-        hasStasisUlcer: { type: Boolean, default: false }, // Yes or No
-        description: {
-          observable: { type: Boolean, default: false },
-          unobservable: { type: Boolean, default: false },
-        },
-      },
-      surgicalWound: {
-        hasSurgicalWound: { type: Boolean, default: false }, // Yes or No
-        description: {
-          observable: { type: Boolean, default: false },
-          unobservable: { type: Boolean, default: false },
-        },
-      },
+pressureUlcer: {
+  // M1306: Does patient have at least one Unhealed Pressure Ulcer/Injury at Stage 2 or Higher?
+  hasUnhealedPressureUlcerStage2OrHigher: { type: String }, // "Yes" | "No"
+
+  // When "No" is selected (all others can be null/empty):
+  // - M1322: Current Number of Stage 1 Pressure Injuries
+  stage1PressureInjuryCount: { type: String }, // e.g., "0 - Zero", "1 - One", etc.
+
+  // - M1324: Stage of Most Problematic Unhealed Pressure Ulcer/Injury that is Stageable
+  mostProblematicUlcerStage: { type: String }, // e.g., "N/A", "Stage 1", "Stage 2", "Stage 3", "Stage 4"
+
+  // When "Yes" is selected, expose these additional properties:
+  // - M1311: Current Number of Unhealed Pressure Ulcers/Injuries at Each Stage
+  stage2UlcerCount: { type: String }, // Number currently present as string, e.g., "1"
+  stage3UlcerCount: { type: String },
+  stage4UlcerCount: { type: String },
+
+  // D1: Number of unstageable pressure ulcers/injuries due to non-removable dressing/device
+  unstageableDeviceUlcerCount: { type: String },
+
+  // E1: Number of unstageable pressure ulcers due to coverage of wound bed by slough and/or eschar
+  unstageableSloughUlcerCount: { type: String },
+
+  // F1: Number of unstageable pressure ulcers with suspected deep tissue injury in evolution
+  unstageableDeepTissueUlcerCount: { type: String },
+
+  // - M1322 (Always visible): Current Number of Stage 1 Pressure Injuries
+  stage1PressureInjuryCountYes: { type: String }, // e.g., "0 - Zero", "1 - One", etc.
+
+  // - M1324: Stage of Most Problematic Unhealed Pressure Ulcer/Injury that is Stageable
+  mostProblematicUlcerStageYes: { type: String }, // "Stage 1", "Stage 2", etc.
+},
+
+stasisUlcer: {
+  // M1330: Does this patient have a Stasis Ulcer?
+  stasisUlcerStatus: { 
+    type: String 
+    // Possible values:
+    // "0 - No",
+    // "1 - Yes, patient has BOTH observable and unobservable stasis ulcers",
+    // "2 - Yes, patient has observable stasis ulcers ONLY",
+    // "3 - Yes, patient has unobservable stasis ulcers ONLY (known but not observable due to non-removable dressing/device)"
+  },
+
+  // M1332: Current Number of Stasis Ulcer(s) that are Observable
+  observableUlcerCount: { 
+    type: String 
+    // Possible values: "1 - One", "2 - Two", "3 - Three", "4 - Four or more"
+  },
+
+  // M1334: Status of Most Problematic Stasis Ulcer that is Observable
+  mostProblematicUlcerStatus: { 
+    type: String
+    // Possible values: "1 - Fully granulating", "2 - Early/partial granulation", "3 - Not healing"
+  }
+},
+
+surgicalWound: {
+  // M1340: Does this patient have a Surgical Wound?
+  surgicalWoundStatus: {
+    type: String
+    // Possible values:
+    // "0 - No"
+    // "1 - Yes, patient has at least one observable surgical wound"
+    // "2 - Surgical wound known but not observable due to non-removable dressing/device"
+  },
+
+  // M1342: Status of Most Problematic Surgical Wound that is Observable
+  mostProblematicWoundStatus: {
+    type: String
+    // Possible values:
+    // "0 - Newly epithelialized"
+    // "1 - Fully granulating"
+    // "2 - Early/partial granulation"
+    // "3 - Not healing"
+  }
+},
+
 
       ordersForDisciplineAndTreatment: {
         alterationInIntegumentaryStatus: {
@@ -1193,17 +1394,17 @@ const oasisAssessmentSchema = mongoose.Schema(
         orthopnea: { type: Boolean, default: false },
 
         abnormalBreathSounds: {
-          checked: { type: Boolean, default: false },
-          absent: { type: Boolean, default: false },
-          cracklesRales: { type: Boolean, default: false },
-          diminished: { type: Boolean, default: false },
-          rhonchi: { type: Boolean, default: false },
-          stridor: { type: Boolean, default: false },
-          wheezing: { type: Boolean, default: false },
+          checked: { type: String },
+          absent: { type: String },
+          cracklesRales: { type: String },
+          diminished: { type: String },
+          rhonchi: { type: String },
+          stridor: { type: String },
+          wheezing: { type: String },
         },
 
         dyspnea: { type: Boolean, default: false },
-        coughNonproductive: { type: Boolean, default: false },
+        coughNonproductive: { type: String },
         coughProductive: {
           checked: { type: Boolean, default: false },
           sputumDescription: { type: String }, // amount and color
@@ -1523,7 +1724,7 @@ const oasisAssessmentSchema = mongoose.Schema(
         // Abnormal heart rhythm
         abnormalHeartRhythm: {
           checked: { type: Boolean, default: false },
-          arrhythmiaDysrhythmia: { type: Boolean, default: false },
+          arrhythmiaDysrhythmia: [{ type:String }],
           bradycardia: { type: Boolean, default: false },
           tachycardia: { type: Boolean, default: false },
           other: { type: String },
@@ -2613,6 +2814,7 @@ const oasisAssessmentSchema = mongoose.Schema(
         fallAssessmentTotal: { type: Number, default: 0 }, // Fall Assessment Total
         // Optionally, add a date, assessor name, or notes field if needed
         notes: { type: String },
+        TUG:{type: String}
       },
 
       grooming: {
@@ -2898,6 +3100,8 @@ const oasisAssessmentSchema = mongoose.Schema(
         },
       },
     },
+
+
     functionalAbilitiesGoals: {
       priorFunctioningEverydayActivities: {
         selfCare: { type: String }, // E.g., "Independent", "Needs Assistance", Depenedent, Unknown, NotApplicable
@@ -3004,7 +3208,18 @@ const oasisAssessmentSchema = mongoose.Schema(
           socRocPerformance: { type: String },
           dischargeGoal: { type: String },
         },
-        usesWheelchairScooter: { type: Boolean, default: false },
+        wheelchairOrScooterUse: {
+  use: { type: String }, // "No", "Yes", "No information available"
+  wheel50FeetWithTwoTurns: {
+    socRocPerformance: { type: String }, // Dropdown selection
+    typeUsed: { type: String }, // "Manual", "Motorized"
+  },
+  wheel150Feet: {
+    socRocPerformance: { type: String }, // Dropdown selection
+    typeUsed: { type: String }, // "Manual", "Motorized"
+  }
+}
+
       },
       comments: { type: String }, // Field for additional comments
       ordersForDisciplineAndTreatment: {
@@ -3235,10 +3450,25 @@ const oasisAssessmentSchema = mongoose.Schema(
       assessment: {
         noProblemsIdentified: { type: Boolean, default: false },
         anemia: { type: Boolean, default: false },
-        cancer: { type: Boolean, default: false },
+        cancer: { type: String},
         hypothyroidism: { type: Boolean, default: false },
         hyperthyroidism: { type: Boolean, default: false },
-        diabetes: { type: Boolean, default: false },
+        diabetes: {
+  bloodSugarsPerformedBy: { type: String }, // Person performing blood sugars
+  fastingBloodSugar: {
+    from: { type: String }, // mg/dl value
+    to: { type: String },   // mg/dl value
+  },
+  randomBloodSugar: {
+    from: { type: String }, // mg/dl value
+    to: { type: String },   // mg/dl value
+  },
+  statusUnknown: { type: String }, // "Yes" or empty
+  symptoms: [{ type: String }], // e.g. ["S/S of hyperglycemia", "S/S of hypoglycemia"]
+  diabeticFootCareNotFollowed: { type: String }, // "Yes" or empty
+  diabeticManagement: { type: String }, // "Yes" or empty
+}
+
       },
       comments: { type: String }, // Field to store additional comments
       ordersForDisciplineAndTreatment: {
@@ -3917,12 +4147,12 @@ const oasisAssessmentSchema = mongoose.Schema(
       highRiskDrugs: {
         isTaking: { type: Boolean, default: false },
         categories: {
-          antipsychotic: { type: Boolean, default: false },
-          anticoagulant: { type: Boolean, default: false },
-          antibiotic: { type: Boolean, default: false },
-          opioid: { type: Boolean, default: false },
-          antiepileptic: { type: Boolean, default: false },
-          hypoglycemics: { type: Boolean, default: false },
+          antipsychotic: { type: String },
+          anticoagulant: { type: String },
+          antibiotic: { type: String },
+          opioid: { type: String },
+          antiepileptic: { type: String },
+          hypoglycemics: { type: String },
           noneOfTheAbove: { type: Boolean, default: false },
         },
         indicationNeeded: { type: Boolean, default: false },
