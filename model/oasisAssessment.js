@@ -2282,6 +2282,170 @@ const oasisAssessmentSchema = mongoose.Schema(
             },
           },
         },
+        alterationInGastrointestinalStatus: {
+          checked: { type: Boolean, default: false }, // Main checkbox for section
+          notes: { type: String }, // Plan of Care notes
+
+          interventions: {
+            teachColostomy: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            teachIleostomy: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            teachConstipation: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            teachBowelTraining: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            teachGastrostomyTubeManagement: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            teachJejunostomyTubeManagement: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            performGastrostomyJejunostomyTubeFeeding: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            performImpactionRemovalFollowUpEnema: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            additionalGastrointestinalOrders: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+          },
+
+          goals: {
+            returnToStableGastrointestinalStatus: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            optimalBowelEvacuation: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            effectiveOstomyTubeFeedingManagement: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            essentialNutritionViaEnteralFeedings: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            adherenceToOstomyTubeFeedingsRegimen: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            adaptToBodyChangesOrLimitations: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            additionalGastrointestinalGoals: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+          },
+
+          medicalNecessity: {
+            patientWithRecentHospitalizationDueToExacerbation: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            newGIDiagnosis: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            exacerbationOfDiseaseProcess: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            unstableGIStatus: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            bowelTrainingProgram: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            newOrChangedMedications: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            newColostomyIleostomy: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            colostomyIleostomyComplications: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            expoundUponPatientsGIStatus: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            additionalMedicalNecessity: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+          },
+
+          homeboundNarrative: {
+            postOstomySurgicalPain: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            bedboundWithTubeFeeding: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            postDialysisFatigue: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            unableToNegotiateStairsSafely: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            impairedMentalStatus: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            taxingEffortToLeaveHome: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            patientBedboundUnableToSitInChair: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            patientChairboundRequiresAssistance: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            patientChairboundButTaxingEffort: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            furtherDescriptionInabilityToLeaveHomeAlone: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+            additionalHomeboundNarrative: {
+              checked: { type: Boolean, default: false },
+              notes: { type: String },
+            },
+          },
+        },
       },
     },
     neuroEmotionalBehavioralStatus: {
