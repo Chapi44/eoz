@@ -3636,7 +3636,11 @@ const oasisAssessmentSchema = mongoose.Schema(
     endocrineHematologicalAssessment: {
       assessment: {
         noProblemsIdentified: { type: Boolean, default: false },
-        anemia: { type: Boolean, default: false },
+        anemia: {
+          checked: { type: Boolean, default: false }, // Main anemia checkbox
+          types: [{ type: String }], // Examples: ["Iron deficiency", "Vitamin B-12 deficiency", ...]
+          otherType: { type: String }, // If "Other" is checked, fill in this field
+        },
         cancer: { type: String },
         hypothyroidism: { type: Boolean, default: false },
         hyperthyroidism: { type: Boolean, default: false },
