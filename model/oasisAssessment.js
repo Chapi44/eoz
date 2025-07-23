@@ -2079,7 +2079,20 @@ const oasisAssessmentSchema = mongoose.Schema(
         hemorrhoids: { type: Boolean, default: false },
         nausea: { type: Boolean, default: false },
         tenderness: { type: Boolean, default: false },
-        abnormalBowelSounds: { type: Boolean, default: false },
+        abnormalBowelSounds: {
+          absent: {
+            checked: { type: Boolean, default: false },
+            location: { type: String }, // required if checked
+          },
+          hyperactive: {
+            checked: { type: Boolean, default: false },
+            location: { type: String }, // required if checked
+          },
+          hypoactive: {
+            checked: { type: Boolean, default: false },
+            location: { type: String }, // required if checked
+          },
+        },
         bowelIncontinence: { type: Boolean, default: false },
         distended: { type: Boolean, default: false },
         hard: { type: Boolean, default: false },
