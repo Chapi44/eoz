@@ -9,7 +9,7 @@ const communicationNoteSchema = mongoose.Schema(
     },
     physicianId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Reference to the User model for the physician
+      ref: "User", 
       required: true,
     },
    adminId: {

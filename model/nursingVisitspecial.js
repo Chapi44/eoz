@@ -4,7 +4,28 @@ const nursingVisitSchema = mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["FoleyCathChange", "INFUSION_THERAPY", "LVNHourly", "LVNVisit", "Midday_Insulin_Administration", "PRN_Nursing_Visit", "PTWithINR", "RNVisit", "SkilledNurseVisit", "SN_BMP", "SN_CBC", "SN_Diabetic_Daily", "SN_IV_Insertion", "SN_B12INJECTION", "SN_Haldol_Inj", "SN_Insulin_AM", "SN_Insulin_HS", "SN_Insulin_PM", "SN_Labs", "SN_WoundCare_Visit"],
+      enum: [
+        "FoleyCathChange",
+        "INFUSION_THERAPY",
+        "LVNHourly",
+        "LVNVisit",
+        "Midday_Insulin_Administration",
+        "PRN_Nursing_Visit",
+        "PTWithINR",
+        "RNVisit",
+        "SkilledNurseVisit",
+        "SN_BMP",
+        "SN_CBC",
+        "SN_Diabetic_Daily",
+        "SN_IV_Insertion",
+        "SN_B12INJECTION",
+        "SN_Haldol_Inj",
+        "SN_Insulin_AM",
+        "SN_Insulin_HS",
+        "SN_Insulin_PM",
+        "SN_Labs",
+        "SN_WoundCare_Visit",
+      ],
       required: true,
     },
     patientId: {
@@ -13,9 +34,9 @@ const nursingVisitSchema = mongoose.Schema(
       required: true,
     },
     adminId: {
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "User",  // References the "User" model
-      required: false,  // Optional, can be removed if you want it to be required
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // References the "User" model
+      required: false, // Optional, can be removed if you want it to be required
     },
     nurseId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -74,7 +95,7 @@ const nursingVisitSchema = mongoose.Schema(
         tachypnea: { type: Boolean, default: false },
         tracheostomy: { type: Boolean, default: false },
       },
-      cardiovascular:  {
+      cardiovascular: {
         noProblemsIdentified: { type: Boolean, default: false },
         abnormalHeartRhythm: { type: Boolean, default: false },
         abnormalHeartSounds: { type: Boolean, default: false },
@@ -198,131 +219,137 @@ const nursingVisitSchema = mongoose.Schema(
         tpnOrLipids: { type: Boolean, default: false },
         weightLoss: { type: Boolean, default: false },
         weightGain: { type: Boolean, default: false },
-      }, labs: {
+      },
+      labs: {
         na: { type: Boolean, default: false }, // N/A
         bloodTestObtained: { type: Boolean, default: false },
         urineSpecimenObtained: { type: Boolean, default: false },
         woundCultureObtained: { type: Boolean, default: false },
         other: { type: String },
       },
-        // Infection Control
-  infectionControl: {
-    universalPrecautionsObserved: { type: Boolean, default: false },
-    sharpsDisposedPerBiohazard: { type: Boolean, default: false },
-    soiledWasteDisposedPerBiohazard: { type: Boolean, default: false },
-    patientDemonstratesKnowledge: { type: Boolean, default: false },
-    infectionControlSurveillance: {
-      newInfectionSuspected: { type: Boolean, default: false },
-      newInfectionDiagnosed: { type: Boolean, default: false },
-    },
-  },
+      // Infection Control
+      infectionControl: {
+        universalPrecautionsObserved: { type: Boolean, default: false },
+        sharpsDisposedPerBiohazard: { type: Boolean, default: false },
+        soiledWasteDisposedPerBiohazard: { type: Boolean, default: false },
+        patientDemonstratesKnowledge: { type: Boolean, default: false },
+        infectionControlSurveillance: {
+          newInfectionSuspected: { type: Boolean, default: false },
+          newInfectionDiagnosed: { type: Boolean, default: false },
+        },
+      },
 
-  // Homebound Status
-  homeboundStatus: {
-    mobility: {
-      ambulatory: { type: Boolean, default: false },
-      ambulatoryWithDevice: { type: Boolean, default: false },
-      bedfast: { type: Boolean, default: false },
-      chairfast: { type: Boolean, default: false },
-    },
-    assistiveDevice: {
-      cane: { type: Boolean, default: false },
-      crutches: { type: Boolean, default: false },
-      humanAssistance: { type: Boolean, default: false },
-      specialTransportation: { type: Boolean, default: false },
-      walker: { type: Boolean, default: false },
-      wheelchair: { type: Boolean, default: false },
-    },
-    homeboundNarrative: { type: String },
-  },
-  planOfCare: {
-    patientResponse: {
-      willingAble: { type: Boolean, default: false },
-      willingUnable: { type: Boolean, default: false },
-      unwilling: { type: Boolean, default: false },
-      barriersImpedingParticipation: { type: Boolean, default: false },
-    },
-    caregiverInvolvement: {
-      noCaregiver: { type: Boolean, default: false },
-      willingAble: { type: Boolean, default: false },
-      willingUnable: { type: Boolean, default: false },
-      unwilling: { type: Boolean, default: false },
-      barriersImpedingParticipation: { type: Boolean, default: false },
-    },
-    caregiverAvailability: { type: Boolean, default: false },
-    newChangedOrdersToPOCRequired: { type: Boolean, default: false },
-    newChangedOrders: { type: String },
-  },
+      // Homebound Status
+      homeboundStatus: {
+        mobility: {
+          ambulatory: { type: Boolean, default: false },
+          ambulatoryWithDevice: { type: Boolean, default: false },
+          bedfast: { type: Boolean, default: false },
+          chairfast: { type: Boolean, default: false },
+        },
+        assistiveDevice: {
+          cane: { type: Boolean, default: false },
+          crutches: { type: Boolean, default: false },
+          humanAssistance: { type: Boolean, default: false },
+          specialTransportation: { type: Boolean, default: false },
+          walker: { type: Boolean, default: false },
+          wheelchair: { type: Boolean, default: false },
+        },
+        homeboundNarrative: { type: String },
+      },
+      planOfCare: {
+        patientResponse: {
+          willingAble: { type: Boolean, default: false },
+          willingUnable: { type: Boolean, default: false },
+          unwilling: { type: Boolean, default: false },
+          barriersImpedingParticipation: { type: Boolean, default: false },
+        },
+        caregiverInvolvement: {
+          noCaregiver: { type: Boolean, default: false },
+          willingAble: { type: Boolean, default: false },
+          willingUnable: { type: Boolean, default: false },
+          unwilling: { type: Boolean, default: false },
+          barriersImpedingParticipation: { type: Boolean, default: false },
+        },
+        caregiverAvailability: { type: Boolean, default: false },
+        newChangedOrdersToPOCRequired: { type: Boolean, default: false },
+        newChangedOrders: { type: String },
+      },
 
-  // Discharge Planning
-  dischargePlanning: {
-    na: { type: Boolean, default: false },
-    discussedWithPatient: { type: Boolean, default: false },
-    noticesProvided: {
-      patientReceived: { type: Boolean, default: false },
-      legalRepresentativeReceived: { type: Boolean, default: false },
-      patientReceivedBeneficiaryNotice: { type: Boolean, default: false },
+      // Discharge Planning
+      dischargePlanning: {
+        na: { type: Boolean, default: false },
+        discussedWithPatient: { type: Boolean, default: false },
+        noticesProvided: {
+          patientReceived: { type: Boolean, default: false },
+          legalRepresentativeReceived: { type: Boolean, default: false },
+          patientReceivedBeneficiaryNotice: { type: Boolean, default: false },
+        },
+      },
+
+      // Care Coordination
+      careCoordination: {
+        coordinatedWith: { type: String },
+        regarding: { type: String },
+      },
+
+      // Health Management
+      healthManagement: {
+        medicationsReconciled: { type: Boolean, default: false },
+        newChangedMedicationsInHome: { type: Boolean, default: false },
+        medicationIssuesIdentified: { type: Boolean, default: false },
+        pillBoxPreFilled: { type: Boolean, default: false },
+        insulinSyringesPreFilled: { type: Boolean, default: false },
+        homeEnvironmentAltered: { type: Boolean, default: false },
+        suspectedAbuse: { type: Boolean, default: false },
+        barriersToHealthStatus: { type: Boolean, default: false },
+        exhibitingSignsSymptomsOfHeartFailure: {
+          type: Boolean,
+          default: false,
+        },
+        exhibitingSignsSymptomsOfOtherCoMorbidity: {
+          type: Boolean,
+          default: false,
+        },
+      },
+
+      // Plan of Care Review
+      planOfCare: {
+        patientResponse: {
+          willingAble: { type: Boolean, default: false },
+          willingUnable: { type: Boolean, default: false },
+          unwilling: { type: Boolean, default: false },
+          barriersImpedingParticipation: { type: Boolean, default: false },
+        },
+        caregiverInvolvement: {
+          noCaregiver: { type: Boolean, default: false },
+          willingAble: { type: Boolean, default: false },
+          willingUnable: { type: Boolean, default: false },
+          unwilling: { type: Boolean, default: false },
+          barriersImpedingParticipation: { type: Boolean, default: false },
+        },
+        caregiverAvailability: { type: Boolean, default: false },
+        newChangedOrdersToPOCRequired: { type: Boolean, default: false },
+        newChangedOrders: { type: String },
+      },
+
+      // Discharge Planning
+      dischargePlanning: {
+        na: { type: Boolean, default: false },
+        discussedWithPatient: { type: Boolean, default: false },
+        noticesProvided: {
+          patientReceived: { type: Boolean, default: false },
+          legalRepresentativeReceived: { type: Boolean, default: false },
+          patientReceivedBeneficiaryNotice: { type: Boolean, default: false },
+        },
+      },
+
+      // Care Coordination
+      careCoordination: {
+        coordinatedWith: { type: String },
+        regarding: { type: String },
+      },
     },
-  },
-
-  // Care Coordination
-  careCoordination: {
-    coordinatedWith: { type: String },
-    regarding: { type: String },
-  },
-
-  // Health Management
-  healthManagement: {
-    medicationsReconciled: { type: Boolean, default: false },
-    newChangedMedicationsInHome: { type: Boolean, default: false },
-    medicationIssuesIdentified: { type: Boolean, default: false },
-    pillBoxPreFilled: { type: Boolean, default: false },
-    insulinSyringesPreFilled: { type: Boolean, default: false },
-    homeEnvironmentAltered: { type: Boolean, default: false },
-    suspectedAbuse: { type: Boolean, default: false },
-    barriersToHealthStatus: { type: Boolean, default: false },
-    exhibitingSignsSymptomsOfHeartFailure: { type: Boolean, default: false },
-    exhibitingSignsSymptomsOfOtherCoMorbidity: { type: Boolean, default: false },
-  },
-
-  // Plan of Care Review
-  planOfCare: {
-    patientResponse: {
-      willingAble: { type: Boolean, default: false },
-      willingUnable: { type: Boolean, default: false },
-      unwilling: { type: Boolean, default: false },
-      barriersImpedingParticipation: { type: Boolean, default: false },
-    },
-    caregiverInvolvement: {
-      noCaregiver: { type: Boolean, default: false },
-      willingAble: { type: Boolean, default: false },
-      willingUnable: { type: Boolean, default: false },
-      unwilling: { type: Boolean, default: false },
-      barriersImpedingParticipation: { type: Boolean, default: false },
-    },
-    caregiverAvailability: { type: Boolean, default: false },
-    newChangedOrdersToPOCRequired: { type: Boolean, default: false },
-    newChangedOrders: { type: String },
-  },
-
-  // Discharge Planning
-  dischargePlanning: {
-    na: { type: Boolean, default: false },
-    discussedWithPatient: { type: Boolean, default: false },
-    noticesProvided: {
-      patientReceived: { type: Boolean, default: false },
-      legalRepresentativeReceived: { type: Boolean, default: false },
-      patientReceivedBeneficiaryNotice: { type: Boolean, default: false },
-    },
-  },
-
-  // Care Coordination
-  careCoordination: {
-    coordinatedWith: { type: String },
-    regarding: { type: String },
-  },
-    },
-
 
     careCoordination: {
       coordinatedWith: { type: String },

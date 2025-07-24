@@ -4027,7 +4027,7 @@ const oasisAssessmentSchema = mongoose.Schema(
           present: { type: Boolean, default: false }, // Main checkbox: Tube feeding present
 
           // If tube feeding is present:
-          typeOfTube: { type: String }, // e.g., "PEG", "NGT", "G-tube", etc.
+          typeOfTube: [{ type: String }], // e.g., "PEG", "NGT", "G-tube", etc.
           residualMl: { type: String }, // e.g., "120"
           feedingAmount: { type: String }, // e.g., "200 ml"
           feedingFrequency: { type: String }, // e.g., "Every 4 hours", or "Continuous"
@@ -4345,7 +4345,36 @@ const oasisAssessmentSchema = mongoose.Schema(
           hypoglycemics: { type: String },
           noneOfTheAbove: { type: Boolean, default: false },
         },
-        indicationNeeded: { type: Boolean, default: false },
+        indicationNeeded: {
+          highRiskDrugClasses: {
+            antipsychotic: {
+              isTaking: { type: Boolean, default: false },
+              indicationNoted: { type: Boolean, default: false },
+            },
+            opioid: {
+              isTaking: { type: Boolean, default: false },
+              indicationNoted: { type: Boolean, default: false },
+            },
+            anticoagulant: {
+              isTaking: { type: Boolean, default: false },
+              indicationNoted: { type: Boolean, default: false },
+            },
+            antiplatelet: {
+              isTaking: { type: Boolean, default: false },
+              indicationNoted: { type: Boolean, default: false },
+            },
+            antibiotic: {
+              isTaking: { type: Boolean, default: false },
+              indicationNoted: { type: Boolean, default: false },
+            },
+            hypoglycemic: {
+              isTaking: { type: Boolean, default: false },
+              indicationNoted: { type: Boolean, default: false },
+            },
+            noneOfTheAbove: { type: Boolean, default: false },
+            noInformationAvailable: { type: Boolean, default: false },
+          },
+        },
       },
       comments: { type: String },
       ordersForDisciplineAndTreatment: {
