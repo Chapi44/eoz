@@ -46,15 +46,59 @@ exports.createOASISAssessment = async (req, res) => {
 // Get all OASIS Assessments (sorted by createdAt and updatedAt descending)
 exports.getAllOASISAssessments = async (req, res) => {
   try {
-    const oasisAssessments = await OASISAssessment.find()
-      .populate("nurseId")
-      .populate("homeHealthAgency")
-      .sort({ createdAt: -1, updatedAt: -1 }); // Sorting by createdAt and updatedAt in descending order
+    // Pagination params
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // What you want to include in the response (projected fields)
+    const selectFields = {
+      // _id is always included by default, so no need to specify unless you want to exclude
+      patientId: 1,
+      nurseId: 1,
+      homeHealthAgency: 1,
+      assessmentDate: 1,
+      // Add demographics summary fields only!
+      'demographics.firstName': 1,
+      'demographics.lastName': 1,
+      'demographics.birthDate': 1,
+      'demographics.gender': 1,
+      'demographics.address': 1, // Or individual address lines if preferred
+      'demographics.race': 1,
+      'demographics.ethnicity': 1,
+      'demographics.language': 1,
+    };
+
+    // Get total count for pagination
+    const totalAssessments = await OASISAssessment.countDocuments();
+
+    // Find with pagination and projection
+    const oasisAssessments = await OASISAssessment.find({})
+      .select(selectFields)
+      .populate({
+        path: "patientId",
+        select: "firstName lastName gender dob primaryAddress mobilePhone mrn",
+      })
+      .populate({
+        path: "nurseId",
+        select: "name email role", // pick only what you need
+      })
+      .populate({
+        path: "homeHealthAgency",
+        select: "name address phone", // pick only what you need
+      })
+      .sort({ createdAt: -1, updatedAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
 
     res.status(200).json({
       success: true,
       message: "OASIS Assessments retrieved successfully",
       data: oasisAssessments,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalAssessments / limit),
+        totalItems: totalAssessments,
+      },
     });
   } catch (error) {
     console.error("Error retrieving OASIS Assessments:", error);
@@ -65,6 +109,8 @@ exports.getAllOASISAssessments = async (req, res) => {
     });
   }
 };
+
+
 
 // Get a single OASISAssessment by ID
 exports.getOASISAssessmentById = async (req, res) => {

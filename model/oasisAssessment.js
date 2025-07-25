@@ -4854,7 +4854,29 @@ const oasisAssessmentSchema = mongoose.Schema(
 
         // Patient Goal (large text area)
         patientGoal: { type: String },
+        CommunicationNoteSchema: {
+          patientStatus: { type: String }, // "Active", etc.
+          patientName: { type: String }, // e.g., "MBO, LILLY (LM2001)"
+          episodeAssociated: { type: String }, // e.g., "05/31/2025-07/29/2025"
+          date: { type: Date }, // e.g., 2025-07-25
 
+          physician: { type: String }, // e.g., "Smith, Andrew M.D."
+          communicationTemplate: { type: String }, // e.g., template name/ID (optional)
+          communicationText: { type: String, maxlength: 5000 },
+
+          sendNoteAsMessage: { type: Boolean, default: false }, // Checkbox
+
+          staffSignature: { type: String }, // Name or ID
+          electronicSignature: { type: String }, // Could be a digital signature or staff name
+          signatureDate: { type: Date },
+          time: { type: String }, // e.g., "14:23"
+        },
+
+        careCoordination: {
+          coordinatedCareWith: [{ type: String }], // Array of selected care partners (e.g., "Physician", "Pharmacist", etc.)
+          nameOrTitle: { type: String }, // Name or title of the person coordinated with
+          regarding: { type: String }, // Reason or subject for care coordination
+        },
         // Plan of Care Review
         planOfCareReview: {
           planOfCare: { type: Boolean, default: false },
@@ -4865,7 +4887,75 @@ const oasisAssessmentSchema = mongoose.Schema(
           },
           developedAndReviewedWithLegalRep: { type: Boolean, default: false },
         },
-
+        emergencyContact: {
+          primary: {
+            firstName: { type: String },
+            lastName: { type: String },
+            mobilePhone: { type: String },
+            alternatePhone: { type: String },
+            relationship: { type: String },
+            email: { type: String },
+            address: {
+              line1: { type: String },
+              line2: { type: String },
+              city: { type: String },
+              state: { type: String },
+              zip: { type: String },
+              zip4: { type: String },
+              county: { type: String },
+              sameAsPatientAddress: { type: Boolean, default: false },
+            },
+            isLegalRepresentative: { type: Boolean, default: false },
+            isPatientSelectedRepresentative: { type: Boolean, default: false },
+          },
+          additional: [
+            {
+              firstName: { type: String },
+              lastName: { type: String },
+              relationship: { type: String },
+              mobilePhone: { type: String },
+              alternatePhone: { type: String },
+              email: { type: String },
+              address: {
+                line1: { type: String },
+                line2: { type: String },
+                city: { type: String },
+                state: { type: String },
+                zip: { type: String },
+                zip4: { type: String },
+                county: { type: String },
+              },
+            },
+          ],
+          representativeCoordination: {
+            contactedRegardingAdmission: [
+              { type: String }, // e.g. "Legal Representative contacted...", "Patient-Selected Representative contacted...", etc.
+            ],
+          },
+          cahpsSurvey: {
+            doNotContact: { type: Boolean, default: false },
+            sameAsPrimary: { type: Boolean, default: false },
+            firstName: { type: String },
+            lastName: { type: String },
+            relationship: { type: String },
+            mobilePhone: { type: String },
+            alternatePhone: { type: String },
+            email: { type: String },
+            address: {
+              line1: { type: String },
+              line2: { type: String },
+              city: { type: String },
+              state: { type: String },
+              zip: { type: String },
+              zip4: { type: String },
+              county: { type: String },
+            },
+          },
+          contactsComments: {
+            template: { type: String },
+            comments: { type: String },
+          },
+        },
         // Plan of Care Patient Response
         patientResponse: {
           willingAbleToParticipate: { type: Boolean, default: false },
