@@ -4887,6 +4887,9 @@ const oasisAssessmentSchema = mongoose.Schema(
           },
           developedAndReviewedWithLegalRep: { type: Boolean, default: false },
         },
+
+
+
         emergencyContact: {
           primary: {
             firstName: { type: String },
@@ -4928,9 +4931,40 @@ const oasisAssessmentSchema = mongoose.Schema(
             },
           ],
           representativeCoordination: {
-            contactedRegardingAdmission: [
-              { type: String }, // e.g. "Legal Representative contacted...", "Patient-Selected Representative contacted...", etc.
-            ],
+            na: { type: Boolean, default: false },
+            legalRepresentativeContacted: {
+              checked: { type: Boolean, default: false }, 
+              options: {
+                contactedAndAvailable: { type: Boolean, default: false }, 
+                inAgreementNotAvailable: { type: Boolean, default: false }, 
+                other: {
+                  checked: { type: Boolean, default: false },
+                  text: { type: String, default: '' } 
+                }
+              }
+            },
+            declineNoticeToPatientSelected: {
+              type: Boolean,
+              default: false 
+            },
+            patientSelectedRepresentativeContacted: {
+              checked: { type: Boolean, default: false }, 
+              options: {
+                contactedAndAvailable: { type: Boolean, default: false },
+                sentCopy: { type: Boolean, default: false }, 
+                other: {
+                  checked: { type: Boolean, default: false },
+                  text: { type: String, default: '' }
+                }
+              }
+            },
+            legalRepresentativeNotInAgreement: {
+              checked: { type: Boolean, default: false },
+              options: {
+                physicianNotified: { type: Boolean, default: false },
+                patientNotified: { type: Boolean, default: false }
+              }
+            }
           },
           cahpsSurvey: {
             doNotContact: { type: Boolean, default: false },
@@ -4956,6 +4990,10 @@ const oasisAssessmentSchema = mongoose.Schema(
             comments: { type: String },
           },
         },
+
+
+
+
         // Plan of Care Patient Response
         patientResponse: {
           willingAbleToParticipate: { type: Boolean, default: false },
