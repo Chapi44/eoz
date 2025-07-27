@@ -5,25 +5,32 @@ const ptEvaluationSchema = mongoose.Schema(
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Patients",
-      required: true,
     },
     adminId: {
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "User",  // References the "User" model
-      required: false,  // Optional, can be removed if you want it to be required
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     nurseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
-    visitDate: { type: Date, required: true },
-    timeIn: { type: String },
-    timeOut: { type: String },
     episodePeriod: {
-      start: { type: Date, required: true },
-      end: { type: Date, required: true },
+      start: { type: Date },
+      end: { type: Date },
     },
+    visitDate: { type: Date },
+    visitStartTime: { type: String, default: "" },
+    visitEndTime: { type: String, default: "" },
+    travelStartTime: { type: String, default: "" },
+    travelEndTime: { type: String, default: "" },
+    primaryDiagnosis: { type: String, default: "" },
+    // RIGHT COLUMN
+    previousNotes: { type: String, default: "" }, // can be an ObjectId if referencing another doc
+    physician: { type: String, default: "" }, // Or ObjectId if referencing User
+    associatedMileage: { type: String, default: "" },
+    surcharge: { type: String, default: "" },
+    secondaryDiagnosis: { type: String, default: "" },
+    sendAsOrder: { type: Boolean, default: false }, // Checkbox
     vitalSigns: {
       sbp: { type: String },
       dbp: { type: String },
@@ -111,6 +118,46 @@ const ptEvaluationSchema = mongoose.Schema(
       },
       comment: { type: String, default: "" }, // Free-text field for additional comments
     },
+    transfer: {
+      na: { type: Boolean, default: false }, // N/A checkbox
+
+      bedChair: {
+        assistance: { type: String, default: "" },
+        assistiveDevice: { type: String, default: "" },
+      },
+      chairBed: {
+        assistance: { type: String, default: "" },
+        assistiveDevice: { type: String, default: "" },
+      },
+      chairToWC: {
+        assistance: { type: String, default: "" },
+        assistiveDevice: { type: String, default: "" },
+      },
+      toiletOrBSC: {
+        assistance: { type: String, default: "" },
+        assistiveDevice: { type: String, default: "" },
+      },
+      carVan: {
+        assistance: { type: String, default: "" },
+        assistiveDevice: { type: String, default: "" },
+      },
+      tubShower: {
+        assistance: { type: String, default: "" },
+        assistiveDevice: { type: String, default: "" },
+      },
+
+      sittingBalance: {
+        static: { type: String, default: "" },
+        dynamic: { type: String, default: "" },
+      },
+      standBalance: {
+        static: { type: String, default: "" },
+        dynamic: { type: String, default: "" },
+      },
+
+      commentTemplate: { type: String, default: "" }, // Dropdown for comment template
+      comments: { type: String, default: "" }, // Free text comment
+    },
     wb: {
       na: { type: Boolean, default: false }, // Checkbox for "N/A"
       status: { type: String, default: "" }, // Weight-bearing status description
@@ -129,7 +176,7 @@ const ptEvaluationSchema = mongoose.Schema(
       na: { type: Boolean, default: false }, // Checkbox for "N/A"
       details: { type: String, default: "" }, // Free-text field for assessment details
     },
-    
+
     gaitAnalysis: {
       level: { type: String, default: "" },
       unlevel: { type: String, default: "" },
@@ -173,31 +220,61 @@ const ptEvaluationSchema = mongoose.Schema(
       onset: { type: String, default: "" },
     },
     treatmentPlan: {
+      frequencyAndDuration: { type: String, default: "" }, // Top Frequency & Duration field
+
+      // Left column options
       therapeuticExercise: { type: Boolean, default: false },
-      bedMobilityTraining: { type: Boolean, default: false },
-      transferTraining: { type: Boolean, default: false },
       balanceTraining: { type: Boolean, default: false },
-      gaitTraining: { type: Boolean, default: false },
-      neuromuscularReeducation: { type: Boolean, default: false },
+      functionalMobilityTraining: { type: Boolean, default: false },
+      teachFallPreventionSafety: { type: Boolean, default: false },
       proprioceptiveTraining: { type: Boolean, default: false },
-      posturalControlTraining: { type: Boolean, default: false },
       relaxationTechnique: { type: Boolean, default: false },
-      teachSafeEffectiveBreathing: { type: Boolean, default: false }, // Adjusted for clarity
-      teachEnergyConservation: { type: Boolean, default: false }, // Simplified for clarity
-      teachHipPrecaution: { type: Boolean, default: false }, // Unified naming style
-      electricalStimulation: { type: Boolean, default: false },
-      ultrasound: { type: Boolean, default: false },
-      tens: { type: Boolean, default: false }, // Transcutaneous Electrical Nerve Stimulation
-      pulseOximetryPRN: { type: Boolean, default: false }, // Standardized casing
-      other: { type: String, default: "" }, // Free-text for additional treatments
-      bodyParts: [
-        {
-          name: { type: String, default: "" }, // Name of the body part
-          duration: { type: String, default: "" }, // Duration for treatment
-        },
-      ],
+
+      // Electrical stimulation group
+      electricalStimulation: {
+        checked: { type: Boolean, default: false },
+        bodyParts: { type: String, default: "" },
+        duration: { type: String, default: "" },
+      },
+
+      ultrasound: {
+        checked: { type: Boolean, default: false },
+        bodyParts: { type: String, default: "" },
+        duration: { type: String, default: "" },
+      },
+
+      tens: {
+        checked: { type: Boolean, default: false },
+        bodyParts: { type: String, default: "" },
+        duration: { type: String, default: "" },
+      },
+
+      prostheticTraining: { type: Boolean, default: false },
+
+      // Center column options
+      bedMobilityTraining: { type: Boolean, default: false },
+      gaitTraining: { type: Boolean, default: false },
+      teachSafeEffectiveUseOfAdaptiveAssistDevice: {
+        type: Boolean,
+        default: false,
+      },
+      establishUpgradeHomeExerciseProgram: { type: Boolean, default: false },
+      posturalControlTraining: { type: Boolean, default: false },
+      teachSafeEffectiveBreathingTechnique: { type: Boolean, default: false },
+      pulseOximetryPRN: { type: Boolean, default: false },
+
+      // Right column options
+      transferTraining: { type: Boolean, default: false },
+      neuromuscularReeducation: { type: Boolean, default: false },
+      teachSafeStairClimbingSkills: { type: Boolean, default: false },
+      ptCaregiverEducationTraining: { type: Boolean, default: false },
+      teachEnergyConservationTechniques: { type: Boolean, default: false },
+      teachHipPrecaution: { type: Boolean, default: false },
+
+      // Other/template dropdown
+      other: { type: String, default: "" }, // Free-text for "Other"
+      otherTemplate: { type: String, default: "" }, // Dropdown template
     },
-    
     ptGoals: {
       additionalGoals: { type: String, default: "" },
       shortTermGoals: { type: String, default: "" },
@@ -227,12 +304,32 @@ const ptEvaluationSchema = mongoose.Schema(
       },
     },
     skilledCareProvided: {
-      therapeuticExercise: { type: Boolean, default: false },
-      transferTraining: { type: Boolean, default: false },
-      homeExerciseProgram: { type: Boolean, default: false },
-      patientEducation: { type: Boolean, default: false },
-      caregiverEducation: { type: Boolean, default: false },
-      other: { type: String, default: "" },
+      na: { type: Boolean, default: false }, // N/A checkbox
+
+      trainingTopics: { type: String, default: "" }, // Dropdown or free text
+      trainingNotes: { type: String, default: "" }, // Large text area
+      trained: {
+        patient: { type: Boolean, default: false },
+        caregiver: { type: Boolean, default: false },
+      },
+
+      treatmentPerformed: { type: String, default: "" }, // Dropdown or free text
+      treatmentNotes: { type: String, default: "" }, // Large text area
+
+      patientResponse: { type: String, default: "" }, // Dropdown or free text
+      patientResponseNotes: { type: String, default: "" },
+
+      careCoordination: {
+        na: { type: Boolean, default: false }, // N/A checkbox
+        template: { type: String, default: "" }, // Dropdown
+        notes: { type: String, default: "" }, // Large text area
+      },
+
+      safetyIssuesInstructionEducation: {
+        na: { type: Boolean, default: false }, // N/A checkbox
+        template: { type: String, default: "" }, // Dropdown
+        notes: { type: String, default: "" }, // Large text area
+      },
     },
     careCoordination: {
       na: { type: Boolean, default: false }, // Checkbox for N/A
@@ -252,7 +349,7 @@ const ptEvaluationSchema = mongoose.Schema(
       physicianNotified: { type: Boolean, default: false }, // Checkbox for Physician notified
       comments: { type: String, default: "" }, // Free-text for comments (if any)
     },
-    
+
     narrative: { type: String, default: "" },
     signature: { type: String },
     signatureDate: { type: Date },

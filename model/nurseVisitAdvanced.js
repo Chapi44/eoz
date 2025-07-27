@@ -4,13 +4,18 @@ const nurseVisitAdvancedSchema = mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["ST_TelehealthVisit", "Telehealth_Notes", "Telehealth_PT"],
+      enum: [
+        "ST_TelehealthVisit",
+        "Telehealth_Notes",
+        "Telehealth_PT",
+        "OT Telehealth",
+      ],
       required: true,
     },
     adminId: {
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "User",  // References the "User" model
-      required: false,  // Optional, can be removed if you want it to be required
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // References the "User" model
+      required: false, // Optional, can be removed if you want it to be required
     },
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -42,52 +47,86 @@ const nurseVisitAdvancedSchema = mongoose.Schema(
       type: String,
     },
     vitalSigns: {
-      temperature: { type: String },
-      respirationRate: { type: String },
-      heartRate: { type: String },
-      bloodPressure: { type: String },
-      oxygenSaturation: { type: String },
+      temperature: {
+        value: { type: Number },
+        route: { type: String }, // oral, axillary, etc
+      },
+      respirations: { type: Number },
+      o2Saturation: { type: Number },
+      pulseRate: {
+        value: { type: Number },
+        method: { type: String },
+        location: { type: String },
+      },
+      bloodPressure: {
+        left: {
+          lying: { type: String }, // e.g. "120/80"
+          sitting: { type: String },
+          standing: { type: String },
+        },
+        right: {
+          lying: { type: String },
+          sitting: { type: String },
+          standing: { type: String },
+        },
+      },
+      bmi: {
+        weight: { type: Number },
+        height: { type: Number },
+        calculated: { type: String }, // calculated BMI value or N/A
+      },
+      unableToCollectAllVitals: { type: Boolean, default: false },
+      notified: {
+        physician: { type: Boolean, default: false },
+        clinicalManager: { type: Boolean, default: false },
+      },
     },
     telehealthAssessment: {
-      visitType: {
-        type: String,
-        enum: ["Televisit", "Telephone Monitoring"],
-      },
-      diseaseProcess: {
-        type: String,
-        enum: [
-          "COVID-19",
-          "COPD",
-          "Diabetes",
-          "Heart Failure",
-          "Therapy",
-          "Other",
-        ],
-      },
+      visitType: [
+        {
+          type: String,
+          // Optionally, you can validate allowed options here
+        },
+      ],
+      diseaseProcesses: [
+        {
+          name: { type: String }, // E.g., "COVID-19", "COPD", "Diabetes", etc.
+          notes: { type: String }, // Free text, assessment/subjective, etc.
+        },
+      ],
     },
     healthManagement: {
       medicationsReconciled: { type: Boolean, default: false, default: false },
-      newOrChangedMedications: { type: Boolean, default: false, default: false },
-      medicationIssuesIdentified: { type: Boolean, default: false, default: false },
+      newOrChangedMedications: {
+        type: Boolean,
+        default: false,
+        default: false,
+      },
+      medicationIssuesIdentified: {
+        checked: { type: Boolean, default: false },
+        issuesOptions: [{ type: String }],
+        medicationDescription: { type: String, default: "" },
+        notifications: [{ type: String }],
+      },
+
       pillBoxPreFilled: { type: Boolean, default: false, default: false },
-      insulinSyringesPreFilled: { type: Boolean, default: false, default: false },
-      homeEnvironmentAltered: { type: Boolean, default: false, default: false },
-      suspectedAbuse: { type: Boolean, default: false, default: false },
-      signsOfHeartFailure: { type: Boolean, default: false, default: false },
-      signsOfOtherCoMorbidity: { type: Boolean, default: false, default: false },
+      insulinSyringesPreFilled: {
+        type: Boolean,
+        default: false,
+        default: false,
+      },
+      homeEnvironmentAltered: { type: String },
+      suspectedAbuse: { type: String },
     },
-    interventions: {
+    barriersToHealth: {
       type: String,
     },
-    responseToCare: {
-      type: String,
-    },
-    clinicianSignature: {
-      type: String,
-    },
-    signatureDate: {
-      type: Date,
-    },
+    exhibitingHeartFailureSymptoms: { type: String },
+    exhibitingOtherCoMorbiditySymptoms: { type: String },
+    interventions: { type: String },
+    responseToCare: { type: String },
+    signature: { type: String },
+    signatureDate: { type: Date },
   },
   { timestamps: true }
 );

@@ -9,16 +9,34 @@ const otVisitSchema = mongoose.Schema(
     },
     nurseId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "User", // Could also be "therapistId" if discipline specific
       required: true,
     },
-    visitDate: { type: Date, required: true },
-    timeIn: { type: String },
-    timeOut: { type: String },
+    // Episode date range
     episodePeriod: {
       start: { type: Date, required: true },
       end: { type: Date, required: true },
     },
+    visitDate: { type: Date, required: true },
+    // Times
+    visitStartTime: { type: String }, // Visit Start Time (e.g., "09:00")
+    visitEndTime: { type: String }, // Visit End Time (e.g., "10:15")
+    travelStartTime: { type: String }, // Travel Start Time
+    travelEndTime: { type: String }, // Travel End Time
+    // Diagnoses
+    primaryDiagnosis: { type: String },
+    secondaryDiagnosis: { type: String },
+    // UI section: Previous Notes (dropdown and reference)
+    previousNotes: { type: String }, // Optionally, can be an array of ObjectId if referencing Notes
+    // Physician selection
+    physician: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    // Associated Mileage
+    associatedMileage: { type: Number },
+    // Surcharge
+    surcharge: { type: Number },
     vitalSigns: {
       sbp: { type: String },
       dbp: { type: String },
@@ -102,7 +120,10 @@ const otVisitSchema = mongoose.Schema(
         mealPrep: { assistance: { type: String }, reps: { type: String } },
         laundry: { assistance: { type: String }, reps: { type: String } },
         telephoneUse: { assistance: { type: String }, reps: { type: String } },
-        moneyManagement: { assistance: { type: String }, reps: { type: String } },
+        moneyManagement: {
+          assistance: { type: String },
+          reps: { type: String },
+        },
         medicationManagement: {
           assistance: { type: String },
           reps: { type: String },
@@ -116,23 +137,70 @@ const otVisitSchema = mongoose.Schema(
         standingDynamic: { type: String },
       },
     },
-    therapeuticExercise: {
-      rom: { reps: { type: String } },
-      active: { reps: { type: String } },
-      activeAssistive: { reps: { type: String } },
-      resistiveManual: { reps: { type: String } },
-      resistiveWeights: { reps: { type: String } },
-      stretching: { reps: { type: String } },
-      comment: { type: String },
-    },
     therapeuticDynamicActivities: {
-      assistance: { type: String },
-      assistiveDevice: { type: String },
-      bedMobility: { reps: { type: String } },
-      bedToWCTransfer: { reps: { type: String } },
-      toiletTransfer: { reps: { type: String } },
-      tubShowerTransfer: { reps: { type: String } },
-      other: { reps: { type: String } },
+      bedMobility: {
+        assistance: { type: String }, // e.g., Minimal, Moderate, Max, etc.
+        reps: { type: Number }, // e.g., 10, 15
+        assistiveDevice: { type: String }, // e.g., Walker, None, etc.
+      },
+      bedWCTransfer: {
+        assistance: { type: String },
+        reps: { type: Number },
+        assistiveDevice: { type: String },
+      },
+      toiletTransfer: {
+        assistance: { type: String },
+        reps: { type: Number },
+        assistiveDevice: { type: String },
+      },
+      tubShowerTransfer: {
+        assistance: { type: String },
+        reps: { type: Number },
+        assistiveDevice: { type: String },
+      },
+      other: {
+        assistance: { type: String },
+        reps: { type: Number },
+        assistiveDevice: { type: String },
+        activityDescription: { type: String }, // Optional: describe the 'Other' activity
+      },
+    },
+    therapeuticExercise: {
+      rom: {
+        to: { type: String }, // Target ROM (e.g., Shoulder, Knee)
+        reps: { type: Number }, // Number of repetitions
+      },
+      active: {
+        to: { type: String },
+        reps: { type: Number },
+      },
+      activeAssistive: {
+        to: { type: String },
+        reps: { type: Number },
+      },
+      resistiveManual: {
+        to: { type: String },
+        reps: { type: Number },
+      },
+      resistiveWeights: {
+        to: { type: String },
+        reps: { type: Number },
+      },
+      stretching: {
+        to: { type: String },
+        reps: { type: Number },
+      },
+      comment: { type: String }, // For the free text note at the bottom
+    },
+    supervisoryVisit: {
+      otAssistant: { type: Boolean, default: false },
+      aide: { type: Boolean, default: false },
+      present: { type: Boolean, default: false },
+      notPresent: { type: Boolean, default: false },
+      observationOf: { type: String, default: "" },
+      teachingTrainingOf: { type: String, default: "" },
+      carePlanReviewed: { type: Boolean, default: false },
+      carePlanReviewedNoReason: { type: String, default: "" },
     },
     skilledTreatmentProvided: {
       therapeuticExercise: { type: Boolean, default: false },
@@ -156,22 +224,20 @@ const otVisitSchema = mongoose.Schema(
         },
       ],
     },
+    wcMobility: {
+      notApplicable: { type: Boolean, default: false }, // N/A checkbox
+      level: { type: String }, // Assistance for Level surfaces
+      uneven: { type: String }, // Assistance for Uneven surfaces
+      maneuver: { type: String }, // Assistance for Maneuver
+      adl: { type: String }, // Assistance for ADL (Activities of Daily Living)
+    },
     plan: {
       continuePrescribedPlan: { type: Boolean, default: false },
       changePrescribedPlan: { type: Boolean, default: false },
       dischargePlan: { type: Boolean, default: false },
     },
     progressTowardsGoals: { type: String },
-    supervisoryVisit: {
-      otAssistant: { type: Boolean, default: false },
-      aide: { type: Boolean, default: false },
-      present: { type: Boolean, default: false },
-      notPresent: { type: Boolean, default: false },
-      observationOf: { type: String, default: "" },
-      teachingTrainingOf: { type: String, default: "" },
-      carePlanReviewed: { type: Boolean, default: false },
-      carePlanReviewedNoReason: { type: String, default: "" },
-    },
+
     narrative: {
       details: { type: String, default: "" },
     },

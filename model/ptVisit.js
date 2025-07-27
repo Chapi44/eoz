@@ -5,25 +5,32 @@ const ptVisitSchema = mongoose.Schema(
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Patients",
-      required: true,
     },
     nurseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
     adminId: {
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "User",  // References the "User" model
-      required: false,  // Optional, can be removed if you want it to be required
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    visitDate: { type: Date, required: true },
-    timeIn: { type: String },
-    timeOut: { type: String },
     episodePeriod: {
-      start: { type: Date, required: true },
-      end: { type: Date, required: true },
+      start: { type: Date },
+      end: { type: Date },
     },
+    visitDate: { type: Date },
+    visitStartTime: { type: String, default: "" },
+    visitEndTime: { type: String, default: "" },
+    travelStartTime: { type: String, default: "" },
+    travelEndTime: { type: String, default: "" },
+    primaryDiagnosis: { type: String, default: "" },
+
+    // Right panel
+    previousNotes: { type: String, default: "" },
+    physician: { type: String, default: "" }, // or ObjectId if referencing User
+    associatedMileage: { type: String, default: "" },
+    surcharge: { type: String, default: "" },
+    secondaryDiagnosis: { type: String, default: "" },
     homeboundReason: {
       requiresTaxingEffort: { type: Boolean, default: false },
       medicalRestriction: { type: Boolean, default: false },

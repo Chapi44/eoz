@@ -8,49 +8,69 @@ const stReevaluationSchema = mongoose.Schema(
       required: true,
     },
     adminId: {
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "User",  // References the "User" model
-      required: false,  // Optional, can be removed if you want it to be required
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
     },
     nurseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    visitDate: { type: Date, required: true },
-    timeIn: { type: String },
-    timeOut: { type: String },
     episodePeriod: {
-      start: { type: Date, required: true },
-      end: { type: Date, required: true },
+      start: { type: Date,  }, // 5/31/2025
+      end: { type: Date,  }, // 7/29/2025
     },
+    visitDate: { type: Date,  }, // 7/15/2025
+    visitStartTime: { type: String }, // (e.g., "09:00 AM")
+    visitEndTime: { type: String },
+    travelStartTime: { type: String },
+    travelEndTime: { type: String },
+    primaryDiagnosis: { type: String },
+    secondaryDiagnosis: { type: String },
+    associatedMileage: { type: String },
+    surcharge: { type: String },
+    previousNotes: { type: String }, // Selected from dropdown
+    physician: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Assuming this references a User/Physician collection
+      required: false,
+    },
+
     homeboundReason: {
-      needsAssistance: { type: Boolean, default: false },
+      needsAssistanceForAllActivities: { type: Boolean, default: false },
+      confusionUnableToGoOutAlone: { type: Boolean, default: false },
+      unableToSafelyLeaveHomeUnassisted: { type: Boolean, default: false },
       residualWeakness: { type: Boolean, default: false },
+      dependentUponAdaptiveDevices: { type: Boolean, default: false },
       requiresAssistanceToAmbulate: { type: Boolean, default: false },
-      confusionUnableToLeaveHomeAlone: { type: Boolean, default: false },
-      dependentOnAdaptiveDevices: { type: Boolean, default: false },
       severeSOBUponExertion: { type: Boolean, default: false },
-      unableToLeaveHomeUnassisted: { type: Boolean, default: false },
       medicalRestrictions: { type: Boolean, default: false },
       other: { type: String, default: "" },
     },
-    priorLevelOfFunctioning: { type: String, default: "" },
-    livingSituation: {
-      supportSystem: { type: String, default: "" },
-      pertinentHistory: { type: String, default: "" },
-    },
+    ordersForEvaluationOnly: { type: String, default: "" },
     medicalPrecautions: { type: String, default: "" },
+    priorLevelOfFunctioning: { type: String, default: "" },
+    livingSituationSupportSystem: { type: String, default: "" },
+    pertinentMedicalSocialHistory: { type: String, default: "" },
     swallowingEvaluation: {
-      safeSwallowingEvaluation: { type: Boolean, default: false },
-      videoFluoroscopy: { type: Boolean, default: false },
-    },
-    currentDietTexture: {
-      liquids: {
-        thin: { type: Boolean, default: false },
-        thickened: { type: Boolean, default: false },
-        other: { type: String, default: "" },
+      safeSwallowingEvaluation: {
+        type: String,
+        enum: ["Yes", "No", ""],
+        default: "",
       },
+      videoFluoroscopy: {
+        result: { type: String, enum: ["Yes", "No", ""], default: "" },
+        details: { type: String, default: "" }, // For date, facility, physician if Yes
+      },
+    },
+    currentDietTexture: { type: String, default: "" },
+    liquids: {
+      thin: { type: Boolean, default: false },
+      thickened: { type: Boolean, default: false },
+      thickenedSpecify: { type: String, default: "" },
+      other: { type: Boolean, default: false },
+      otherSpecify: { type: String, default: "" },
     },
     speechLanguageEvaluation: {
       cognitionFunction: {
@@ -125,12 +145,6 @@ const stReevaluationSchema = mongoose.Schema(
       },
       comment: { type: String, default: "" }, // Additional comments for the section
     },
-    painAssessment: {
-      location: { type: String, default: "" },
-      level: { type: String, default: "" },
-      increasedBy: { type: String, default: "" },
-      relievedBy: { type: String, default: "" },
-    },
     treatmentPlan: {
       evaluation: { type: Boolean, default: false },
       patientFamilyEducation: { type: Boolean, default: false },
@@ -154,53 +168,109 @@ const stReevaluationSchema = mongoose.Schema(
       trachInstAndCare: { type: Boolean, default: false }, // Tracheostomy Instruction and Care
       other: { type: String, default: "" }, // Free-text for additional treatments
     },
-    frequencyDuration: { type: String, default: "" }, // ST Frequency & Duration
-    equipmentRecommendations: { type: String, default: "" }, // Equipment Recommendations
-    
+    modalities: {
+      na: { type: Boolean, default: false },
+      details: { type: String, default: "" }, // large free text field
+    },
+
+    // ST Goals
     stGoals: {
-      shortTerm: { type: String, default: "" },
-      longTerm: { type: String, default: "" },
+      na: { type: Boolean, default: false },
+      shortTerm: {
+        templates: { type: String, default: "" },
+        goals: { type: String, default: "" }, // large free text field
+        patient: { type: Boolean, default: false },
+        caregiverDesiredOutcomes: { type: String, default: "" },
+      },
+      longTerm: {
+        templates: { type: String, default: "" },
+        goals: { type: String, default: "" }, // large free text field
+      },
     },
+
+    // Other Discipline Recommendation
     otherDisciplineRecommendation: {
+      na: { type: Boolean, default: false },
       ot: { type: Boolean, default: false },
-      pt: { type: Boolean, default: false },
       msw: { type: Boolean, default: false },
-      podiatrist: { type: Boolean, default: false },
-      other: { type: String, default: "" },
-      reason: { type: String, default: "" },
+      pt: { type: Boolean, default: false },
+      podiatrist: {
+        selected: { type: Boolean, default: false },
+        other: { type: String, default: "" },
+      },
+      reason: { type: String, default: "" }, // template or text
+      disciplines: { type: String, default: "" }, // textarea
     },
-    rehabPotential: {
-      good: { type: Boolean, default: false },
-      fair: { type: Boolean, default: false },
-      poor: { type: Boolean, default: false },
+
+    // Rehab
+    rehab: {
+      na: { type: Boolean, default: false },
+      diagnosis: { type: String, default: "" },
+      potential: {
+        good: { type: Boolean, default: false },
+        fair: { type: Boolean, default: false },
+        poor: { type: Boolean, default: false },
+      },
+      templates: { type: String, default: "" }, // templates dropdown
+      comments: { type: String, default: "" }, // textarea
     },
+
+    // Discharge Plan
     dischargePlan: {
+      na: { type: Boolean, default: false },
       toCareOf: {
+        physician: { type: Boolean, default: false },
         caregiver: { type: Boolean, default: false },
-        selfcare: { type: Boolean, default: false },
+        selfCare: { type: Boolean, default: false },
       },
       plans: {
         caregiverAbleToManage: { type: Boolean, default: false },
         goalsMet: { type: Boolean, default: false },
       },
+      templates: { type: String, default: "" },
+      comments: { type: String, default: "" },
     },
+
+    // Skilled Care Provided
     skilledCareProvided: {
-      trainingTopics: { type: String, default: "" },
+      na: { type: Boolean, default: false },
+      trainingTopics: { type: String, default: "" }, // template dropdown
+      comments: { type: String, default: "" }, // textarea
       trained: {
         patient: { type: Boolean, default: false },
         caregiver: { type: Boolean, default: false },
       },
-      treatmentPerformed: { type: String, default: "" },
-      patientResponse: { type: String, default: "" },
+      treatmentPerformed: { type: String, default: "" }, // template
+      treatmentPerformedDetails: { type: String, default: "" }, // textarea
+      patientResponse: { type: String, default: "" }, // template
+      patientResponseDetails: { type: String, default: "" }, // textarea
+    },
+
+    // Safety/Education/Care Coordination
+    careCoordination: {
+      na: { type: Boolean, default: false },
+      templates: { type: String, default: "" },
+      comments: { type: String, default: "" },
     },
     safetyIssuesInstructionEducation: {
-      details: { type: String, default: "" },
+      na: { type: Boolean, default: false },
+      templates: { type: String, default: "" },
+      comments: { type: String, default: "" },
     },
-    careCoordination: {
-      details: { type: String, default: "" },
+
+    // Notification Section
+    notification: {
+      patient: { type: Boolean, default: false },
+      caregiverUnderstands: { type: Boolean, default: false },
+      physicianNotified: { type: Boolean, default: false },
+      comments: { type: String, default: "" },
+      yes: { type: Boolean, default: false },
+      no: { type: Boolean, default: false },
     },
-    narrative: { type: String, default: "" },
-    signature: { type: String },
+
+    // Signature/Completion
+    clinician: { type: String, default: "" },
+    signature: { type: String, default: "" },
     signatureDate: { type: Date },
   },
   { timestamps: true }

@@ -17,41 +17,79 @@ const otTelehealthSchema = mongoose.Schema(
       ref: "User",  // References the "User" model
       required: false,  // Optional, can be removed if you want it to be required
     },
-    visitDate: { type: Date, required: true },
+    visitDate: { type: Date,  },
     physicianLastVisit: { type: Date },
     visitStartTime: { type: String },
     visitEndTime: { type: String },
-    primaryDiagnosis: { type: String, required: true },
+    primaryDiagnosis: { type: String,  },
     secondaryDiagnosis: { type: String },
-    vitalSigns: {
-      type: Map,
-      of: String, // For flexible key-value pairs like blood pressure, temperature, etc.
+vitalSigns: {
+  temperature: {
+    value: { type: Number },
+    route: { type: String }, // oral, axillary, etc
+  },
+  respirations: { type: Number },
+  o2Saturation: { type: Number },
+  pulseRate: {
+    value: { type: Number },
+    method: { type: String },
+    location: { type: String },
+  },
+  bloodPressure: {
+    left: {
+      lying: { type: String },    // e.g. "120/80"
+      sitting: { type: String },
+      standing: { type: String },
     },
-    telehealthAssessment: {
-      visitType: {
-        type: String,
-        enum: ["Televisit (Two-Way Communication)", "Telephone Monitoring"],
-        required: true,
-      },
-      diseaseProcess: {
-        type: String,
-        enum: ["COVID-19", "COPD", "Diabetes", "Heart Failure", "Therapy", "Other"],
-        required: true,
-      },
-    },
+    right: {
+      lying: { type: String },
+      sitting: { type: String },
+      standing: { type: String },
+    }
+  },
+  bmi: {
+    weight: { type: Number },
+    height: { type: Number },
+    calculated: { type: String }, // calculated BMI value or N/A
+  },
+  unableToCollectAllVitals: { type: Boolean, default: false },
+  notified: {
+    physician: { type: Boolean, default: false },
+    clinicalManager: { type: Boolean, default: false },
+  }
+},
+telehealthAssessment: {
+  visitType: [{ 
+    type: String,
+    // Optionally, you can validate allowed options here
+  }],
+  diseaseProcesses: [
+    {
+      name: { type: String },  // E.g., "COVID-19", "COPD", "Diabetes", etc.
+      notes: { type: String },  // Free text, assessment/subjective, etc.
+    }
+  ]
+},
     healthManagement: {
       medicationsReconciled: { type: Boolean, default: false, default: false },
       newOrChangedMedications: { type: Boolean, default: false, default: false },
-      medicationIssuesIdentified: { type: Boolean, default: false, default: false },
+      medicationIssuesIdentified: {
+  checked: { type: Boolean, default: false },
+  issuesOptions: [{ type: String }],
+  medicationDescription: { type: String, default: "" },
+  notifications: [{ type: String }],
+},
+
       pillBoxPreFilled: { type: Boolean, default: false, default: false },
       insulinSyringesPreFilled: { type: Boolean, default: false, default: false },
-      homeEnvironmentAltered: { type: Boolean, default: false, default: false },
-      suspectedAbuse: { type: Boolean, default: false, default: false },
+      homeEnvironmentAltered: { type: String },
+      suspectedAbuse: { type: String },
     },
     barriersToHealth: {
-      exhibitingHeartFailureSymptoms: { type: Boolean, default: false, default: false },
-      exhibitingOtherCoMorbiditySymptoms: { type: Boolean, default: false, default: false },
+      type:String
     },
+    exhibitingHeartFailureSymptoms: { type: String},
+      exhibitingOtherCoMorbiditySymptoms: { type: String },
     interventions: { type: String },
     responseToCare: { type: String },
     signature: { type: String },
